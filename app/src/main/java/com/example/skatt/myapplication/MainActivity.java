@@ -14,7 +14,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.deck_player);
+        setContentView(R.layout.activity_main);
 
 /*        ConstraintLayout llBottomSheet = (ConstraintLayout) findViewById(R.id.bottom_sheet);
         TopSheetBehavior bottomSheetBehavior = TopSheetBehavior.from(llBottomSheet);

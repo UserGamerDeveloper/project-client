@@ -4,187 +4,249 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/stol2_back"
+    android:background="@drawable/stol_back3"
     tools:context="com.example.skatt.myapplication.MainActivity">
 
-    <ImageView
-        android:id="@+id/imageView16"
-        android:layout_width="0dp"
-        android:layout_height="100dp"
-        android:layout_marginTop="45dp"
-        android:adjustViewBounds="false"
-        android:cropToPadding="false"
-        android:scaleType="fitCenter"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintDimensionRatio="218:395"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.819"
-        app:srcCompat="@drawable/money_stol" />
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline_vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".21" />
 
-    <ImageView
-        android:id="@+id/imageView15"
-        android:layout_width="84dp"
-        android:layout_height="189dp"
-        android:adjustViewBounds="false"
-        android:cropToPadding="false"
-        android:scaleType="centerInside"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/linearLayout"
-        app:layout_constraintVertical_bias="0.88"
-        app:srcCompat="@drawable/heart" />
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline_table_top"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".05" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline_table_bottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".70" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline_inventory"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".70" />
 
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="45dp"
         android:orientation="vertical"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/imageView16"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="500"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="10dp"
-                android:layout_weight="1"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:id="@+id/imageView7"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:adjustViewBounds="false"
-                    android:cropToPadding="false"
-                    android:scaleType="fitCenter"
-                    app:srcCompat="@drawable/card" />
-
-                <ImageView
-                    android:id="@+id/imageView8"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:adjustViewBounds="false"
-                    android:cropToPadding="false"
-                    android:scaleType="fitCenter"
-                    app:srcCompat="@drawable/card" />
-
-                <ImageView
-                    android:id="@+id/imageView9"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:adjustViewBounds="false"
-                    android:cropToPadding="false"
-                    android:scaleType="fitCenter"
-                    app:srcCompat="@drawable/card" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="10dp"
-                android:layout_weight="1"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:id="@+id/imageView4"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:adjustViewBounds="false"
-                    android:cropToPadding="false"
-                    android:scaleType="fitCenter"
-                    app:srcCompat="@drawable/card" />
-
-                <ImageView
-                    android:id="@+id/imageView5"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:adjustViewBounds="false"
-                    android:cropToPadding="false"
-                    android:scaleType="fitCenter"
-                    app:srcCompat="@drawable/card" />
-
-                <ImageView
-                    android:id="@+id/imageView6"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:adjustViewBounds="false"
-                    android:cropToPadding="false"
-                    android:scaleType="fitCenter"
-                    app:srcCompat="@drawable/card" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="10dp"
-                android:layout_weight="1"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:id="@+id/imageView"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:adjustViewBounds="false"
-                    android:cropToPadding="false"
-                    android:scaleType="fitCenter"
-                    app:srcCompat="@drawable/card" />
-
-                <ImageView
-                    android:id="@+id/imageView2"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:adjustViewBounds="false"
-                    android:cropToPadding="false"
-                    android:scaleType="fitCenter"
-                    app:srcCompat="@drawable/card" />
-
-                <ImageView
-                    android:id="@+id/imageView3"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:adjustViewBounds="false"
-                    android:cropToPadding="false"
-                    android:scaleType="fitCenter"
-                    app:srcCompat="@drawable/card" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1390"
-            android:orientation="horizontal"></LinearLayout>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guideline_table_top" >
 
         <android.support.constraint.ConstraintLayout
+            android:id="@+id/table"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_marginStart="16dp"
-            android:layout_weight="1230"
+            android:layout_height="match_parent"
+            android:layout_weight="1000">
+
+            <ImageView
+                android:id="@+id/imageView9"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:adjustViewBounds="true"
+                app:layout_constraintBottom_toBottomOf="@+id/guideline_horizontal1"
+                app:layout_constraintLeft_toLeftOf="@+id/guideline_vertical4"
+                app:layout_constraintRight_toRightOf="@+id/guideline_vertical5"
+                app:layout_constraintTop_toTopOf="@+id/guideline_horizontal0"
+                app:srcCompat="@drawable/card" />
+
+            <ImageView
+                android:id="@+id/imageView8"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:adjustViewBounds="true"
+                app:layout_constraintBottom_toBottomOf="@+id/guideline_horizontal1"
+                app:layout_constraintLeft_toLeftOf="@+id/guideline_vertical2"
+                app:layout_constraintRight_toRightOf="@+id/guideline_vertical3"
+                app:layout_constraintTop_toTopOf="@+id/guideline_horizontal0"
+                app:srcCompat="@drawable/card" />
+
+            <ImageView
+                android:id="@+id/imageView7"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:adjustViewBounds="true"
+                app:layout_constraintBottom_toBottomOf="@+id/guideline_horizontal1"
+                app:layout_constraintLeft_toLeftOf="@+id/guideline_vertical0"
+                app:layout_constraintRight_toRightOf="@+id/guideline_vertical1"
+                app:layout_constraintTop_toTopOf="@+id/guideline_horizontal0"
+                app:srcCompat="@drawable/card" />
+
+            <ImageView
+                android:id="@+id/imageView6"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:adjustViewBounds="true"
+                app:layout_constraintBottom_toBottomOf="@+id/guideline_horizontal3"
+                app:layout_constraintLeft_toLeftOf="@+id/guideline_vertical4"
+                app:layout_constraintRight_toRightOf="@+id/guideline_vertical5"
+                app:layout_constraintTop_toTopOf="@+id/guideline_horizontal2"
+                app:srcCompat="@drawable/card" />
+
+            <ImageView
+                android:id="@+id/imageView5"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:adjustViewBounds="true"
+                app:layout_constraintBottom_toBottomOf="@+id/guideline_horizontal3"
+                app:layout_constraintLeft_toLeftOf="@+id/guideline_vertical2"
+                app:layout_constraintRight_toRightOf="@+id/guideline_vertical3"
+                app:layout_constraintTop_toTopOf="@+id/guideline_horizontal2"
+                app:srcCompat="@drawable/card" />
+
+            <ImageView
+                android:id="@+id/imageView4"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:adjustViewBounds="true"
+                app:layout_constraintBottom_toBottomOf="@+id/guideline_horizontal3"
+                app:layout_constraintLeft_toLeftOf="@+id/guideline_vertical0"
+                app:layout_constraintRight_toRightOf="@+id/guideline_vertical1"
+                app:layout_constraintTop_toTopOf="@+id/guideline_horizontal2"
+                app:srcCompat="@drawable/card" />
+
+            <ImageView
+                android:id="@+id/imageView3"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:adjustViewBounds="true"
+                app:layout_constraintBottom_toBottomOf="@+id/guideline_horizontal5"
+                app:layout_constraintLeft_toLeftOf="@+id/guideline_vertical4"
+                app:layout_constraintRight_toRightOf="@+id/guideline_vertical5"
+                app:layout_constraintTop_toTopOf="@+id/guideline_horizontal4"
+                app:srcCompat="@drawable/card" />
+
+            <ImageView
+                android:id="@+id/imageView2"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:adjustViewBounds="true"
+                app:layout_constraintBottom_toBottomOf="@+id/guideline_horizontal5"
+                app:layout_constraintLeft_toLeftOf="@+id/guideline_vertical2"
+                app:layout_constraintRight_toRightOf="@+id/guideline_vertical3"
+                app:layout_constraintTop_toTopOf="@+id/guideline_horizontal4"
+                app:srcCompat="@drawable/card" />
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:adjustViewBounds="true"
+                app:layout_constraintBottom_toBottomOf="@+id/guideline_horizontal5"
+                app:layout_constraintLeft_toLeftOf="@+id/guideline_vertical0"
+                app:layout_constraintRight_toRightOf="@+id/guideline_vertical1"
+                app:layout_constraintTop_toTopOf="@+id/guideline_horizontal4"
+                app:srcCompat="@drawable/card" />
+
+            <android.support.constraint.Guideline
+                android:id="@+id/guideline_vertical0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent=".10" />
+
+            <android.support.constraint.Guideline
+                android:id="@+id/guideline_vertical1"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent=".30" />
+
+            <android.support.constraint.Guideline
+                android:id="@+id/guideline_vertical2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent=".40" />
+
+            <android.support.constraint.Guideline
+                android:id="@+id/guideline_vertical3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent=".60" />
+
+            <android.support.constraint.Guideline
+                android:id="@+id/guideline_vertical4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent=".70" />
+
+            <android.support.constraint.Guideline
+                android:id="@+id/guideline_vertical5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent=".90" />
+
+            <android.support.constraint.Guideline
+                android:id="@+id/guideline_horizontal0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent=".05" />
+
+            <android.support.constraint.Guideline
+                android:id="@+id/guideline_horizontal1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent=".318" />
+
+            <android.support.constraint.Guideline
+                android:id="@+id/guideline_horizontal2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent=".368" />
+
+            <android.support.constraint.Guideline
+                android:id="@+id/guideline_horizontal3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent=".634" />
+
+            <android.support.constraint.Guideline
+                android:id="@+id/guideline_horizontal4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent=".684" />
+
+            <android.support.constraint.Guideline
+                android:id="@+id/guideline_horizontal5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent=".95" />
+
+        </android.support.constraint.ConstraintLayout>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1550" />
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/inventory"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="2500"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -195,16 +257,11 @@
                 android:id="@+id/cardHand0"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:adjustViewBounds="false"
-                android:cropToPadding="false"
-                android:scaleType="fitCenter"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintDimensionRatio="h,46:31"
-                app:layout_constraintEnd_toEndOf="@+id/cardHand4"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/card" />
 
@@ -212,15 +269,11 @@
                 android:id="@+id/cardHand1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:adjustViewBounds="false"
-                android:cropToPadding="false"
-                android:scaleType="fitCenter"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintDimensionRatio="h,46:31"
-                app:layout_constraintEnd_toEndOf="@+id/cardHand4"
-                app:layout_constraintHorizontal_bias="0.25"
-                app:layout_constraintStart_toStartOf="@+id/cardHand0"
+                app:layout_constraintHorizontal_bias="0.333"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/card" />
 
@@ -228,45 +281,26 @@
                 android:id="@+id/cardHand2"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:adjustViewBounds="false"
-                android:cropToPadding="false"
-                android:scaleType="fitCenter"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintDimensionRatio="h,46:31"
-                app:layout_constraintEnd_toEndOf="@+id/cardHand4"
-                app:layout_constraintStart_toStartOf="@+id/cardHand0"
+                app:layout_constraintHorizontal_bias="0.666"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/card" />
 
             <ImageView
                 android:id="@+id/cardHand3"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:adjustViewBounds="false"
-                android:cropToPadding="false"
-                android:scaleType="fitCenter"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintDimensionRatio="h,46:31"
-                app:layout_constraintEnd_toEndOf="@+id/cardHand4"
-                app:layout_constraintHorizontal_bias="0.75"
-                app:layout_constraintStart_toStartOf="@+id/cardHand0"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/card" />
 
-            <ImageView
-                android:id="@+id/cardHand4"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:adjustViewBounds="false"
-                android:cropToPadding="false"
-                android:scaleType="fitCenter"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintDimensionRatio="h,46:31"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:srcCompat="@drawable/card" />
         </android.support.constraint.ConstraintLayout>
 
     </LinearLayout>
@@ -275,8 +309,8 @@
         android:id="@+id/coordinatorLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="com.example.skatt.myapplication.MainActivity"
-        >
+        android:visibility="gone"
+        tools:context="com.example.skatt.myapplication.MainActivity">
 
         <!-- подключение основного контента -->
         <include layout="@layout/menu" />
