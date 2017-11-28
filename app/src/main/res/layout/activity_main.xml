@@ -21,106 +21,6 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_percent=".70" />
 
-    <android.support.constraint.Guideline
-        android:id="@+id/guideline_inventory_top"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent=".85" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/guideline_inventory_0"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent=".20" />
-
-    <ImageView
-        android:id="@+id/cardHand0"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:adjustViewBounds="true"
-        app:layout_constraintLeft_toLeftOf="@+id/guideline_inventory_0"
-        app:layout_constraintRight_toRightOf="@+id/guideline_inventory_1"
-        app:layout_constraintTop_toTopOf="@+id/guideline_inventory_top"
-        app:srcCompat="@drawable/card" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/guideline_inventory_1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent=".30" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/guideline_inventory_2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent=".30" />
-
-    <ImageView
-        android:id="@+id/cardHand1"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintLeft_toLeftOf="@+id/guideline_inventory_2"
-        app:layout_constraintRight_toRightOf="@+id/guideline_inventory_3"
-        app:layout_constraintTop_toTopOf="@+id/guideline_inventory_top"
-        app:srcCompat="@drawable/card" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/guideline_inventory_3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent=".40" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/guideline_inventory_4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent=".40" />
-
-    <ImageView
-        android:id="@+id/cardHand2"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintLeft_toLeftOf="@+id/guideline_inventory_4"
-        app:layout_constraintRight_toRightOf="@+id/guideline_inventory_5"
-        app:layout_constraintTop_toTopOf="@+id/guideline_inventory_top"
-        app:srcCompat="@drawable/card" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/guideline_inventory_5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent=".50" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/guideline_inventory_6"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent=".50" />
-
-    <ImageView
-        android:id="@+id/cardHand3"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintLeft_toLeftOf="@+id/guideline_inventory_6"
-        app:layout_constraintRight_toRightOf="@+id/guideline_inventory_7"
-        app:layout_constraintTop_toTopOf="@+id/guideline_inventory_top"
-        app:srcCompat="@drawable/card" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/guideline_inventory_7"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent=".80" />
-
     <android.support.constraint.ConstraintLayout
         android:id="@+id/table"
         android:layout_width="0dp"
@@ -315,15 +215,108 @@
 
     </android.support.constraint.ConstraintLayout>
 
-    <android.support.constraint.ConstraintLayout
-        android:id="@+id/inventory"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintLeft_toLeftOf="@+id/guideline_inventory_0"
-        app:layout_constraintRight_toRightOf="@+id/guideline_inventory_7"
-        app:layout_constraintTop_toTopOf="@+id/guideline_inventory_top">
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline_inventory_top"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".90" />
 
-    </android.support.constraint.ConstraintLayout>
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline_inventory_0"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".20" />
+
+    <ImageView
+        android:id="@+id/cardHand0"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        app:layout_constraintLeft_toLeftOf="@+id/guideline_inventory_0"
+        app:layout_constraintRight_toRightOf="@+id/guideline_inventory_1"
+        app:layout_constraintTop_toTopOf="@+id/guideline_inventory_top"
+        app:srcCompat="@drawable/card" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline_inventory_1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".35" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline_inventory_2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".35" />
+
+    <ImageView
+        android:id="@+id/cardHand1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        app:layout_constraintLeft_toLeftOf="@+id/guideline_inventory_2"
+        app:layout_constraintRight_toRightOf="@+id/guideline_inventory_3"
+        app:layout_constraintTop_toTopOf="@+id/guideline_inventory_top"
+        app:srcCompat="@drawable/card" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline_inventory_3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".50" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline_inventory_4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".50" />
+
+    <ImageView
+        android:id="@+id/cardHand2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        app:layout_constraintLeft_toLeftOf="@+id/guideline_inventory_4"
+        app:layout_constraintRight_toRightOf="@+id/guideline_inventory_5"
+        app:layout_constraintTop_toTopOf="@+id/guideline_inventory_top"
+        app:srcCompat="@drawable/card" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline_inventory_5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".65" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline_inventory_6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".65" />
+
+    <ImageView
+        android:id="@+id/cardHand3"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        app:layout_constraintLeft_toLeftOf="@+id/guideline_inventory_6"
+        app:layout_constraintRight_toRightOf="@+id/guideline_inventory_7"
+        app:layout_constraintTop_toTopOf="@+id/guideline_inventory_top"
+        app:srcCompat="@drawable/card" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline_inventory_7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".80" />
 
     <android.support.design.widget.CoordinatorLayout
         android:id="@+id/coordinatorLayout"
