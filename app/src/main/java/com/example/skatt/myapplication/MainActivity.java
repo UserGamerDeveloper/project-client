@@ -11,6 +11,10 @@ import android.widget.LinearLayout;
 
 public class MainActivity extends AppCompatActivity {
 
+    int money;
+    int hp;
+    Card cards;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
