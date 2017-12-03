@@ -1,8 +1,10 @@
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+<layer-list
+    xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/SecondaryProgress"
-        android:drawable="@drawable/nijnaya_chast_hp"/>
+        android:drawable="@drawable/nijnaya_chast_hp" />
+
     <item
         android:id="@android:id/progress"
-        android:drawable="@drawable/polosa_hp"/>
+        android:drawable="@drawable/polosa_hp" />
 </layer-list>
