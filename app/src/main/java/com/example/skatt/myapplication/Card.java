@@ -9,5 +9,4 @@ public class Card {
     int image;
     ImageView imageView;
 
-
 }
