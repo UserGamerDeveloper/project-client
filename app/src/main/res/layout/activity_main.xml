@@ -74,8 +74,7 @@
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:text="9999"
-        android:textSize="60px"
-        app:layout_constraintBottom_toBottomOf="@+id/guideline_table_top"
+        android:textSize="127px"
         app:layout_constraintEnd_toStartOf="@+id/money_icon"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -94,9 +93,11 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="@+id/guideline_table_bottom"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/guideline_table_top">
+        app:layout_constraintTop_toTopOf="@+id/guideline_table_top"
+        app:layout_constraintVertical_bias="0.0">
 
         <ImageView
             android:id="@+id/dagger"
@@ -134,7 +135,7 @@
             <ImageView
                 android:id="@+id/card_view_9"
                 android:layout_width="wrap_content"
-                android:layout_height="0dp"
+                android:layout_height="@dimen/card_view_layout_height"
                 android:adjustViewBounds="true"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
@@ -143,40 +144,42 @@
                 app:srcCompat="@drawable/golovorez" />
 
             <TextView
-                android:id="@+id/card_damage_9"
+                android:id="@+id/card_name_9"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="99"
+                android:text="TextViewText"
+                android:textSize="32px"
                 app:layout_constraintBottom_toBottomOf="@+id/card_view_9"
                 app:layout_constraintEnd_toEndOf="@+id/card_view_9"
-                app:layout_constraintHorizontal_bias="0.905"
                 app:layout_constraintStart_toStartOf="@+id/card_view_9"
                 app:layout_constraintTop_toTopOf="@+id/card_view_9"
-                app:layout_constraintVertical_bias="0.94" />
+                app:layout_constraintVertical_bias="@dimen/name_layout_constraintVertical_bias" />
 
             <TextView
                 android:id="@+id/card_hp_9"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="99"
+                android:text=" 0"
+                android:textSize="29px"
                 app:layout_constraintBottom_toBottomOf="@+id/card_view_9"
                 app:layout_constraintEnd_toEndOf="@+id/card_view_9"
-                app:layout_constraintHorizontal_bias="0.15"
+                app:layout_constraintHorizontal_bias="@dimen/hp_layout_constraintHorizontal_bias"
                 app:layout_constraintStart_toStartOf="@+id/card_view_9"
                 app:layout_constraintTop_toTopOf="@+id/card_view_9"
-                app:layout_constraintVertical_bias="0.94" />
+                app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
 
             <TextView
-                android:id="@+id/card_name_9"
+                android:id="@+id/card_damage_9"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="TextView"
-                android:textSize="16px"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.045" />
+                android:text="0 "
+                android:textSize="30px"
+                app:layout_constraintBottom_toBottomOf="@+id/card_view_9"
+                app:layout_constraintEnd_toEndOf="@+id/card_view_9"
+                app:layout_constraintHorizontal_bias="@dimen/damage_layout_constraintHorizontal_bias"
+                app:layout_constraintStart_toStartOf="@+id/card_view_9"
+                app:layout_constraintTop_toTopOf="@+id/card_view_9"
+                app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
 
         </android.support.constraint.ConstraintLayout>
 
@@ -191,8 +194,8 @@
 
             <ImageView
                 android:id="@+id/card_view_8"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/card_view_layout_height"
                 android:adjustViewBounds="true"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
@@ -201,40 +204,42 @@
                 app:srcCompat="@drawable/golovorez" />
 
             <TextView
-                android:id="@+id/card_damage_8"
+                android:id="@+id/card_name_8"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="99"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintHorizontal_bias="0.86"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.945" />
+                android:text="TextViewText"
+                android:textSize="32px"
+                app:layout_constraintBottom_toBottomOf="@+id/card_view_8"
+                app:layout_constraintEnd_toEndOf="@+id/card_view_8"
+                app:layout_constraintStart_toStartOf="@+id/card_view_8"
+                app:layout_constraintTop_toTopOf="@+id/card_view_8"
+                app:layout_constraintVertical_bias="@dimen/name_layout_constraintVertical_bias" />
 
             <TextView
                 android:id="@+id/card_hp_8"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="99"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintHorizontal_bias="0.175"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.945" />
+                android:text=" 0"
+                android:textSize="29px"
+                app:layout_constraintBottom_toBottomOf="@+id/card_view_8"
+                app:layout_constraintEnd_toEndOf="@+id/card_view_8"
+                app:layout_constraintHorizontal_bias="@dimen/hp_layout_constraintHorizontal_bias"
+                app:layout_constraintStart_toStartOf="@+id/card_view_8"
+                app:layout_constraintTop_toTopOf="@+id/card_view_8"
+                app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
 
             <TextView
-                android:id="@+id/card_name_8"
+                android:id="@+id/card_damage_8"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="TextView"
-                android:textSize="16px"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.045" />
+                android:text="0 "
+                android:textSize="30px"
+                app:layout_constraintBottom_toBottomOf="@+id/card_view_8"
+                app:layout_constraintEnd_toEndOf="@+id/card_view_8"
+                app:layout_constraintHorizontal_bias="@dimen/damage_layout_constraintHorizontal_bias"
+                app:layout_constraintStart_toStartOf="@+id/card_view_8"
+                app:layout_constraintTop_toTopOf="@+id/card_view_8"
+                app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
 
         </android.support.constraint.ConstraintLayout>
 
@@ -249,8 +254,8 @@
 
             <ImageView
                 android:id="@+id/card_view_7"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/card_view_layout_height"
                 android:adjustViewBounds="true"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
@@ -259,40 +264,42 @@
                 app:srcCompat="@drawable/golovorez" />
 
             <TextView
-                android:id="@+id/card_damage_7"
+                android:id="@+id/card_name_7"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="99"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintHorizontal_bias="0.86"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.945" />
+                android:text="TextViewText"
+                android:textSize="32px"
+                app:layout_constraintBottom_toBottomOf="@+id/card_view_7"
+                app:layout_constraintEnd_toEndOf="@+id/card_view_7"
+                app:layout_constraintStart_toStartOf="@+id/card_view_7"
+                app:layout_constraintTop_toTopOf="@+id/card_view_7"
+                app:layout_constraintVertical_bias="@dimen/name_layout_constraintVertical_bias" />
 
             <TextView
                 android:id="@+id/card_hp_7"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="99"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintHorizontal_bias="0.175"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.945" />
+                android:text=" 0"
+                android:textSize="29px"
+                app:layout_constraintBottom_toBottomOf="@+id/card_view_7"
+                app:layout_constraintEnd_toEndOf="@+id/card_view_7"
+                app:layout_constraintHorizontal_bias="@dimen/hp_layout_constraintHorizontal_bias"
+                app:layout_constraintStart_toStartOf="@+id/card_view_7"
+                app:layout_constraintTop_toTopOf="@+id/card_view_7"
+                app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
 
             <TextView
-                android:id="@+id/card_name_7"
+                android:id="@+id/card_damage_7"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="TextView"
-                android:textSize="16px"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.045" />
+                android:text="0 "
+                android:textSize="30px"
+                app:layout_constraintBottom_toBottomOf="@+id/card_view_7"
+                app:layout_constraintEnd_toEndOf="@+id/card_view_7"
+                app:layout_constraintHorizontal_bias="@dimen/damage_layout_constraintHorizontal_bias"
+                app:layout_constraintStart_toStartOf="@+id/card_view_7"
+                app:layout_constraintTop_toTopOf="@+id/card_view_7"
+                app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
 
         </android.support.constraint.ConstraintLayout>
 
@@ -307,8 +314,8 @@
 
             <ImageView
                 android:id="@+id/card_view_6"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/card_view_layout_height"
                 android:adjustViewBounds="true"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
@@ -317,53 +324,55 @@
                 app:srcCompat="@drawable/golovorez" />
 
             <TextView
-                android:id="@+id/card_damage_6"
+                android:id="@+id/card_name_6"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="99"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintHorizontal_bias="0.86"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.945" />
+                android:text="TextViewText"
+                android:textSize="32px"
+                app:layout_constraintBottom_toBottomOf="@+id/card_view_6"
+                app:layout_constraintEnd_toEndOf="@+id/card_view_6"
+                app:layout_constraintStart_toStartOf="@+id/card_view_6"
+                app:layout_constraintTop_toTopOf="@+id/card_view_6"
+                app:layout_constraintVertical_bias="@dimen/name_layout_constraintVertical_bias" />
 
             <TextView
                 android:id="@+id/card_hp_6"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="99"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintHorizontal_bias="0.175"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.945" />
+                android:text=" 0"
+                android:textSize="29px"
+                app:layout_constraintBottom_toBottomOf="@+id/card_view_6"
+                app:layout_constraintEnd_toEndOf="@+id/card_view_6"
+                app:layout_constraintHorizontal_bias="@dimen/hp_layout_constraintHorizontal_bias"
+                app:layout_constraintStart_toStartOf="@+id/card_view_6"
+                app:layout_constraintTop_toTopOf="@+id/card_view_6"
+                app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
 
             <TextView
-                android:id="@+id/card_name_6"
+                android:id="@+id/card_damage_6"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="TextView"
-                android:textSize="16px"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.045" />
+                android:text="0 "
+                android:textSize="30px"
+                app:layout_constraintBottom_toBottomOf="@+id/card_view_6"
+                app:layout_constraintEnd_toEndOf="@+id/card_view_6"
+                app:layout_constraintHorizontal_bias="@dimen/damage_layout_constraintHorizontal_bias"
+                app:layout_constraintStart_toStartOf="@+id/card_view_6"
+                app:layout_constraintTop_toTopOf="@+id/card_view_6"
+                app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
 
         </android.support.constraint.ConstraintLayout>
 
         <ImageView
             android:id="@+id/card_view_5"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/card_view_layout_height"
             android:adjustViewBounds="true"
             app:layout_constraintBottom_toBottomOf="@+id/guideline_horizontal3"
             app:layout_constraintLeft_toLeftOf="@+id/guideline_vertical2"
             app:layout_constraintRight_toRightOf="@+id/guideline_vertical3"
             app:layout_constraintTop_toTopOf="@+id/guideline_horizontal2"
-            app:srcCompat="@drawable/golovorez" />
+            app:srcCompat="@drawable/card" />
 
         <android.support.constraint.ConstraintLayout
             android:id="@+id/card_table_4"
@@ -376,8 +385,8 @@
 
             <ImageView
                 android:id="@+id/card_view_4"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/card_view_layout_height"
                 android:adjustViewBounds="true"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
@@ -386,40 +395,43 @@
                 app:srcCompat="@drawable/golovorez" />
 
             <TextView
-                android:id="@+id/card_damage_4"
+                android:id="@+id/card_name_4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="99"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintHorizontal_bias="0.86"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.945" />
+                android:text="TextViewText"
+                android:textSize="32px"
+                app:layout_constraintBottom_toBottomOf="@+id/card_view_4"
+                app:layout_constraintEnd_toEndOf="@+id/card_view_4"
+                app:layout_constraintStart_toStartOf="@+id/card_view_4"
+                app:layout_constraintTop_toTopOf="@+id/card_view_4"
+                app:layout_constraintVertical_bias="@dimen/name_layout_constraintVertical_bias" />
 
             <TextView
                 android:id="@+id/card_hp_4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="99"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintHorizontal_bias="0.175"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.945" />
+                android:text=" 0"
+                android:textSize="29px"
+                app:layout_constraintBottom_toBottomOf="@+id/card_view_4"
+                app:layout_constraintEnd_toEndOf="@+id/card_view_4"
+                app:layout_constraintHorizontal_bias="@dimen/hp_layout_constraintHorizontal_bias"
+                app:layout_constraintStart_toStartOf="@+id/card_view_4"
+                app:layout_constraintTop_toTopOf="@+id/card_view_4"
+                app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
 
             <TextView
-                android:id="@+id/card_name_4"
+                android:id="@+id/card_damage_4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="TextView"
-                android:textSize="16px"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.045" />
+                android:text="0 "
+                android:textSize="30px"
+                app:layout_constraintBottom_toBottomOf="@+id/card_view_4"
+                app:layout_constraintEnd_toEndOf="@+id/card_view_4"
+                app:layout_constraintHorizontal_bias="@dimen/damage_layout_constraintHorizontal_bias"
+                app:layout_constraintStart_toStartOf="@+id/card_view_4"
+                app:layout_constraintTop_toTopOf="@+id/card_view_4"
+                app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
+
         </android.support.constraint.ConstraintLayout>
 
         <android.support.constraint.ConstraintLayout
@@ -433,8 +445,8 @@
 
             <ImageView
                 android:id="@+id/card_view_3"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/card_view_layout_height"
                 android:adjustViewBounds="true"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
@@ -443,40 +455,43 @@
                 app:srcCompat="@drawable/golovorez" />
 
             <TextView
-                android:id="@+id/card_damage_3"
+                android:id="@+id/card_name_3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="99"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintHorizontal_bias="0.86"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.945" />
+                android:text="TextViewText"
+                android:textSize="32px"
+                app:layout_constraintBottom_toBottomOf="@+id/card_view_3"
+                app:layout_constraintEnd_toEndOf="@+id/card_view_3"
+                app:layout_constraintStart_toStartOf="@+id/card_view_3"
+                app:layout_constraintTop_toTopOf="@+id/card_view_3"
+                app:layout_constraintVertical_bias="@dimen/name_layout_constraintVertical_bias" />
 
             <TextView
                 android:id="@+id/card_hp_3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="99"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintHorizontal_bias="0.175"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.945" />
+                android:text=" 0"
+                android:textSize="29px"
+                app:layout_constraintBottom_toBottomOf="@+id/card_view_3"
+                app:layout_constraintEnd_toEndOf="@+id/card_view_3"
+                app:layout_constraintHorizontal_bias="@dimen/hp_layout_constraintHorizontal_bias"
+                app:layout_constraintStart_toStartOf="@+id/card_view_3"
+                app:layout_constraintTop_toTopOf="@+id/card_view_3"
+                app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
 
             <TextView
-                android:id="@+id/card_name_3"
+                android:id="@+id/card_damage_3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="TextView"
-                android:textSize="16px"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.045" />
+                android:text="0 "
+                android:textSize="30px"
+                app:layout_constraintBottom_toBottomOf="@+id/card_view_3"
+                app:layout_constraintEnd_toEndOf="@+id/card_view_3"
+                app:layout_constraintHorizontal_bias="@dimen/damage_layout_constraintHorizontal_bias"
+                app:layout_constraintStart_toStartOf="@+id/card_view_3"
+                app:layout_constraintTop_toTopOf="@+id/card_view_3"
+                app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
+
         </android.support.constraint.ConstraintLayout>
 
         <android.support.constraint.ConstraintLayout
@@ -490,8 +505,8 @@
 
             <ImageView
                 android:id="@+id/card_view_2"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/card_view_layout_height"
                 android:adjustViewBounds="true"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
@@ -500,40 +515,42 @@
                 app:srcCompat="@drawable/golovorez" />
 
             <TextView
-                android:id="@+id/card_damage_2"
+                android:id="@+id/card_name_2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="99"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintHorizontal_bias="0.86"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.945" />
+                android:text="TextViewText"
+                android:textSize="32px"
+                app:layout_constraintBottom_toBottomOf="@+id/card_view_2"
+                app:layout_constraintEnd_toEndOf="@+id/card_view_2"
+                app:layout_constraintStart_toStartOf="@+id/card_view_2"
+                app:layout_constraintTop_toTopOf="@+id/card_view_2"
+                app:layout_constraintVertical_bias="@dimen/name_layout_constraintVertical_bias" />
 
             <TextView
                 android:id="@+id/card_hp_2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="99"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintHorizontal_bias="0.175"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.945" />
+                android:text=" 0"
+                android:textSize="29px"
+                app:layout_constraintBottom_toBottomOf="@+id/card_view_2"
+                app:layout_constraintEnd_toEndOf="@+id/card_view_2"
+                app:layout_constraintHorizontal_bias="@dimen/hp_layout_constraintHorizontal_bias"
+                app:layout_constraintStart_toStartOf="@+id/card_view_2"
+                app:layout_constraintTop_toTopOf="@+id/card_view_2"
+                app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
 
             <TextView
-                android:id="@+id/card_name_2"
+                android:id="@+id/card_damage_2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="TextView"
-                android:textSize="16px"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.045" />
+                android:text="0 "
+                android:textSize="30px"
+                app:layout_constraintBottom_toBottomOf="@+id/card_view_2"
+                app:layout_constraintEnd_toEndOf="@+id/card_view_2"
+                app:layout_constraintHorizontal_bias="@dimen/damage_layout_constraintHorizontal_bias"
+                app:layout_constraintStart_toStartOf="@+id/card_view_2"
+                app:layout_constraintTop_toTopOf="@+id/card_view_2"
+                app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
 
         </android.support.constraint.ConstraintLayout>
 
@@ -548,8 +565,8 @@
 
             <ImageView
                 android:id="@+id/card_view_1"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/card_view_layout_height"
                 android:adjustViewBounds="true"
                 android:onClick="onCardClick"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -559,40 +576,43 @@
                 app:srcCompat="@drawable/golovorez" />
 
             <TextView
-                android:id="@+id/card_damage_1"
+                android:id="@+id/card_name_1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="99"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintHorizontal_bias="0.86"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.945" />
+                android:text="TextViewText"
+                android:textSize="32px"
+                app:layout_constraintBottom_toBottomOf="@+id/card_view_1"
+                app:layout_constraintEnd_toEndOf="@+id/card_view_1"
+                app:layout_constraintStart_toStartOf="@+id/card_view_1"
+                app:layout_constraintTop_toTopOf="@+id/card_view_1"
+                app:layout_constraintVertical_bias="@dimen/name_layout_constraintVertical_bias" />
 
             <TextView
                 android:id="@+id/card_hp_1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="99"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintHorizontal_bias="0.175"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.945" />
+                android:text=" 0"
+                android:textSize="29px"
+                app:layout_constraintBottom_toBottomOf="@+id/card_view_1"
+                app:layout_constraintEnd_toEndOf="@+id/card_view_1"
+                app:layout_constraintHorizontal_bias="@dimen/hp_layout_constraintHorizontal_bias"
+                app:layout_constraintStart_toStartOf="@+id/card_view_1"
+                app:layout_constraintTop_toTopOf="@+id/card_view_1"
+                app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
 
             <TextView
-                android:id="@+id/card_name_1"
+                android:id="@+id/card_damage_1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="TextView"
-                android:textSize="16px"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.045" />
+                android:text="0 "
+                android:textSize="30px"
+                app:layout_constraintBottom_toBottomOf="@+id/card_view_1"
+                app:layout_constraintEnd_toEndOf="@+id/card_view_1"
+                app:layout_constraintHorizontal_bias="@dimen/damage_layout_constraintHorizontal_bias"
+                app:layout_constraintStart_toStartOf="@+id/card_view_1"
+                app:layout_constraintTop_toTopOf="@+id/card_view_1"
+                app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
+
         </android.support.constraint.ConstraintLayout>
 
         <android.support.constraint.Guideline
@@ -713,7 +733,7 @@
         app:layout_constraintGuide_percent=".365" />
 
     <ImageView
-        android:id="@+id/hp_polosa"
+        android:id="@+id/hp_bar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:adjustViewBounds="true"
@@ -749,13 +769,17 @@
         app:layout_constraintGuide_percent=".798" />
 
     <TextView
-        android:id="@+id/textView12"
+        android:id="@+id/hp_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="30"
-        android:textSize="51px"
-        app:layout_constraintRight_toRightOf="@+id/guideline_hp_Text_Right"
-        app:layout_constraintTop_toTopOf="@+id/guideline_hp_Text_Top" />
+        android:textSize="120px"
+        app:layout_constraintBottom_toBottomOf="@+id/hp"
+        app:layout_constraintHorizontal_bias="0.105"
+        app:layout_constraintLeft_toLeftOf="@+id/hp"
+        app:layout_constraintRight_toRightOf="@+id/hp"
+        app:layout_constraintTop_toTopOf="@+id/hp"
+        app:layout_constraintVertical_bias="0.61" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline_hp_Text_Right"
