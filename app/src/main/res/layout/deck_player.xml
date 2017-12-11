@@ -150,7 +150,7 @@
                             android:layout_weight="1"
                             android:adjustViewBounds="true"
                             android:cropToPadding="false"
-                            app:srcCompat="@drawable/card" />
+                            app:srcCompat="@drawable/card_back" />
 
                         <ImageView
                             android:id="@+id/imageView30"
@@ -159,7 +159,7 @@
                             android:layout_weight="1"
                             android:adjustViewBounds="true"
                             android:cropToPadding="false"
-                            app:srcCompat="@drawable/card" />
+                            app:srcCompat="@drawable/card_back" />
 
                         <ImageView
                             android:id="@+id/imageView29"
@@ -168,7 +168,7 @@
                             android:layout_weight="1"
                             android:adjustViewBounds="true"
                             android:cropToPadding="false"
-                            app:srcCompat="@drawable/card" />
+                            app:srcCompat="@drawable/card_back" />
 
                     </LinearLayout>
 
@@ -184,7 +184,7 @@
                             android:layout_weight="1"
                             android:adjustViewBounds="true"
                             android:cropToPadding="false"
-                            app:srcCompat="@drawable/card" />
+                            app:srcCompat="@drawable/card_back" />
 
                         <ImageView
                             android:id="@+id/imageView27"
@@ -193,7 +193,7 @@
                             android:layout_weight="1"
                             android:adjustViewBounds="true"
                             android:cropToPadding="false"
-                            app:srcCompat="@drawable/card" />
+                            app:srcCompat="@drawable/card_back" />
 
                         <ImageView
                             android:id="@+id/imageView26"
@@ -202,7 +202,7 @@
                             android:layout_weight="1"
                             android:adjustViewBounds="true"
                             android:cropToPadding="false"
-                            app:srcCompat="@drawable/card" />
+                            app:srcCompat="@drawable/card_back" />
 
                     </LinearLayout>
 
@@ -218,7 +218,7 @@
                             android:layout_weight="1"
                             android:adjustViewBounds="true"
                             android:cropToPadding="false"
-                            app:srcCompat="@drawable/card" />
+                            app:srcCompat="@drawable/card_back" />
 
                         <ImageView
                             android:id="@+id/imageView22"
@@ -227,7 +227,7 @@
                             android:layout_weight="1"
                             android:adjustViewBounds="true"
                             android:cropToPadding="false"
-                            app:srcCompat="@drawable/card" />
+                            app:srcCompat="@drawable/card_back" />
 
                         <ImageView
                             android:id="@+id/imageView21"
@@ -236,7 +236,7 @@
                             android:layout_weight="1"
                             android:adjustViewBounds="true"
                             android:cropToPadding="false"
-                            app:srcCompat="@drawable/card" />
+                            app:srcCompat="@drawable/card_back" />
 
                     </LinearLayout>
 
@@ -252,7 +252,7 @@
                             android:layout_weight="1"
                             android:adjustViewBounds="true"
                             android:cropToPadding="false"
-                            app:srcCompat="@drawable/card" />
+                            app:srcCompat="@drawable/card_back" />
 
                         <ImageView
                             android:id="@+id/imageView23"
@@ -261,7 +261,7 @@
                             android:layout_weight="1"
                             android:adjustViewBounds="true"
                             android:cropToPadding="false"
-                            app:srcCompat="@drawable/card" />
+                            app:srcCompat="@drawable/card_back" />
 
                         <ImageView
                             android:id="@+id/imageView24"
@@ -270,7 +270,7 @@
                             android:layout_weight="1"
                             android:adjustViewBounds="true"
                             android:cropToPadding="false"
-                            app:srcCompat="@drawable/card" />
+                            app:srcCompat="@drawable/card_back" />
 
                     </LinearLayout>
                 </LinearLayout>
