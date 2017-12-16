@@ -11,12 +11,13 @@
     <ImageView
         android:id="@+id/menu"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:adjustViewBounds="true"
         app:layout_constraintBottom_toBottomOf="@+id/guideline_table_top"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="@+id/guideline_menu"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
         app:srcCompat="@drawable/menu_icon" />
 
     <android.support.constraint.Guideline
@@ -29,12 +30,13 @@
     <ImageView
         android:id="@+id/collection"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:adjustViewBounds="true"
         app:layout_constraintBottom_toBottomOf="@+id/guideline_table_top"
         app:layout_constraintLeft_toLeftOf="@+id/guideline_menu"
         app:layout_constraintRight_toRightOf="@+id/guideline_collection"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
         app:srcCompat="@drawable/collection_icon" />
 
     <android.support.constraint.Guideline
@@ -47,12 +49,13 @@
     <ImageView
         android:id="@+id/kvest"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:adjustViewBounds="true"
         app:layout_constraintBottom_toBottomOf="@+id/guideline_table_top"
         app:layout_constraintLeft_toLeftOf="@+id/guideline_collection"
         app:layout_constraintRight_toRightOf="@+id/guideline_kvest"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
         app:srcCompat="@drawable/quest_icon" />
 
     <android.support.constraint.Guideline
@@ -701,6 +704,41 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             app:layout_constraintGuide_percent=".96" />
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/button_start_layout"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:onClick="on_Click_Button_Start"
+            app:layout_constraintBottom_toBottomOf="@+id/guideline_horizontal3"
+            app:layout_constraintLeft_toLeftOf="@+id/guideline_vertical2"
+            app:layout_constraintRight_toRightOf="@+id/guideline_vertical3"
+            app:layout_constraintTop_toTopOf="@+id/guideline_horizontal2">
+
+            <ImageView
+                android:id="@+id/button_start_image"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/button" />
+
+            <TextView
+                android:id="@+id/button_start_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Начать"
+                android:textColor="@android:color/black"
+                android:textSize="60px"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </android.support.constraint.ConstraintLayout>
 
     </android.support.constraint.ConstraintLayout>
 
