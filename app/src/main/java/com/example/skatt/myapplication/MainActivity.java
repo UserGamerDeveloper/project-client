@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
     Animator card_6_animatoin_rotate_back;
 
     boolean is_animate = true;
-    private int card_back = R.drawable.card_back;
+    private final int card_back = R.drawable.card_back;
 
     Random random = new Random();
 

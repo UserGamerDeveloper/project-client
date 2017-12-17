@@ -4,21 +4,29 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.provider.BaseColumns;
 
 public class DB_Open_Helper extends SQLiteOpenHelper {
 
     private static final int DB_version = 1;
     private static final String DB_name = "data_base";
 
-    public static final String table_name = "mobs";
+    public static final String table_mobs = "mobs";
+    public static final String table_weapons = "weapons";
+    public static final String table_shields = "shields";
+    public static final String table_foods = "foods";
     public static final String id = "id";
     public static final String name = "name";
     public static final String damage = "damage";
     public static final String hp = "hp";
     public static final String id_image = "id_image";
-    public static final String query_create = "create table " + table_name + " ("+ id +" INTEGER, "
+    public static final String query_table_mobs_create = "create table " + table_mobs + " ("+ id +" INTEGER, "
             + name + " TEXT, " + hp + " INTEGER, " + damage + " INTEGER, " + id_image + " INTEGER)";
+    public static final String query_table_weapons_create = "create table " + table_weapons + " ("+ id +" INTEGER, "
+            + name + " TEXT, " + damage + " INTEGER, " + id_image + " INTEGER)";
+    public static final String query_table_shields_create = "create table " + table_shields + " ("+ id +" INTEGER, "
+            + name + " TEXT, " + damage + " INTEGER, " + id_image + " INTEGER)";
+    public static final String query_table_foods_create = "create table " + table_foods + " ("+ id +" INTEGER, "
+            + name + " TEXT, " + hp + " INTEGER, " + id_image + " INTEGER)";
 
     public DB_Open_Helper(Context context) {
         super(context, DB_name, null, DB_version);
@@ -27,7 +35,85 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
 
-        sqLiteDatabase.execSQL(query_create);
+        sqLiteDatabase.execSQL(query_table_mobs_create);
+        sqLiteDatabase.execSQL(query_table_weapons_create);
+        sqLiteDatabase.execSQL(query_table_shields_create);
+        sqLiteDatabase.execSQL(query_table_foods_create);
+
+        Set_Mobs(sqLiteDatabase);
+
+        Set_Weapons(sqLiteDatabase);
+
+        ContentValues values = new ContentValues();
+
+        values.put(DB_Open_Helper.id, 0);
+        values.put(DB_Open_Helper.name, "Вилы");
+        values.put(DB_Open_Helper.damage, 1);
+        values.put(DB_Open_Helper.id_image, R.drawable.vili);
+
+        sqLiteDatabase.insert(
+                DB_Open_Helper.table_weapons,
+                null,
+                values);
+
+    }
+
+    private void Set_Weapons(SQLiteDatabase sqLiteDatabase) {
+
+        ContentValues values = new ContentValues();
+
+        values.put(DB_Open_Helper.id, 0);
+        values.put(DB_Open_Helper.name, "Вилы");
+        values.put(DB_Open_Helper.damage, 1);
+        values.put(DB_Open_Helper.id_image, R.drawable.vili);
+
+        sqLiteDatabase.insert(
+                DB_Open_Helper.table_weapons,
+                null,
+                values);
+
+        values.put(DB_Open_Helper.id, 1);
+        values.put(DB_Open_Helper.name, "Охотник");
+        values.put(DB_Open_Helper.damage, 2);
+        values.put(DB_Open_Helper.id_image, R.drawable.ohotnik);
+
+        sqLiteDatabase.insert(
+                DB_Open_Helper.table_weapons,
+                null,
+                values);
+
+        values.put(DB_Open_Helper.id, 2);
+        values.put(DB_Open_Helper.name, "Колун");
+        values.put(DB_Open_Helper.damage, 3);
+        values.put(DB_Open_Helper.id_image, R.drawable.kolun);
+
+        sqLiteDatabase.insert(
+                DB_Open_Helper.table_weapons,
+                null,
+                values);
+
+        values.put(DB_Open_Helper.id, 3);
+        values.put(DB_Open_Helper.name, "Клык");
+        values.put(DB_Open_Helper.damage, 4);
+        values.put(DB_Open_Helper.id_image, R.drawable.klik);
+
+        sqLiteDatabase.insert(
+                DB_Open_Helper.table_weapons,
+                null,
+                values);
+
+        values.put(DB_Open_Helper.id, 4);
+        values.put(DB_Open_Helper.name, "Жало");
+        values.put(DB_Open_Helper.damage, 5);
+        values.put(DB_Open_Helper.id_image, R.drawable.jalo);
+
+        sqLiteDatabase.insert(
+                DB_Open_Helper.table_weapons,
+                null,
+                values);
+    }
+
+    private void Set_Mobs(SQLiteDatabase sqLiteDatabase) {
 
         ContentValues values = new ContentValues();
 
@@ -38,7 +124,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.id_image, R.drawable.alhimik);
 
         sqLiteDatabase.insert(
-                DB_Open_Helper.table_name,
+                DB_Open_Helper.table_mobs,
                 null,
                 values);
 
@@ -49,7 +135,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.id_image, R.drawable.lazutchik);
 
         sqLiteDatabase.insert(
-                DB_Open_Helper.table_name,
+                DB_Open_Helper.table_mobs,
                 null,
                 values);
 
@@ -60,7 +146,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.id_image, R.drawable.troll);
 
         sqLiteDatabase.insert(
-                DB_Open_Helper.table_name,
+                DB_Open_Helper.table_mobs,
                 null,
                 values);
 
@@ -71,7 +157,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.id_image, R.drawable.golovorez);
 
         sqLiteDatabase.insert(
-                DB_Open_Helper.table_name,
+                DB_Open_Helper.table_mobs,
                 null,
                 values);
     }

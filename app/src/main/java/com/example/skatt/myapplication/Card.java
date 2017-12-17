@@ -32,7 +32,7 @@ class Card {
         };
 
         Cursor cursor = data_base.query(
-                DB_Open_Helper.table_name,
+                DB_Open_Helper.table_mobs,
                 column_name,
                 DB_Open_Helper.id + "=?",
                 new String[]{String.valueOf(random.nextInt(4))},
