@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.drawable.Drawable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -21,10 +22,19 @@ import static android.util.TypedValue.COMPLEX_UNIT_PX;
 public class MainActivity extends AppCompatActivity {
 
     int money;
-    int hp;
-    Card[] cards = new Card[8];
+    int money_bank = 0;
+    int hp_max = 30;
+    int hp = hp_max;
+    Card_Mob target;
+    Card_Mob[] cards = new Card_Mob[8];
+    Card_Inventory[] loot = new Card_Inventory[3];
+    Card_Inventory[] inventory = new Card_Inventory[4];
+    Card_Inventory hand_one = new Card_Inventory();
+    Card_Inventory hand_two = new Card_Inventory();
     ImageView card_center;
     boolean mShowingBack = false;
+    ConstraintLayout button_start;
+    ConstraintLayout button_continue;
 
     ImageView hp_view;
     ImageView hp_bar;
@@ -49,7 +59,8 @@ public class MainActivity extends AppCompatActivity {
     AnimatorSet card_reset_row_center = new AnimatorSet();
     AnimatorSet card_reset_row_bottom = new AnimatorSet();
 
-    AnimatorSet card_animation_click_right = new AnimatorSet();
+    AnimatorSet card_6_animation_click = new AnimatorSet();
+    AnimatorSet card_6_animation_next = new AnimatorSet();
     AnimatorSet card_animation_left = new AnimatorSet();
     AnimatorSet card_animation_get_right = new AnimatorSet();
 
@@ -73,7 +84,57 @@ public class MainActivity extends AppCompatActivity {
     Animator card_6_animatoin_rotate_front;
     Animator card_6_animatoin_rotate_back;
 
-    boolean is_animate = true;
+    View.OnClickListener on_click_card_6 = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if(!is_animate){
+                is_animate = true;
+                v.bringToFront();
+                card_6_animation_click.start();
+                target = cards[4];
+                cards[4].layout.setOnClickListener(damag_listener);
+            }
+        }
+    };
+
+    View.OnClickListener damag_listener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+
+            target.Set_Value_One(target.Get_Hp()-hand_one.Get_Hp()-
+                    ((hand_two.Get_Type()==Inventory_Type.WEAPON) ? hand_two.Get_Hp() : 0));
+            target.Set_Value_One_text(target.Get_Hp());
+            hp = hp - target.Get_Damage()+((hand_two.Get_Type()==Inventory_Type.SHIELD) ? hand_two.Get_Hp() : 0);
+            hp_text.setText(String.valueOf(hp));
+            hp_bar_drawable.setLevel(10000*hp/hp_max);
+
+            if(hp<1){
+
+                Game_Reset();
+                return;
+            }
+
+            if (target.Get_Hp()<1){
+
+                money += target.Get_Money();
+                money_text.setText(String.valueOf(money));
+                cards[4].layout.setOnClickListener(on_click_card_6);
+
+                int loot_count = random.nextInt(3);
+                for(int i=0; i<loot_count; i++) {
+                    loot[i].layout.bringToFront();
+                    loot[i].Change(data_base, db_open_helper, random);
+                    loot[i].layout.setVisibility(View.VISIBLE);
+                    loot[i].Open();
+                }
+
+                button_continue.bringToFront();
+                button_continue.setVisibility(View.VISIBLE);
+            }
+        }
+    };
+
+    boolean is_animate;
     private final int card_back = R.drawable.card_back;
 
     Random random = new Random();
@@ -81,10 +142,10 @@ public class MainActivity extends AppCompatActivity {
     DB_Open_Helper db_open_helper = new DB_Open_Helper(MainActivity.this);
     SQLiteDatabase data_base;
 
-    AnimatorListenerAdapter animator_listener_adapter = new AnimatorListenerAdapter() {
+    AnimatorListenerAdapter animator_listener_adapter_end = new AnimatorListenerAdapter() {
         @Override
         public void onAnimationStart(Animator animation) {
-            is_animate = true;
+
         }
 
         @Override
@@ -92,6 +153,7 @@ public class MainActivity extends AppCompatActivity {
             is_animate = false;
         }
     };
+
     AnimatorListenerAdapter animator_listener_adapter_walt_start_animation = new AnimatorListenerAdapter() {
 
         @Override
@@ -165,11 +227,28 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
+    private AnimatorSet card_6_animation_increase = new AnimatorSet();
+    private Animator card_6_animation_movement;
+
+    Drawable hp_bar_drawable;
+    private int duration = 500;;
+    private AnimatorSet card_6_animation_decrease = new AnimatorSet();
+    private AnimatorSet card_6_animation_increase_back = new AnimatorSet();;
+    private Animator card_6_animation_movement_back;
+    AnimatorSet card_6_animation_reset = new AnimatorSet();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        DB_Open_Helper.count_item_in_type.put(Inventory_Type.WEAPON, 5);
+        DB_Open_Helper.count_item_in_type.put(Inventory_Type.SHIELD, 5);
+        DB_Open_Helper.count_item_in_type.put(Inventory_Type.FOOD, 5);
+
+        button_start = findViewById(R.id.button_start_layout);
+        button_continue = findViewById(R.id.button_continue_layout);
+        button_continue.setVisibility(View.GONE);
 
         money_text = findViewById(R.id.money_text);
         hp_text = findViewById(R.id.hp_text);
@@ -177,11 +256,19 @@ public class MainActivity extends AppCompatActivity {
         hp_view = findViewById(R.id.hp);
 
         hp_bar = findViewById(R.id.hp_bar);
-        hp_bar.getDrawable().setLevel(10000);
+
+        hp_bar_drawable = hp_bar.getDrawable();
+        hp_bar_drawable.setLevel(10000*hp/hp_max);
 
         card_center = findViewById(R.id.card_view_5);
         for (int i = 0; i < 8; i++) {
-            cards[i] = new Card();
+            cards[i] = new Card_Mob();
+        }
+        for (int i = 0; i<4;i++){
+            inventory[i] = new Card_Inventory();
+        }
+        for (int i = 0; i<3;i++){
+            loot[i] = new Card_Inventory();
         }
 
         cards[0].layout = findViewById(R.id.card_table_1);
@@ -211,33 +298,73 @@ public class MainActivity extends AppCompatActivity {
         cards[6].name_text = findViewById(R.id.card_name_8);
         cards[7].name_text = findViewById(R.id.card_name_9);
 
-        cards[0].hp_text = findViewById(R.id.card_hp_1);
-        cards[1].hp_text = findViewById(R.id.card_hp_2);
-        cards[2].hp_text = findViewById(R.id.card_hp_3);
-        cards[3].hp_text = findViewById(R.id.card_hp_4);
-        cards[4].hp_text = findViewById(R.id.card_hp_6);
-        cards[5].hp_text = findViewById(R.id.card_hp_7);
-        cards[6].hp_text = findViewById(R.id.card_hp_8);
-        cards[7].hp_text = findViewById(R.id.card_hp_9);
+        cards[0].value_one_text = findViewById(R.id.card_hp_1);
+        cards[1].value_one_text = findViewById(R.id.card_hp_2);
+        cards[2].value_one_text = findViewById(R.id.card_hp_3);
+        cards[3].value_one_text = findViewById(R.id.card_hp_4);
+        cards[4].value_one_text = findViewById(R.id.card_hp_6);
+        cards[5].value_one_text = findViewById(R.id.card_hp_7);
+        cards[6].value_one_text = findViewById(R.id.card_hp_8);
+        cards[7].value_one_text = findViewById(R.id.card_hp_9);
 
-        cards[0].damage_text = findViewById(R.id.card_damage_1);
-        cards[1].damage_text = findViewById(R.id.card_damage_2);
-        cards[2].damage_text = findViewById(R.id.card_damage_3);
-        cards[3].damage_text = findViewById(R.id.card_damage_4);
-        cards[4].damage_text = findViewById(R.id.card_damage_6);
-        cards[5].damage_text = findViewById(R.id.card_damage_7);
-        cards[6].damage_text = findViewById(R.id.card_damage_8);
-        cards[7].damage_text = findViewById(R.id.card_damage_9);
+        cards[0].value_two_text = findViewById(R.id.card_damage_1);
+        cards[1].value_two_text = findViewById(R.id.card_damage_2);
+        cards[2].value_two_text = findViewById(R.id.card_damage_3);
+        cards[3].value_two_text = findViewById(R.id.card_damage_4);
+        cards[4].value_two_text = findViewById(R.id.card_damage_6);
+        cards[5].value_two_text = findViewById(R.id.card_damage_7);
+        cards[6].value_two_text = findViewById(R.id.card_damage_8);
+        cards[7].value_two_text = findViewById(R.id.card_damage_9);
 
-        for (int i = 0; i < 8; i++) {
-            cards[i].name_text.setVisibility(View.INVISIBLE);
-            cards[i].damage_text.setVisibility(View.INVISIBLE);
-            cards[i].hp_text.setVisibility(View.INVISIBLE);
-            cards[i].imageView.setImageResource(card_back);
-            cards[i].Set_Id_Drawable(card_back);
-            cards[i].imageView.setVisibility(View.INVISIBLE);
-        }
-        card_center.setVisibility(View.INVISIBLE);
+        loot[0].layout = findViewById(R.id.card_loot_0);
+        loot[1].layout = findViewById(R.id.card_loot_1);
+        loot[2].layout = findViewById(R.id.card_loot_2);
+
+        loot[0].imageView = findViewById(R.id.card_loot_0_view);
+        loot[1].imageView = findViewById(R.id.card_loot_1_view);
+        loot[2].imageView = findViewById(R.id.card_loot_2_view);
+
+        loot[0].name_text = findViewById(R.id.card_loot_0_name);
+        loot[1].name_text = findViewById(R.id.card_loot_1_name);
+        loot[2].name_text = findViewById(R.id.card_loot_2_name);
+
+        loot[0].value_one_text = findViewById(R.id.card_loot_0_value);
+        loot[1].value_one_text = findViewById(R.id.card_loot_1_value);
+        loot[2].value_one_text = findViewById(R.id.card_loot_2_value);
+
+        loot[0].layout.setVisibility(View.GONE);
+        loot[1].layout.setVisibility(View.GONE);
+        loot[2].layout.setVisibility(View.GONE);
+
+        hand_one.layout = findViewById(R.id.card_hand_left);
+        hand_two.layout = findViewById(R.id.card_hand_right);
+        inventory[0].layout = findViewById(R.id.card_inventory_0);
+        inventory[1].layout = findViewById(R.id.card_inventory_1);
+        inventory[2].layout = findViewById(R.id.card_inventory_2);
+        inventory[3].layout = findViewById(R.id.card_inventory_3);
+
+        hand_one.imageView = findViewById(R.id.card_hand_leftview);
+        hand_two.imageView = findViewById(R.id.card_hand_right_view);
+        inventory[0].imageView = findViewById(R.id.card_inventory_0_view);
+        inventory[1].imageView = findViewById(R.id.card_inventory_1_view);
+        inventory[2].imageView = findViewById(R.id.card_inventory_2_view);
+        inventory[3].imageView = findViewById(R.id.card_inventory_3_view);
+
+        hand_one.name_text = findViewById(R.id.card_hand_left_name);
+        hand_two.name_text = findViewById(R.id.card_hand_right_name);
+        inventory[0].name_text = findViewById(R.id.card_inventory_0_name);
+        inventory[1].name_text = findViewById(R.id.card_inventory_1_name);
+        inventory[2].name_text = findViewById(R.id.card_inventory_2_name);
+        inventory[3].name_text = findViewById(R.id.card_inventory_3_name);
+
+        hand_one.value_one_text = findViewById(R.id.card_hand_left_value);
+        hand_two.value_one_text = findViewById(R.id.card_hand_right_value);
+        inventory[0].value_one_text = findViewById(R.id.card_inventory_0_value);
+        inventory[1].value_one_text = findViewById(R.id.card_inventory_1_value);
+        inventory[2].value_one_text = findViewById(R.id.card_inventory_2_value);
+        inventory[3].value_one_text = findViewById(R.id.card_inventory_3_value);
+
+        Game_Load();
 
 /*
         if (savedInstanceState == null) {
@@ -262,6 +389,71 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });*/
+    }
+
+    private void Game_Load() {
+
+        for (int i = 0; i < 8; i++) {
+            cards[i].name_text.setVisibility(View.INVISIBLE);
+            cards[i].value_two_text.setVisibility(View.INVISIBLE);
+            cards[i].value_one_text.setVisibility(View.INVISIBLE);
+            cards[i].imageView.setImageResource(card_back);
+            cards[i].Set_Id_Drawable(card_back);
+            cards[i].imageView.setVisibility(View.INVISIBLE);
+        }
+        card_center.setVisibility(View.INVISIBLE);
+
+        inventory[0].Set_Value_One(1);
+        inventory[0].id_drawable = R.drawable.yablachko;
+        inventory[0].name_text.setText("Яблоко");
+        inventory[0].value_one_text.setText(" 1");
+        inventory[0].imageView.setImageResource(R.drawable.yablachko);
+        inventory[0].Set_Type(Inventory_Type.FOOD);
+
+        hand_one.Set_Value_One(1);
+        hand_one.id_drawable = R.drawable.vili;
+        hand_one.name_text.setText("Вилы");
+        hand_one.value_one_text.setText(" 1");
+        hand_one.imageView.setImageResource(R.drawable.vili);
+        hand_one.Set_Type(Inventory_Type.WEAPON);
+
+        hand_two.Set_Value_One(1);
+        hand_two.id_drawable = R.drawable.amulet;
+        hand_two.name_text.setText("Амулет");
+        hand_two.value_one_text.setText(" 1");
+        hand_two.imageView.setImageResource(R.drawable.amulet);
+        hand_two.Set_Type(Inventory_Type.SHIELD);
+
+        for (int i = 1; i < 4; i++) {
+            inventory[i].name_text.setVisibility(View.GONE);
+            inventory[i].value_one_text.setVisibility(View.GONE);
+            inventory[i].imageView.setImageResource(card_back);
+            inventory[i].Set_Id_Drawable(card_back);
+            inventory[i].imageView.setVisibility(View.GONE);
+        }
+
+        hp = hp_max;
+
+        hp_text.setText(String.valueOf(hp));
+        hp_bar_drawable.setLevel(10000*hp/hp_max);
+
+        is_animate = true;
+
+        cards[4].layout.setOnClickListener(on_click_card_6);
+
+        money_text.setText(String.valueOf(money_bank));
+    }
+
+    private void Game_Reset() {
+
+        money_bank += money;
+        money = 0;
+
+        Game_Load();
+
+        card_6_animation_reset.start();
+
+        button_start.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -292,8 +484,8 @@ public class MainActivity extends AppCompatActivity {
                 Math.pow(card_height, 2.0)) * card_hp_and_damage_text_size_constant);
         for (int i = 0; i < 8; i++) {
             cards[i].name_text.setTextSize(COMPLEX_UNIT_PX, card_name_text_size);
-            cards[i].hp_text.setTextSize(COMPLEX_UNIT_PX, card_hp_and_damage_text_size);
-            cards[i].damage_text.setTextSize(COMPLEX_UNIT_PX, card_hp_and_damage_text_size);
+            cards[i].value_one_text.setTextSize(COMPLEX_UNIT_PX, card_hp_and_damage_text_size);
+            cards[i].value_two_text.setTextSize(COMPLEX_UNIT_PX, card_hp_and_damage_text_size);
         }
 
         hp_text_size = (float) (Math.sqrt(Math.pow(hp_view.getWidth(), 2.0) +
@@ -403,14 +595,14 @@ public class MainActivity extends AppCompatActivity {
 
         Set_Card_Animators_Reset();
 
-        card_start_rotate_back.setDuration(card_animation_duration/4).playTogether(
+        card_start_rotate_back.setDuration(duration).playTogether(
                 ObjectAnimator.ofFloat(cards[4].layout, View.ROTATION_Y, 0f, 90f),
                 ObjectAnimator.ofFloat(cards[3].layout, View.ROTATION_Y, 0f, 90f),
                 ObjectAnimator.ofFloat(cards[6].layout, View.ROTATION_Y, 0f, 90f),
                 ObjectAnimator.ofFloat(cards[1].layout, View.ROTATION_Y, 0f, 90f)
         );
 
-        card_start_rotate_front.setDuration(card_animation_duration/4).playTogether(
+        card_start_rotate_front.setDuration(duration).playTogether(
                 ObjectAnimator.ofFloat(cards[4].layout, View.ROTATION_Y, -90f, 0f),
                 ObjectAnimator.ofFloat(cards[3].layout, View.ROTATION_Y, -90f, 0f),
                 ObjectAnimator.ofFloat(cards[6].layout, View.ROTATION_Y, -90f, 0f),
@@ -431,12 +623,34 @@ public class MainActivity extends AppCompatActivity {
         card_animation_left.addListener(animator_listener_adapter_walt_end_animation);
         card_column_center_copy.addListener(animator_listener_adapter_walt_end_animation);
         card_animation_get_right.addListener(animator_listener_adapter_walt_start_animation);
-        card_start_rotate.addListener(animator_listener_adapter);
+        card_start_rotate.addListener(animator_listener_adapter_end);
         card_start_rotate.addListener(animator_listener_adapter_walt_start_animation);
 
-        card_animation_click_right.playSequentially(
+        card_6_animation_increase.playTogether(
+                ObjectAnimator.ofFloat(cards[4].layout, View.SCALE_X, 1f, 3f),
+                ObjectAnimator.ofFloat(cards[4].layout, View.SCALE_Y, 1f, 3f)
+        );
+        card_6_animation_increase_back.playTogether(
+                ObjectAnimator.ofFloat(cards[4].layout, View.SCALE_X, 3f, 1f),
+                ObjectAnimator.ofFloat(cards[4].layout, View.SCALE_Y, 3f, 1f)
+        );
+        card_6_animation_movement = ObjectAnimator.ofFloat(cards[4].layout, View.TRANSLATION_X, 0f, -card_distance_between_X);
+        card_6_animation_movement_back = ObjectAnimator.ofFloat(cards[4].layout, View.TRANSLATION_X, -card_distance_between_X, 0f);
+
+        card_6_animation_click.setDuration(duration).playTogether(
+                card_6_animation_increase,
+                card_6_animation_movement
+        );
+
+        card_6_animation_decrease.setDuration(duration).playTogether(
+                card_6_animation_increase_back,
+                card_6_animation_movement_back
+        );
+
+        card_6_animation_next.playSequentially(
                 card_6_animatoin_rotate_front,
                 card_6_animatoin_rotate_back,
+                card_6_animation_decrease,
                 card_animation_left,
                 card_reset_column_left,
                 card_column_center_copy,
@@ -466,10 +680,10 @@ public class MainActivity extends AppCompatActivity {
                 card_animation_get_bottom
         );
 
-        card_animation_click_right.addListener(animator_listener_adapter);
-        card_animation_click_left.addListener(animator_listener_adapter);
-        card_animation_click_top.addListener(animator_listener_adapter);
-        card_animation_click_bottom.addListener(animator_listener_adapter);
+        card_6_animation_next.addListener(animator_listener_adapter_end);
+        card_animation_click_left.addListener(animator_listener_adapter_end);
+        card_animation_click_top.addListener(animator_listener_adapter_end);
+        card_animation_click_bottom.addListener(animator_listener_adapter_end);
     }
 
     private void Set_Card_Animators_Reset() {
@@ -508,13 +722,13 @@ public class MainActivity extends AppCompatActivity {
                 ObjectAnimator.ofFloat(card_center, View.TRANSLATION_X, 0f, 0f),
                 ObjectAnimator.ofFloat(cards[6].layout, View.TRANSLATION_X, 0f, 0f)
         );
-    }
 
-    public void on_Click_Card_Right(View view) {
-
-        if(!is_animate){
-            card_animation_click_right.start();
-        }
+        card_6_animation_reset.playTogether(
+                ObjectAnimator.ofFloat(cards[4].layout, View.TRANSLATION_X, 0f, 0f),
+                ObjectAnimator.ofFloat(cards[4].layout, View.TRANSLATION_Y, 0f, 0f),
+                ObjectAnimator.ofFloat(cards[4].layout, View.SCALE_X, 1f, 1f),
+                ObjectAnimator.ofFloat(cards[4].layout, View.SCALE_Y, 1f, 1f)
+        );
     }
 
     public void on_Click_Card_Left(View view) {
@@ -545,9 +759,22 @@ public class MainActivity extends AppCompatActivity {
         }
         card_center.setVisibility(View.VISIBLE);
 
-        findViewById(R.id.button_start_layout).setVisibility(View.GONE);
+        button_start.setVisibility(View.GONE);
 
+        money_text.setText(String.valueOf(money));
+
+        is_animate = true;
         card_start_rotate.start();
+    }
+
+    public void on_Click_Button_Continue(View view){
+
+        for (byte i=0;i<3;i++) {
+            loot[i].Close(card_back);
+            loot[i].layout.setVisibility(View.GONE);
+        }
+        button_continue.setVisibility(View.GONE);
+        card_6_animation_next.start();
     }
 
     public void Flip(View view) {
