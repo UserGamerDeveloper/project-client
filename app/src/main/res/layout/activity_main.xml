@@ -127,7 +127,7 @@
             app:layout_constraintTop_toTopOf="@+id/guideline_horizontal0"
             app:srcCompat="@drawable/krujka_stoll" />
 
-        <android.support.constraint.ConstraintLayout
+        <com.example.skatt.myapplication.Card_Mob
             android:id="@+id/card_table_9"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -185,9 +185,9 @@
                 app:layout_constraintTop_toTopOf="@+id/card_view_9"
                 app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
 
-        </android.support.constraint.ConstraintLayout>
+        </com.example.skatt.myapplication.Card_Mob>
 
-        <android.support.constraint.ConstraintLayout
+        <com.example.skatt.myapplication.Card_Mob
             android:id="@+id/card_table_8"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -246,9 +246,9 @@
                 app:layout_constraintTop_toTopOf="@+id/card_view_8"
                 app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
 
-        </android.support.constraint.ConstraintLayout>
+        </com.example.skatt.myapplication.Card_Mob>
 
-        <android.support.constraint.ConstraintLayout
+        <com.example.skatt.myapplication.Card_Mob
             android:id="@+id/card_table_7"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -306,8 +306,8 @@
                 app:layout_constraintTop_toTopOf="@+id/card_view_7"
                 app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
 
-        </android.support.constraint.ConstraintLayout>
-        <android.support.constraint.ConstraintLayout
+        </com.example.skatt.myapplication.Card_Mob>
+        <com.example.skatt.myapplication.Card_Mob
             android:id="@+id/card_table_6"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -365,7 +365,7 @@
                     app:layout_constraintTop_toTopOf="@+id/card_view_6"
                     app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
 
-    </android.support.constraint.ConstraintLayout>
+    </com.example.skatt.myapplication.Card_Mob>
         <ImageView
             android:id="@+id/card_view_5"
             android:layout_width="wrap_content"
@@ -377,7 +377,7 @@
             app:layout_constraintTop_toTopOf="@+id/guideline_horizontal2"
             app:srcCompat="@drawable/card_back" />
 
-        <android.support.constraint.ConstraintLayout
+        <com.example.skatt.myapplication.Card_Mob
             android:id="@+id/card_table_4"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -436,9 +436,9 @@
                 app:layout_constraintTop_toTopOf="@+id/card_view_4"
                 app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
 
-        </android.support.constraint.ConstraintLayout>
+        </com.example.skatt.myapplication.Card_Mob>
 
-        <android.support.constraint.ConstraintLayout
+        <com.example.skatt.myapplication.Card_Mob
             android:id="@+id/card_table_3"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -496,9 +496,9 @@
                 app:layout_constraintTop_toTopOf="@+id/card_view_3"
                 app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
 
-        </android.support.constraint.ConstraintLayout>
+        </com.example.skatt.myapplication.Card_Mob>
 
-        <android.support.constraint.ConstraintLayout
+        <com.example.skatt.myapplication.Card_Mob
             android:id="@+id/card_table_2"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -557,9 +557,9 @@
                 app:layout_constraintTop_toTopOf="@+id/card_view_2"
                 app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
 
-        </android.support.constraint.ConstraintLayout>
+        </com.example.skatt.myapplication.Card_Mob>
 
-        <android.support.constraint.ConstraintLayout
+        <com.example.skatt.myapplication.Card_Mob
             android:id="@+id/card_table_1"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -617,7 +617,7 @@
                 app:layout_constraintTop_toTopOf="@+id/card_view_1"
                 app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
 
-        </android.support.constraint.ConstraintLayout>
+        </com.example.skatt.myapplication.Card_Mob>
 
         <android.support.constraint.Guideline
             android:id="@+id/guideline_vertical0"
@@ -704,6 +704,51 @@
             app:layout_constraintGuide_percent=".96" />
 
         <android.support.constraint.ConstraintLayout
+            android:id="@+id/button_start_layout"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:onClick="on_Click_Button_Start"
+            app:layout_constraintBottom_toBottomOf="@+id/guideline_horizontal3"
+            app:layout_constraintLeft_toLeftOf="@+id/guideline_vertical2"
+            app:layout_constraintRight_toRightOf="@+id/guideline_vertical3"
+            app:layout_constraintTop_toTopOf="@+id/guideline_horizontal2">
+
+            <ImageView
+                android:id="@+id/button_start_image"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/button" />
+
+            <TextView
+                android:id="@+id/button_start_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Начать"
+                android:textColor="@android:color/black"
+                android:textSize="60px"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </android.support.constraint.ConstraintLayout>
+
+        <ImageView
+            android:id="@+id/shadow"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@android:color/black"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.example.skatt.myapplication.Card_Inventory
             android:id="@+id/card_loot_0"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -748,9 +793,9 @@
                 app:layout_constraintTop_toTopOf="@+id/card_loot_0_view"
                 app:layout_constraintVertical_bias="0.13" />
 
-        </android.support.constraint.ConstraintLayout>
+        </com.example.skatt.myapplication.Card_Inventory>
 
-        <android.support.constraint.ConstraintLayout
+        <com.example.skatt.myapplication.Card_Inventory
             android:id="@+id/card_loot_1"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -795,9 +840,9 @@
                 app:layout_constraintTop_toTopOf="@+id/card_loot_1_view"
                 app:layout_constraintVertical_bias="0.13" />
 
-        </android.support.constraint.ConstraintLayout>
+        </com.example.skatt.myapplication.Card_Inventory>
 
-        <android.support.constraint.ConstraintLayout
+        <com.example.skatt.myapplication.Card_Inventory
             android:id="@+id/card_loot_2"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -836,48 +881,13 @@
                 android:text=" 0"
                 android:textSize="29px"
                 app:layout_constraintBottom_toBottomOf="@+id/card_loot_2_view"
-                app:layout_constraintEnd_toEndOf="@+id/v"
+                app:layout_constraintEnd_toEndOf="@+id/card_loot_2_view"
                 app:layout_constraintHorizontal_bias="0.21"
                 app:layout_constraintStart_toStartOf="@+id/card_loot_2_view"
                 app:layout_constraintTop_toTopOf="@+id/card_loot_2_view"
                 app:layout_constraintVertical_bias="0.13" />
 
-        </android.support.constraint.ConstraintLayout>
-
-        <android.support.constraint.ConstraintLayout
-            android:id="@+id/button_start_layout"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:onClick="on_Click_Button_Start"
-            app:layout_constraintBottom_toBottomOf="@+id/guideline_horizontal3"
-            app:layout_constraintLeft_toLeftOf="@+id/guideline_vertical2"
-            app:layout_constraintRight_toRightOf="@+id/guideline_vertical3"
-            app:layout_constraintTop_toTopOf="@+id/guideline_horizontal2">
-
-            <ImageView
-                android:id="@+id/button_start_image"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:adjustViewBounds="true"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/button" />
-
-            <TextView
-                android:id="@+id/button_start_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Начать"
-                android:textColor="@android:color/black"
-                android:textSize="60px"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-        </android.support.constraint.ConstraintLayout>
+        </com.example.skatt.myapplication.Card_Inventory>
 
         <android.support.constraint.ConstraintLayout
             android:id="@+id/button_continue_layout"
@@ -923,7 +933,7 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_percent=".74" />
 
-    <android.support.constraint.ConstraintLayout
+    <com.example.skatt.myapplication.Card_Inventory
         android:id="@+id/card_hand_left"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -968,7 +978,7 @@
             app:layout_constraintTop_toTopOf="@+id/card_hand_leftview"
             app:layout_constraintVertical_bias="0.100000024" />
 
-    </android.support.constraint.ConstraintLayout>
+    </com.example.skatt.myapplication.Card_Inventory>
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline_hp_left"
@@ -1047,7 +1057,7 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent=".75" />
 
-    <android.support.constraint.ConstraintLayout
+    <com.example.skatt.myapplication.Card_Inventory
         android:id="@+id/card_hand_right"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -1092,7 +1102,7 @@
             app:layout_constraintTop_toTopOf="@+id/card_hand_right_view"
             app:layout_constraintVertical_bias="0.13" />
 
-    </android.support.constraint.ConstraintLayout>
+    </com.example.skatt.myapplication.Card_Inventory>
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline_inventory_top"
@@ -1118,7 +1128,7 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent=".15" />
 
-    <android.support.constraint.ConstraintLayout
+    <com.example.skatt.myapplication.Card_Inventory
         android:id="@+id/card_inventory_0"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -1162,7 +1172,7 @@
             app:layout_constraintHorizontal_bias="0.21"
             app:layout_constraintVertical_bias="0.13" />
 
-    </android.support.constraint.ConstraintLayout>
+    </com.example.skatt.myapplication.Card_Inventory>
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline_inventory_1"
@@ -1178,7 +1188,7 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent=".30" />
 
-    <android.support.constraint.ConstraintLayout
+    <com.example.skatt.myapplication.Card_Inventory
         android:id="@+id/card_inventory_1"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -1222,7 +1232,7 @@
             app:layout_constraintTop_toTopOf="@+id/card_inventory_1_view"
             app:layout_constraintVertical_bias="0.13" />
 
-    </android.support.constraint.ConstraintLayout>
+    </com.example.skatt.myapplication.Card_Inventory>
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline_inventory_3"
@@ -1238,7 +1248,7 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent=".45" />
 
-    <android.support.constraint.ConstraintLayout
+    <com.example.skatt.myapplication.Card_Inventory
         android:id="@+id/card_inventory_2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -1282,7 +1292,7 @@
             app:layout_constraintTop_toTopOf="@+id/card_inventory_2_view"
             app:layout_constraintVertical_bias="0.13" />
 
-    </android.support.constraint.ConstraintLayout>
+    </com.example.skatt.myapplication.Card_Inventory>
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline_inventory_5"
@@ -1298,7 +1308,7 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent=".60" />
 
-    <android.support.constraint.ConstraintLayout
+    <com.example.skatt.myapplication.Card_Inventory
         android:id="@+id/card_inventory_3"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -1342,7 +1352,7 @@
             app:layout_constraintTop_toTopOf="@+id/card_inventory_3_view"
             app:layout_constraintVertical_bias="0.13" />
 
-    </android.support.constraint.ConstraintLayout>
+    </com.example.skatt.myapplication.Card_Inventory>
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline_inventory_7"

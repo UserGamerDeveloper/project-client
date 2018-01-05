@@ -1,7 +1,9 @@
 package com.example.skatt.myapplication;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.AttributeSet;
 import android.view.View;
 import android.widget.TextView;
 
@@ -12,6 +14,18 @@ class Card_Mob extends Card_Inventory {
     private int value_two;
     TextView value_two_text;
     private int money;
+
+    public Card_Mob(Context context) {
+        super(context);
+    }
+
+    public Card_Mob(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public Card_Mob(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+    }
 
     void Change(SQLiteDatabase data_base, DB_Open_Helper db_open_helper, Random random){
 

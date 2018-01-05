@@ -1,24 +1,39 @@
 package com.example.skatt.myapplication;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.constraint.ConstraintLayout;
-import android.util.Log;
+import android.util.AttributeSet;
+import android.view.DragEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.Random;
 
-class Card_Inventory {
+class Card_Inventory extends ConstraintLayout {
 
     int value_one;
     int id_drawable;
     private int type;
-    ConstraintLayout layout;
     ImageView imageView;
     TextView name_text;
     TextView value_one_text;
+    byte slot_type;
+    byte slot_id;
+
+    public Card_Inventory(Context context) {
+        super(context);
+    }
+
+    public Card_Inventory(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public Card_Inventory(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+    }
 
     void Change(SQLiteDatabase data_base, DB_Open_Helper db_open_helper, Random random){
 
@@ -60,15 +75,13 @@ class Card_Inventory {
                 cursor.getColumnIndexOrThrow(DB_Open_Helper.value_one)
         );
 
-        value_one_text.setText(
-                String.format(" %s", value_one)
-        );
+        this.Set_Value_One_text(value_one);
 
         id_drawable = cursor.getInt(
                         cursor.getColumnIndexOrThrow(DB_Open_Helper.id_image)
         );
 
-        type = cursor.getInt(
+        this.type = cursor.getInt(
                 cursor.getColumnIndexOrThrow(DB_Open_Helper.type)
         );
 
@@ -77,13 +90,24 @@ class Card_Inventory {
 
     void Copy(Card_Inventory card){
 
-        this.value_one = card.Get_Hp();
+        this.value_one = card.Get_Value_One();
         this.id_drawable = card.Get_Id_Drawable();
         this.imageView.setImageResource(id_drawable);
         this.name_text.setText(card.name_text.getText());
         this.name_text.setVisibility(card.name_text.getVisibility());
         this.value_one_text.setText(card.value_one_text.getText());
         this.value_one_text.setVisibility(card.value_one_text.getVisibility());
+        this.type = card.Get_Type();
+    }
+
+    void Copy(Card_Inventory_Temp card){
+
+        this.value_one = card.Get_Hp();
+        this.id_drawable = card.Get_Id_Drawable();
+        this.imageView.setImageResource(id_drawable);
+        this.name_text.setText(card.name_text);
+        this.Set_Value_One_text(card.value_one);
+        this.type = card.Get_Type();
     }
 
     void Open() {
@@ -105,7 +129,7 @@ class Card_Inventory {
         return id_drawable == card_back;
     }
 
-    int Get_Hp(){
+    int Get_Value_One(){
         return value_one;
     }
 
@@ -128,6 +152,10 @@ class Card_Inventory {
                     String.format("%s", hp)
             );
         }
+    }
+
+    void Use(){
+
     }
 
     void Set_Type(int type){
