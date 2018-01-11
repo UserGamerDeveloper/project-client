@@ -113,7 +113,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
 
         values.put(DB_Open_Helper.id, count_id_in_type *Inventory_Type.SHIELD);
         values.put(DB_Open_Helper.name, "Амулет");
-        values.put(DB_Open_Helper.value_one, 1);
+        values.put(DB_Open_Helper.value_one, 6);
         values.put(DB_Open_Helper.id_image, R.drawable.amulet);
         values.put(DB_Open_Helper.type, Inventory_Type.SHIELD);
 
@@ -173,7 +173,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
 
         values.put(DB_Open_Helper.id, count_id_in_type *Inventory_Type.WEAPON);
         values.put(DB_Open_Helper.name, "Вилы");
-        values.put(DB_Open_Helper.value_one, 1);
+        values.put(DB_Open_Helper.value_one, 6);
         values.put(DB_Open_Helper.id_image, R.drawable.vili);
         values.put(DB_Open_Helper.type, Inventory_Type.WEAPON);
 

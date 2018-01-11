@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import java.util.Random;
 
-class Card_Mob extends Card_Inventory {
+class Card_Mob extends Card {
 
     private int value_two;
     TextView value_two_text;

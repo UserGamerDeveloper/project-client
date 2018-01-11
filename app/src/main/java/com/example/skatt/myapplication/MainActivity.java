@@ -31,8 +31,8 @@ public class MainActivity extends AppCompatActivity {
     Card_Mob[] cards = new Card_Mob[8];
     Card_Inventory[] loot = new Card_Inventory[3];
     Card_Inventory[] inventory = new Card_Inventory[4];
-    Card_Inventory hand_one;
-    Card_Inventory hand_two;
+    Card_Hand hand_one;
+    Card_Hand hand_two;
     ImageView card_center;
     boolean mShowingBack = false;
     ConstraintLayout button_start;
@@ -155,19 +155,39 @@ public class MainActivity extends AppCompatActivity {
                             Target_Reset();
                             return true;
                         }
-                    } else {
+                    }
+                    else {
                         Card_Inventory target_swap_two = ((Card_Inventory) v);
                         if (target_swap_two.slot_type!=target_swap.slot_type) {
                             if (target_swap_two.slot_type == Slot_Type.HAND) {
                                 if (target_swap.Get_Type() == Inventory_Type.SHIELD || target_swap.Get_Type() ==
                                         Inventory_Type.WEAPON) {
-                                    inventory_temp.Copy(target_swap_two);
-                                    target_swap_two.Copy(target_swap);
-                                    target_swap.Copy(inventory_temp);
-                                    target_swap.setVisibility(View.VISIBLE);
+                                    if(((Card_Hand)target_swap_two).durability_text.getVisibility()==View.VISIBLE){
+                                            inventory_temp.Copy(target_swap_two);
+                                            target_swap_two.Copy(target_swap);
+                                            target_swap.Copy(inventory_temp);
+                                            target_swap.setVisibility(View.VISIBLE);
+                                    }
+                                    else{
+                                            if(target_swap.slot_type==Slot_Type.INVENTORY){
+                                                target_swap_two.Copy(target_swap);
+                                                ((Card_Hand)target_swap_two).durability_text.setVisibility(View.VISIBLE);
+                                                inventory_item_count--;
+                                                Inventory_Sort();
+                                                Loot_Get();
+                                            }
+                                            else{
+                                                target_swap_two.Copy(target_swap);
+                                                ((Card_Hand)target_swap_two).durability_text.setVisibility(View.VISIBLE);
+                                                target_swap.setVisibility(View.GONE);
+                                                loot_count--;
+                                                Try_Continue();
+                                            }
+                                    }
                                     Target_Reset();
                                     return true;
-                                } else {
+                                }
+                                else {
                                     target_swap.setVisibility(View.VISIBLE);
                                     return false;
                                 }
@@ -180,15 +200,27 @@ public class MainActivity extends AppCompatActivity {
                                     target_swap.setVisibility(View.VISIBLE);
                                     Target_Reset();
                                     return true;
-                                } else {
-                                    if (target_swap_two.Get_Type() == Inventory_Type.WEAPON && target_swap_two.Get_Type() == Inventory_Type.SHIELD) {
-                                        inventory_temp.Copy(target_swap_two);
-                                        target_swap_two.Copy(target_swap);
-                                        target_swap.Copy(inventory_temp);
+                                }
+                                else {
+                                    if (target_swap_two.Get_Type() == Inventory_Type.WEAPON ||
+                                            target_swap_two.Get_Type() == Inventory_Type.SHIELD) {
+                                        if(((Card_Hand)target_swap).durability_text.getVisibility()==View.VISIBLE){
+                                                inventory_temp.Copy(target_swap_two);
+                                                target_swap_two.Copy(target_swap);
+                                                target_swap.Copy(inventory_temp);
+                                        }
+                                        else{
+                                            target_swap.Copy(target_swap_two);
+                                            ((Card_Hand)target_swap).durability_text.setVisibility(View.VISIBLE);
+                                            target_swap_two.setVisibility(View.GONE);
+                                            loot_count--;
+                                            Try_Continue();
+                                        }
                                         target_swap.setVisibility(View.VISIBLE);
                                         Target_Reset();
                                         return true;
-                                    } else {
+                                    }
+                                    else {
                                         target_swap.setVisibility(View.VISIBLE);
                                         return false;
                                     }
@@ -234,6 +266,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onAnimationEnd(Animator animation) {
+
             for (byte i = 0; i < inventory_count; i++) {
                 inventory[i].setOnClickListener(inventory_swap);
             }
@@ -277,76 +310,88 @@ public class MainActivity extends AppCompatActivity {
                     target_on_animation.addListener(target_animation_end);
                     target_on_animation.start();
 
-                    for (byte i = 0; i < inventory_count; i++) {
-                        inventory[i].setOnClickListener(null);
-                    }
-                    for (int i = 0; i < loot_max_count; i++) {
-                        loot[i].setOnClickListener(null);
-                    }
-                    hand_one.setOnClickListener(null);
-                    hand_two.setOnClickListener(null);
+                    Delete_OnClickListener_Before_Anomation_Target_Reset();
                 }
                 else {
                     Card_Inventory target_swap_two = (Card_Inventory) v;
                     if (!target_swap.equals(target_swap_two) ) {
-                        if (target_swap.slot_type != target_swap_two.slot_type) {
-                            if ((target_swap.slot_type == Slot_Type.HAND || target_swap_two.slot_type == Slot_Type.HAND) &&
-                                    target_swap_two.slot_type != Slot_Type.INVENTORY) {
-
-                                if (((target_swap.Get_Type() == Inventory_Type.WEAPON) || target_swap.Get_Type() ==
-                                        Inventory_Type.SHIELD) && ((target_swap_two.Get_Type() == Inventory_Type.WEAPON) ||
-                                        (target_swap_two.Get_Type() == Inventory_Type.SHIELD))) {
-
-                                    inventory_temp.Copy(target_swap_two);
-                                    target_swap_two.Copy(target_swap);
-                                    target_swap.Copy(inventory_temp);
-
+                        if (target_swap_two.slot_type!=target_swap.slot_type) {
+                            if (target_swap_two.slot_type == Slot_Type.HAND) {
+                                if (target_swap.Get_Type() == Inventory_Type.SHIELD || target_swap.Get_Type() ==
+                                        Inventory_Type.WEAPON) {
+                                    if(((Card_Hand)target_swap_two).durability_text.getVisibility()==View.VISIBLE){
+                                        inventory_temp.Copy(target_swap_two);
+                                        target_swap_two.Copy(target_swap);
+                                        target_swap.Copy(inventory_temp);
+                                    }
+                                    else{
+                                        if(target_swap.slot_type==Slot_Type.INVENTORY){
+                                            target_swap_two.Copy(target_swap);
+                                            ((Card_Hand)target_swap_two).durability_text.setVisibility(View.VISIBLE);
+                                            inventory_item_count--;
+                                            Inventory_Sort();
+                                            Loot_Get();
+                                        }
+                                        else{
+                                            target_swap_two.Copy(target_swap);
+                                            ((Card_Hand)target_swap_two).durability_text.setVisibility(View.VISIBLE);
+                                            target_swap.setVisibility(View.GONE);
+                                            loot_count--;
+                                            Try_Continue();
+                                        }
+                                    }
                                     Target_Reset();
-
-                                    for (byte i = 0; i < inventory_count; i++) {
-                                        inventory[i].setOnClickListener(null);
-                                    }
-                                    for (int i = 0; i < loot_max_count; i++) {
-                                        loot[i].setOnClickListener(null);
-                                    }
-                                    hand_one.setOnClickListener(null);
-                                    hand_two.setOnClickListener(null);
+                                    Delete_OnClickListener_Before_Anomation_Target_Reset();
                                 }
-                            } else {
-                                if (target_swap_two.slot_type != Slot_Type.INVENTORY) {
+                            }
+                            if (target_swap_two.slot_type == Slot_Type.LOOT) {
+                                if (target_swap.slot_type != Slot_Type.HAND) {
                                     inventory_temp.Copy(target_swap_two);
                                     target_swap_two.Copy(target_swap);
                                     target_swap.Copy(inventory_temp);
-
                                     Target_Reset();
-
-                                    for (byte i = 0; i < inventory_count; i++) {
-                                        inventory[i].setOnClickListener(null);
+                                    Delete_OnClickListener_Before_Anomation_Target_Reset();
+                                }
+                                else {
+                                    if (target_swap_two.Get_Type() == Inventory_Type.WEAPON ||
+                                            target_swap_two.Get_Type() == Inventory_Type.SHIELD) {
+                                        if(((Card_Hand)target_swap).durability_text.getVisibility()==View.VISIBLE){
+                                            inventory_temp.Copy(target_swap_two);
+                                            target_swap_two.Copy(target_swap);
+                                            target_swap.Copy(inventory_temp);
+                                        }
+                                        else{
+                                            target_swap.Copy(target_swap_two);
+                                            ((Card_Hand)target_swap).durability_text.setVisibility(View.VISIBLE);
+                                            target_swap_two.setVisibility(View.GONE);
+                                            loot_count--;
+                                            Try_Continue();
+                                        }
+                                        Target_Reset();
+                                        Delete_OnClickListener_Before_Anomation_Target_Reset();
                                     }
-                                    for (int i = 0; i < loot_max_count; i++) {
-                                        loot[i].setOnClickListener(null);
-                                    }
-                                    hand_one.setOnClickListener(null);
-                                    hand_two.setOnClickListener(null);
                                 }
                             }
                         }
                     }
                     else {
                         Target_Reset();
-
-                        for (byte i = 0; i < inventory_count; i++) {
-                            inventory[i].setOnClickListener(null);
-                        }
-                        for (int i = 0; i < loot_max_count; i++) {
-                            loot[i].setOnClickListener(null);
-                        }
-                        hand_one.setOnClickListener(null);
-                        hand_two.setOnClickListener(null);
+                        Delete_OnClickListener_Before_Anomation_Target_Reset();
                     }
                 }
             }
         };
+    }
+
+    private void Delete_OnClickListener_Before_Anomation_Target_Reset() {
+        for (byte i = 0; i < inventory_count; i++) {
+            inventory[i].setOnClickListener(null);
+        }
+        for (int i = 0; i < loot_max_count; i++) {
+            loot[i].setOnClickListener(null);
+        }
+        hand_one.setOnClickListener(null);
+        hand_two.setOnClickListener(null);
     }
 
     private void Target_Reset() {
@@ -386,11 +431,26 @@ public class MainActivity extends AppCompatActivity {
                         hand_two.Get_Value_One() : 0));
                 mob_target.Set_Value_One_text(mob_target.Get_Value_One());
 
-                Change_HP(-mob_target.Get_Damage() + ((hand_one.Get_Type() == Inventory_Type.SHIELD) ?
-                        ((hand_one.Get_Value_One() > mob_target.Get_Damage()) ? mob_target.Get_Damage() : hand_one.Get_Value_One()) :
-                        0) + ((hand_two.Get_Type() == Inventory_Type.SHIELD) ?
-                        ((hand_two.Get_Value_One() > mob_target.Get_Damage()) ? mob_target.Get_Damage() : hand_two.Get_Value_One()) : 0)
-                );
+                int mob_damage = mob_target.Get_Damage();
+                if(mob_damage>0&&hand_one.Get_Type() == Inventory_Type.SHIELD){
+                    if (hand_one.Get_Value_One() < mob_damage){
+                        mob_damage -= hand_one.Get_Value_One();
+                    }
+                    else{
+                        mob_damage = 0;
+                    }
+                }
+                if(mob_damage>0&&hand_two.Get_Type() == Inventory_Type.SHIELD){
+                    if (hand_two.Get_Value_One() < mob_damage){
+                        mob_damage -= hand_two.Get_Value_One();
+                    }
+                    else{
+                        mob_damage = 0;
+                    }
+                }
+                if (mob_damage>0){
+                    Change_HP(-mob_damage);
+                }
 
                 if (hp < 1) {
 
@@ -398,9 +458,41 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
 
+                if(hand_one.durability_text.getVisibility()==View.VISIBLE){
+                    hand_one.Set_Durability(hand_one.Get_Durability()-1);
+                    if (hand_one.Get_Durability()<1){
+
+                        hand_one.name_text.setText("Кулак");
+                        hand_one.Set_Type(Inventory_Type.WEAPON);
+                        hand_one.Set_Value_One(1);
+                        hand_one.Set_Value_One_text(1);
+                        hand_one.imageView.setImageResource(R.drawable.fist);
+                        hand_one.durability_text.setVisibility(View.INVISIBLE);
+                    }
+                    else{
+                        hand_one.Set_Durability_Text(hand_one.Get_Durability());
+                    }
+                }
+
+                if(hand_two.durability_text.getVisibility()==View.VISIBLE){
+                    hand_two.Set_Durability(hand_two.Get_Durability()-1);
+                    if (hand_two.Get_Durability()<1){
+
+                        hand_two.name_text.setText("Кулак");
+                        hand_two.Set_Type(Inventory_Type.WEAPON);
+                        hand_two.Set_Value_One(1);
+                        hand_two.Set_Value_One_text(1);
+                        hand_two.imageView.setImageResource(R.drawable.fist);
+                        hand_two.durability_text.setVisibility(View.INVISIBLE);
+                    }
+                    else{
+                        hand_two.Set_Durability_Text(hand_two.Get_Durability());
+                    }
+                }
+
                 if (mob_target.Get_Value_One() < 1) {
 
-                    mob_target.Set_Value_One(0);
+                    mob_target.Set_Value_One_text(0);
                     money += mob_target.Get_Money();
                     money_text.setText(String.valueOf(money));
                     cards[4].setOnClickListener(on_click_card_6);
@@ -409,7 +501,10 @@ public class MainActivity extends AppCompatActivity {
 
                     shadow.bringToFront();
 
-                    loot_count = random.nextInt(3);
+                    loot_count = random.nextInt(4);
+/*
+                    loot_count = 3;
+*/
                     for (int i = 0; i < loot_count; i++) {
                         loot[i].bringToFront();
                         loot[i].Change(data_base, db_open_helper, random);
@@ -434,16 +529,21 @@ public class MainActivity extends AppCompatActivity {
     private void Loot_Get() {
 
         while (((loot_count > 0) && (inventory_item_count < inventory_count))) {
-            inventory[inventory_item_count].Copy(loot[loot_id]);
-            loot[loot_id].setVisibility(View.GONE);
-            inventory[inventory_item_count].setVisibility(View.VISIBLE);
-            inventory_item_count++;
-            loot_count--;
+            if(loot[loot_id].getVisibility()==View.VISIBLE) {
+                inventory[inventory_item_count].Copy(loot[loot_id]);
+                loot[loot_id].setVisibility(View.GONE);
+                inventory[inventory_item_count].setVisibility(View.VISIBLE);
+                inventory_item_count++;
+                loot_count--;
+            }
             loot_id++;
         }
 
+        Try_Continue();
+    }
+
+    private void Try_Continue() {
         if (loot_count < 1 && is_loot_enable) {
-            is_loot_enable = false;
             on_Click_Button_Continue(null);
         }
     }
@@ -755,20 +855,24 @@ public class MainActivity extends AppCompatActivity {
         inventory[0].setOnClickListener(null);
 
         hand_one.Set_Value_One(1);
-        hand_one.id_drawable = R.drawable.vili;
-        hand_one.name_text.setText("Вилы");
-        hand_one.value_one_text.setText(" 1");
-        hand_one.imageView.setImageResource(R.drawable.vili);
+        hand_one.id_drawable = R.drawable.fist;
+        hand_one.name_text.setText("Кулак");
         hand_one.Set_Type(Inventory_Type.WEAPON);
+        hand_one.value_one_text.setText(" 1");
+        hand_one.imageView.setImageResource(R.drawable.fist);
         hand_one.setOnClickListener(null);
+        hand_one.durability_text = findViewById(R.id.hand_one_durability_text);
+        hand_one.durability_text.setVisibility(View.INVISIBLE);
 
         hand_two.Set_Value_One(1);
-        hand_two.id_drawable = R.drawable.amulet;
-        hand_two.name_text.setText("Амулет");
+        hand_two.id_drawable = R.drawable.fist;
+        hand_two.name_text.setText("Кулак");
+        hand_two.Set_Type(Inventory_Type.WEAPON);
         hand_two.value_one_text.setText(" 1");
-        hand_two.imageView.setImageResource(R.drawable.amulet);
-        hand_two.Set_Type(Inventory_Type.SHIELD);
+        hand_two.imageView.setImageResource(R.drawable.fist);
         hand_two.setOnClickListener(null);
+        hand_two.durability_text = findViewById(R.id.hand_two_durability_text);
+        hand_two.durability_text.setVisibility(View.INVISIBLE);
 
         inventory[0].slot_id = 0;
         for (byte i = 1; i < inventory_count; i++) {

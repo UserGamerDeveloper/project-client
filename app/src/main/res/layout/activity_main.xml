@@ -934,7 +934,7 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_percent=".74" />
 
-    <com.example.skatt.myapplication.Card_Inventory
+    <com.example.skatt.myapplication.Card_Hand
         android:id="@+id/card_hand_left"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -979,7 +979,7 @@
             app:layout_constraintTop_toTopOf="@+id/card_hand_leftview"
             app:layout_constraintVertical_bias="0.100000024" />
 
-    </com.example.skatt.myapplication.Card_Inventory>
+    </com.example.skatt.myapplication.Card_Hand>
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline_hp_left"
@@ -1058,7 +1058,7 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent=".75" />
 
-    <com.example.skatt.myapplication.Card_Inventory
+    <com.example.skatt.myapplication.Card_Hand
         android:id="@+id/card_hand_right"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -1103,7 +1103,7 @@
             app:layout_constraintTop_toTopOf="@+id/card_hand_right_view"
             app:layout_constraintVertical_bias="0.13" />
 
-    </com.example.skatt.myapplication.Card_Inventory>
+    </com.example.skatt.myapplication.Card_Hand>
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline_inventory_top"
@@ -1119,6 +1119,28 @@
         android:background="@drawable/niz_karman"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guideline_inventory_top" />
+
+    <TextView
+        android:id="@+id/hand_one_durability_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="10"
+        android:textSize="25px"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="@+id/guideline_inventory_0"
+        app:layout_constraintTop_toTopOf="@+id/guideline_inventory_top" />
+
+    <TextView
+        android:id="@+id/hand_two_durability_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="10"
+        android:textSize="25px"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="@+id/guideline_inventory_7"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="@+id/guideline_inventory_top" />
 
