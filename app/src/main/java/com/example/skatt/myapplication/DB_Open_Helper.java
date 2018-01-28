@@ -22,6 +22,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
     public static final String id_image = "id_image";
     public static final String type = "type";
     public static final String money = "money";
+    public static final String cost = "cost";
 
     DB_Open_Helper(Context context) {
         super(context, DB_name, null, DB_version);
@@ -31,9 +32,11 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
 
         String query_table_mobs_create = "create table " + table_mobs + " ("+ id +" INTEGER, "
-                + name + " TEXT, " + value_one + " INTEGER, " + value_two + " INTEGER, "+ money + " INTEGER, " + id_image + " INTEGER)";
+                + name + " TEXT, " + value_one + " INTEGER, " + value_two + " INTEGER, "+ money + " INTEGER, " +
+                type + " INTEGER, " + id_image + " INTEGER)";
         String query_table_inventory_create = "create table " + table_inventory + " ("+ id +" INTEGER, "
-                + name + " TEXT, " + value_one + " INTEGER, " + id_image + " INTEGER, "+ type + " INTEGER)";
+                + name + " TEXT, " + value_one + " INTEGER, " + id_image + " INTEGER, " + cost +
+                " INTEGER, "+ type + " INTEGER)";
 
         sqLiteDatabase.execSQL(query_table_mobs_create);
         sqLiteDatabase.execSQL(query_table_inventory_create);
@@ -56,6 +59,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.value_one, 1);
         values.put(DB_Open_Helper.id_image, R.drawable.yablachko);
         values.put(DB_Open_Helper.type, Inventory_Type.FOOD);
+        values.put(DB_Open_Helper.cost, 1);
 
         sqLiteDatabase.insert(
                 DB_Open_Helper.table_inventory,
@@ -67,6 +71,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.value_one, 2);
         values.put(DB_Open_Helper.id_image, R.drawable.sir);
         values.put(DB_Open_Helper.type, Inventory_Type.FOOD);
+        values.put(DB_Open_Helper.cost, 2);
 
         sqLiteDatabase.insert(
                 DB_Open_Helper.table_inventory,
@@ -78,6 +83,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.value_one, 3);
         values.put(DB_Open_Helper.id_image, R.drawable.pohlebka);
         values.put(DB_Open_Helper.type, Inventory_Type.FOOD);
+        values.put(DB_Open_Helper.cost, 3);
 
         sqLiteDatabase.insert(
                 DB_Open_Helper.table_inventory,
@@ -89,6 +95,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.value_one, 4);
         values.put(DB_Open_Helper.id_image, R.drawable.myaso);
         values.put(DB_Open_Helper.type, Inventory_Type.FOOD);
+        values.put(DB_Open_Helper.cost, 4);
 
         sqLiteDatabase.insert(
                 DB_Open_Helper.table_inventory,
@@ -100,6 +107,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.value_one, 5);
         values.put(DB_Open_Helper.id_image, R.drawable.el);
         values.put(DB_Open_Helper.type, Inventory_Type.FOOD);
+        values.put(DB_Open_Helper.cost, 5);
 
         sqLiteDatabase.insert(
                 DB_Open_Helper.table_inventory,
@@ -116,6 +124,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.value_one, 6);
         values.put(DB_Open_Helper.id_image, R.drawable.amulet);
         values.put(DB_Open_Helper.type, Inventory_Type.SHIELD);
+        values.put(DB_Open_Helper.cost, 6);
 
         sqLiteDatabase.insert(
                 DB_Open_Helper.table_inventory,
@@ -127,6 +136,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.value_one, 2);
         values.put(DB_Open_Helper.id_image, R.drawable.kolco_pik);
         values.put(DB_Open_Helper.type, Inventory_Type.SHIELD);
+        values.put(DB_Open_Helper.cost, 2);
 
         sqLiteDatabase.insert(
                 DB_Open_Helper.table_inventory,
@@ -138,6 +148,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.value_one, 3);
         values.put(DB_Open_Helper.id_image, R.drawable.stariy_shit);
         values.put(DB_Open_Helper.type, Inventory_Type.SHIELD);
+        values.put(DB_Open_Helper.cost, 3);
 
         sqLiteDatabase.insert(
                 DB_Open_Helper.table_inventory,
@@ -149,6 +160,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.value_one, 4);
         values.put(DB_Open_Helper.id_image, R.drawable.krepkiy_shit);
         values.put(DB_Open_Helper.type, Inventory_Type.SHIELD);
+        values.put(DB_Open_Helper.cost, 4);
 
         sqLiteDatabase.insert(
                 DB_Open_Helper.table_inventory,
@@ -160,6 +172,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.value_one, 5);
         values.put(DB_Open_Helper.id_image, R.drawable.rubinor);
         values.put(DB_Open_Helper.type, Inventory_Type.SHIELD);
+        values.put(DB_Open_Helper.cost, 5);
 
         sqLiteDatabase.insert(
                 DB_Open_Helper.table_inventory,
@@ -176,6 +189,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.value_one, 6);
         values.put(DB_Open_Helper.id_image, R.drawable.vili);
         values.put(DB_Open_Helper.type, Inventory_Type.WEAPON);
+        values.put(DB_Open_Helper.cost, 6);
 
         sqLiteDatabase.insert(
                 DB_Open_Helper.table_inventory,
@@ -187,6 +201,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.value_one, 2);
         values.put(DB_Open_Helper.id_image, R.drawable.ohotnik);
         values.put(DB_Open_Helper.type, Inventory_Type.WEAPON);
+        values.put(DB_Open_Helper.cost, 2);
 
         sqLiteDatabase.insert(
                 DB_Open_Helper.table_inventory,
@@ -198,6 +213,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.value_one, 3);
         values.put(DB_Open_Helper.id_image, R.drawable.kolun);
         values.put(DB_Open_Helper.type, Inventory_Type.WEAPON);
+        values.put(DB_Open_Helper.cost, 3);
 
         sqLiteDatabase.insert(
                 DB_Open_Helper.table_inventory,
@@ -209,6 +225,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.value_one, 4);
         values.put(DB_Open_Helper.id_image, R.drawable.klik);
         values.put(DB_Open_Helper.type, Inventory_Type.WEAPON);
+        values.put(DB_Open_Helper.cost, 4);
 
         sqLiteDatabase.insert(
                 DB_Open_Helper.table_inventory,
@@ -220,6 +237,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.value_one, 5);
         values.put(DB_Open_Helper.id_image, R.drawable.jalo);
         values.put(DB_Open_Helper.type, Inventory_Type.WEAPON);
+        values.put(DB_Open_Helper.cost, 5);
 
         sqLiteDatabase.insert(
                 DB_Open_Helper.table_inventory,
@@ -237,6 +255,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.value_two, 1);
         values.put(DB_Open_Helper.id_image, R.drawable.alhimik);
         values.put(DB_Open_Helper.money, 1);
+        values.put(DB_Open_Helper.type, Card_Table_Type.MOB);
 
         sqLiteDatabase.insert(
                 DB_Open_Helper.table_mobs,
@@ -249,6 +268,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.value_two, 2);
         values.put(DB_Open_Helper.id_image, R.drawable.lazutchik);
         values.put(DB_Open_Helper.money, 2);
+        values.put(DB_Open_Helper.type, Card_Table_Type.MOB);
 
         sqLiteDatabase.insert(
                 DB_Open_Helper.table_mobs,
@@ -261,6 +281,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.value_two, 3);
         values.put(DB_Open_Helper.id_image, R.drawable.troll);
         values.put(DB_Open_Helper.money, 3);
+        values.put(DB_Open_Helper.type, Card_Table_Type.MOB);
 
         sqLiteDatabase.insert(
                 DB_Open_Helper.table_mobs,
@@ -273,6 +294,57 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.value_two, 4);
         values.put(DB_Open_Helper.id_image, R.drawable.golovorez);
         values.put(DB_Open_Helper.money, 4);
+        values.put(DB_Open_Helper.type, Card_Table_Type.MOB);
+
+        sqLiteDatabase.insert(
+                DB_Open_Helper.table_mobs,
+                null,
+                values);
+
+        values.put(DB_Open_Helper.id, 4);
+        values.put(DB_Open_Helper.name, "Горговец");
+        values.put(DB_Open_Helper.id_image, R.drawable.torgovec);
+        values.put(DB_Open_Helper.type, Card_Table_Type.VENDOR);
+
+        sqLiteDatabase.insert(
+                DB_Open_Helper.table_mobs,
+                null,
+                values);
+
+        values.put(DB_Open_Helper.id, 5);
+        values.put(DB_Open_Helper.name, "Кузнец");
+        values.put(DB_Open_Helper.id_image, R.drawable.kuznec);
+        values.put(DB_Open_Helper.type, Card_Table_Type.BLACKSMITH);
+
+        sqLiteDatabase.insert(
+                DB_Open_Helper.table_mobs,
+                null,
+                values);
+
+        values.put(DB_Open_Helper.id, 6);
+        values.put(DB_Open_Helper.name, "Трактирщик");
+        values.put(DB_Open_Helper.id_image, R.drawable.traktirshik);
+        values.put(DB_Open_Helper.type, Card_Table_Type.INNKEEPER);
+
+        sqLiteDatabase.insert(
+                DB_Open_Helper.table_mobs,
+                null,
+                values);
+
+        values.put(DB_Open_Helper.id, 7);
+        values.put(DB_Open_Helper.name, "Привал");
+        values.put(DB_Open_Helper.id_image, R.drawable.prival);
+        values.put(DB_Open_Helper.type, Card_Table_Type.HALT);
+
+        sqLiteDatabase.insert(
+                DB_Open_Helper.table_mobs,
+                null,
+                values);
+
+        values.put(DB_Open_Helper.id, 8);
+        values.put(DB_Open_Helper.name, "Доска объявлений");
+        values.put(DB_Open_Helper.id_image, R.drawable.objavleniya);
+        values.put(DB_Open_Helper.type, Card_Table_Type.QUEST_BOARD);
 
         sqLiteDatabase.insert(
                 DB_Open_Helper.table_mobs,

@@ -37,14 +37,18 @@ class Card_Mob extends Card {
                 DB_Open_Helper.value_one,
                 DB_Open_Helper.value_two,
                 DB_Open_Helper.id_image,
-                DB_Open_Helper.money
+                DB_Open_Helper.money,
+                DB_Open_Helper.type
         };
 
         Cursor cursor = data_base.query(
                 DB_Open_Helper.table_mobs,
                 column_name,
                 DB_Open_Helper.id + "=?",
-                new String[]{String.valueOf(random.nextInt(4))},
+                new String[]{String.valueOf(random.nextInt(8))},
+/*
+                new String[]{6+""},
+*/
                 null,
                 null,
                 null
@@ -58,29 +62,32 @@ class Card_Mob extends Card {
                 )
         );
 
-        value_one = cursor.getInt(
-                cursor.getColumnIndexOrThrow(DB_Open_Helper.value_one)
-        );
-
-        value_one_text.setText(
-                String.format(" %s", value_one)
-        );
-
-        value_two = cursor.getInt(
-                cursor.getColumnIndexOrThrow(DB_Open_Helper.value_two)
-        );
-
-        value_two_text.setText(
-                String.format("%s ", value_two)
-        );
-
         id_drawable = cursor.getInt(
                 cursor.getColumnIndexOrThrow(DB_Open_Helper.id_image)
         );
 
-        money = cursor.getInt(
-                cursor.getColumnIndexOrThrow(DB_Open_Helper.money)
+        type = cursor.getInt(
+                cursor.getColumnIndexOrThrow(DB_Open_Helper.type)
         );
+
+        if(type==Card_Table_Type.MOB){
+
+            value_one = cursor.getInt(
+                    cursor.getColumnIndexOrThrow(DB_Open_Helper.value_one)
+            );
+            value_one_text.setText(
+                    String.format(" %s", value_one)
+            );
+            value_two = cursor.getInt(
+                    cursor.getColumnIndexOrThrow(DB_Open_Helper.value_two)
+            );
+            value_two_text.setText(
+                    String.format("%s ", value_two)
+            );
+            money = cursor.getInt(
+                    cursor.getColumnIndexOrThrow(DB_Open_Helper.money)
+            );
+        }
 
         cursor.close();
     }
@@ -96,7 +103,10 @@ class Card_Mob extends Card {
     void Open() {
 
         super.Open();
-        this.value_two_text.setVisibility(View.VISIBLE);
+        if(type==Card_Table_Type.MOB){
+            this.value_one_text.setVisibility(View.VISIBLE);
+            this.value_two_text.setVisibility(View.VISIBLE);
+        }
     }
 
     void Close(int card_back) {

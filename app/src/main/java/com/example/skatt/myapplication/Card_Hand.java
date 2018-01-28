@@ -2,6 +2,7 @@ package com.example.skatt.myapplication;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class Card_Hand extends Card_Inventory {
@@ -17,6 +18,7 @@ public class Card_Hand extends Card_Inventory {
     }
 
     TextView durability_text;
+    ImageView durability_image;
 
     void Copy(Card_Inventory card){
 

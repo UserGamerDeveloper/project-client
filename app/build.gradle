@@ -30,6 +30,7 @@ dependencies {
     implementation "com.android.support:support-compat:$supportLibraryVersion"
     implementation "com.android.support:recyclerview-v7:$supportLibraryVersion"
     implementation "com.android.support.constraint:constraint-layout:1.0.2"
+    implementation 'com.squareup.picasso:picasso:2.5.2'
     testImplementation 'junit:junit:4.12'
     testImplementation 'com.android.support.test:runner:1.0.1'
     testImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
