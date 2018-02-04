@@ -1865,16 +1865,116 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent=".85" />
 
-    <android.support.design.widget.CoordinatorLayout
-        android:id="@+id/coordinatorLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/quests"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:visibility="gone"
-        tools:context="com.example.skatt.myapplication.MainActivity">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <!-- подключение основного контента -->
-        <include layout="@layout/menu" />
+        <ImageView
+            android:id="@+id/quests_back"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            app:srcCompat="@drawable/okno_zadaniy" />
 
-    </android.support.design.widget.CoordinatorLayout>
+        <com.example.skatt.myapplication.Custom_Text_View
+            android:id="@+id/quest_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Задания"
+            app:layout_constraintBottom_toBottomOf="@+id/quests_back"
+            app:layout_constraintEnd_toEndOf="@+id/quests_back"
+            app:layout_constraintStart_toStartOf="@+id/quests_back"
+            app:layout_constraintTop_toTopOf="@+id/quests_back"
+            app:layout_constraintVertical_bias="0.029999971" />
+
+        <android.support.constraint.Guideline
+            android:id="@+id/guideline_quest_0_top"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent=".05" />
+
+        <com.example.skatt.myapplication.Custom_Text_View
+            android:id="@+id/quest_0"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Задания"
+            app:layout_constraintBottom_toBottomOf="@+id/guideline_quest_0_bottom"
+            app:layout_constraintEnd_toEndOf="@+id/quests_back"
+            app:layout_constraintHorizontal_bias="0.08"
+            app:layout_constraintStart_toStartOf="@+id/quests_back"
+            app:layout_constraintTop_toTopOf="@+id/guideline_quest_0_top" />
+
+        <com.example.skatt.myapplication.Custom_Text_View
+            android:id="@+id/quest_0_reward"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="10"
+            app:layout_constraintBottom_toBottomOf="@+id/guideline_quest_0_bottom"
+            app:layout_constraintEnd_toStartOf="@+id/quest_0_reward_icon"
+            app:layout_constraintTop_toTopOf="@+id/guideline_quest_0_top" />
+
+        <ImageView
+            android:id="@+id/quest_0_reward_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:adjustViewBounds="true"
+            app:layout_constraintBottom_toBottomOf="@+id/guideline_quest_0_bottom"
+            app:layout_constraintEnd_toEndOf="@+id/quests_back"
+            app:layout_constraintHorizontal_bias="0.76"
+            app:layout_constraintStart_toStartOf="@+id/quests_back"
+            app:layout_constraintTop_toTopOf="@+id/guideline_quest_0_top"
+            app:srcCompat="@drawable/money" />
+
+        <ImageView
+            android:id="@+id/quest_0_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:adjustViewBounds="true"
+            app:layout_constraintBottom_toBottomOf="@+id/guideline_quest_0_bottom"
+            app:layout_constraintEnd_toEndOf="@+id/quests_back"
+            app:layout_constraintHorizontal_bias="0.94"
+            app:layout_constraintStart_toStartOf="@+id/quests_back"
+            app:layout_constraintTop_toTopOf="@+id/guideline_quest_0_top"
+            app:srcCompat="@drawable/button" />
+
+        <android.support.constraint.Guideline
+            android:id="@+id/guideline_quest_0_bottom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent=".08" />
+
+        <com.example.skatt.myapplication.Custom_Text_View
+            android:id="@+id/quest_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Задания"
+            app:layout_constraintBottom_toBottomOf="@+id/quests_back"
+            app:layout_constraintEnd_toEndOf="@+id/quests_back"
+            app:layout_constraintHorizontal_bias="0.08"
+            app:layout_constraintStart_toStartOf="@+id/quests_back"
+            app:layout_constraintTop_toTopOf="@+id/quests_back"
+            app:layout_constraintVertical_bias="0.47000003" />
+
+        <com.example.skatt.myapplication.Custom_Text_View
+            android:id="@+id/quest_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Задания"
+            app:layout_constraintBottom_toBottomOf="@+id/quests_back"
+            app:layout_constraintEnd_toEndOf="@+id/quests_back"
+            app:layout_constraintHorizontal_bias="0.08"
+            app:layout_constraintStart_toStartOf="@+id/quests_back"
+            app:layout_constraintTop_toTopOf="@+id/quests_back"
+            app:layout_constraintVertical_bias="0.71000004" />
+
+    </android.support.constraint.ConstraintLayout>
 
 </android.support.constraint.ConstraintLayout>

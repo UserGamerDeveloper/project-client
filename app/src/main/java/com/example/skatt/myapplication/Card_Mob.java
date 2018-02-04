@@ -27,9 +27,9 @@ class Card_Mob extends Card {
         super(context, attrs, defStyleAttr);
     }
 
-    void Change(SQLiteDatabase data_base, DB_Open_Helper db_open_helper, Random random){
+    void Change(DB_Open_Helper db_open_helper, Random random){
 
-        data_base = db_open_helper.getReadableDatabase();
+        SQLiteDatabase data_base = db_open_helper.getReadableDatabase();
 
         String[] column_name = {
                 DB_Open_Helper.id,

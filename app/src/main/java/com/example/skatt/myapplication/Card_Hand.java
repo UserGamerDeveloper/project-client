@@ -17,6 +17,7 @@ public class Card_Hand extends Card_Inventory {
         super(context, attrs, defStyleAttr);
     }
 
+    int hand_drawable;
     TextView durability_text;
     ImageView durability_image;
 

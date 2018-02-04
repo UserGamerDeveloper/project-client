@@ -147,7 +147,7 @@ class Card_Inventory extends Card {
 
         this.value_one = card.Get_Hp();
         this.id_drawable = card.Get_Id_Drawable();
-        Picasso.with(getContext()).load(id_drawable).into(imageView);
+        Picasso.with(getContext()).load(id_drawable).placeholder(R.color.color_black).into(imageView);
 /*
         this.imageView.setImageResource(id_drawable);
 */
