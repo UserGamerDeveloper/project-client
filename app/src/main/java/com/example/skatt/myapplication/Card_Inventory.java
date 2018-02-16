@@ -137,7 +137,6 @@ class Card_Inventory extends Card {
     }
 
     void Copy(Card_Inventory card){
-
         super.Copy(card);
         this.value_one_text.setVisibility(View.VISIBLE);
         this.durability = card.Get_Durability();
@@ -166,5 +165,11 @@ class Card_Inventory extends Card {
     }
     void Set_Durability(int durability){
         this.durability = durability;
+    }
+    public byte getSlot_type() {
+        return slot_type;
+    }
+    public void setSlot_type(byte slot_type) {
+        this.slot_type = slot_type;
     }
 }

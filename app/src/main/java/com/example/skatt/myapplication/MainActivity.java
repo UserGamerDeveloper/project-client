@@ -30,8 +30,8 @@ public class MainActivity extends AppCompatActivity {
     int money_bank = 0;
     int hp_max = 30;
     int hp = hp_max;
-    Card_Mob mob_target;
-    Card_Mob[] cards = new Card_Mob[8];
+    Card_Table mCardTableTarget;
+    Card_Table[] mCardsTable = new Card_Table[8];
     Card_Inventory[] loot = new Card_Inventory[3];
     Card_Inventory[] inventory = new Card_Inventory[4];
     Card_Hand hand_one;
@@ -55,40 +55,21 @@ public class MainActivity extends AppCompatActivity {
     float hp_text_size;
     float hp_text_size_constant = 0.154202f;
 
-    int card_animation_duration = 500;
-    private int duration = 500;
-
     AnimatorSet card_reset_column_right = new AnimatorSet();
-    AnimatorSet card_reset_column_center = new AnimatorSet();
-    AnimatorSet card_reset_column_left = new AnimatorSet();
     AnimatorSet card_reset_row_top = new AnimatorSet();
     AnimatorSet card_reset_row_center = new AnimatorSet();
     AnimatorSet card_reset_row_bottom = new AnimatorSet();
 
-    AnimatorSet card_6_animation_click_mob = new AnimatorSet();
-    AnimatorSet card_6_animation_next = new AnimatorSet();
-    AnimatorSet card_animation_left = new AnimatorSet();
-    AnimatorSet card_animation_get_right = new AnimatorSet();
-
-    AnimatorSet card_animation_click_left = new AnimatorSet();
     AnimatorSet card_animation_right = new AnimatorSet();
     AnimatorSet card_animation_get_left = new AnimatorSet();
 
-    AnimatorSet card_animation_click_top = new AnimatorSet();
     AnimatorSet card_animation_down = new AnimatorSet();
     AnimatorSet card_animation_get_top = new AnimatorSet();
 
-    AnimatorSet card_animation_click_bottom = new AnimatorSet();
     AnimatorSet card_animation_up = new AnimatorSet();
     AnimatorSet card_animation_get_bottom = new AnimatorSet();
 
-    AnimatorSet card_column_center_copy = new AnimatorSet();
-    AnimatorSet card_start_rotate = new AnimatorSet();
-    AnimatorSet card_start_rotate_back = new AnimatorSet();
-    AnimatorSet card_start_rotate_front = new AnimatorSet();
-
-    Animator card_6_animatoin_rotate_front;
-    Animator card_6_animatoin_rotate_back;
+    AnimatorSet openCardTable = new AnimatorSet();
 
     View.OnLongClickListener on_long_click = on_long_click();
 
@@ -289,24 +270,26 @@ public class MainActivity extends AppCompatActivity {
 
     byte halt_health = 1;
     AnimatorSet card_6_animation_click_vendor = new AnimatorSet();
-    View.OnClickListener on_click_card_6 = on_click_card_6();
+    View.OnClickListener setTargetListener = setTarget();
 
-    View.OnClickListener on_click_card_6() {
+    View.OnClickListener setTarget() {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!is_animate) {
                     is_animate = true;
-                    mob_target = (Card_Mob) v;
-                    if(mob_target.Get_Type()==Card_Table_Type.MOB){
-                        mob_target.bringToFront();
-                        card_6_animation_click_mob.start();
-                        mob_target.setOnClickListener(damag_listener);
+                    mCardTableTarget = (Card_Table) v;
+                    if(mCardTableTarget.Get_Type()==Card_Table_Type.MOB){
+                        mCardTableTarget.bringToFront();
+                        mCardTableTarget.getTargetAnimation().start();
+                        mCardTableTarget.setOnClickListener(damag_listener);
                     }
-                    if(mob_target.Get_Type()==Card_Table_Type.VENDOR){
+                    if(mCardTableTarget.Get_Type()==Card_Table_Type.VENDOR){
                         shadow.bringToFront();
-                        mob_target.bringToFront();
+                        mCardTableTarget.bringToFront();
+/*
                         card_6_animation_click_vendor.start();
+*/
                         Picasso.with(getBaseContext()).load(R.drawable.navik_torgovca).into(trade_skill_image);
                         trade_skill_image.setOnClickListener(on_click_vendor_skill);
                         for (byte i = 0; i<loot_max_count;i++){
@@ -321,10 +304,12 @@ public class MainActivity extends AppCompatActivity {
                         trade_zone.setVisibility(View.VISIBLE);
                         table.setOnDragListener(null);
                     }
-                    if (mob_target.Get_Type()==Card_Table_Type.BLACKSMITH){
+                    if (mCardTableTarget.Get_Type()==Card_Table_Type.BLACKSMITH){
                         shadow.bringToFront();
-                        mob_target.bringToFront();
+                        mCardTableTarget.bringToFront();
+/*
                         card_6_animation_click_vendor.start();
+*/
                         Picasso.with(getBaseContext()).load(R.drawable.navik_kuznecaa).into(trade_skill_image);
                         trade_skill_image.setOnClickListener(null);
                         for (byte i = 0; i<loot_max_count;i++){
@@ -340,10 +325,12 @@ public class MainActivity extends AppCompatActivity {
                         trade_zone.setVisibility(View.VISIBLE);
                         table.setOnDragListener(null);
                     }
-                    if (mob_target.Get_Type()==Card_Table_Type.INNKEEPER){
+                    if (mCardTableTarget.Get_Type()==Card_Table_Type.INNKEEPER){
                         shadow.bringToFront();
-                        mob_target.bringToFront();
+                        mCardTableTarget.bringToFront();
+/*
                         card_6_animation_click_vendor.start();
+*/
                         Picasso.with(getBaseContext()).load(R.drawable.navik_traktirshika).into(trade_skill_image);
                         trade_skill_image.setOnClickListener(on_click_innkeeper_skill);
                         for (byte i = 0; i<loot_max_count;i++){
@@ -358,9 +345,9 @@ public class MainActivity extends AppCompatActivity {
                         trade_zone.setVisibility(View.VISIBLE);
                         table.setOnDragListener(null);
                     }
-                    if (mob_target.Get_Type()==Card_Table_Type.QUEST_BOARD){
+                    if (mCardTableTarget.Get_Type()==Card_Table_Type.QUEST_BOARD){
                         shadow.bringToFront();
-                        mob_target.bringToFront();
+                        mCardTableTarget.bringToFront();
                         card_6_animation_click_vendor.start();
                         Picasso.with(getBaseContext()).load(R.drawable.navik_doska_objavleniy).into(trade_skill_image);
                         trade_skill_image.setOnClickListener(on_click_innkeeper_skill);
@@ -376,12 +363,12 @@ public class MainActivity extends AppCompatActivity {
                         trade_zone.setVisibility(View.VISIBLE);
                         table.setOnDragListener(null);
                     }
-                    if (mob_target.Get_Type()==Card_Table_Type.HALT){
+                    if (mCardTableTarget.Get_Type()==Card_Table_Type.HALT){
                         shadow.bringToFront();
-                        mob_target.bringToFront();
-                        card_6_animation_click_mob.start();
+                        mCardTableTarget.bringToFront();
+                        mCardTableTarget.getTargetAnimation().start();
                         Change_HP(halt_health);
-                        card_6_animation_next.start();
+                        mCardTableTarget.getChangeAnimation().start();
                     }
                 }
             }
@@ -496,7 +483,7 @@ public class MainActivity extends AppCompatActivity {
                     target_on_animation.addListener(target_on_animation_end);
                     target_on_animation.start();
 
-                    if (trade_skill.getVisibility()==View.VISIBLE&&mob_target.Get_Type()==Card_Table_Type.BLACKSMITH&&
+                    if (trade_skill.getVisibility()==View.VISIBLE&& mCardTableTarget.Get_Type()==Card_Table_Type.BLACKSMITH&&
                             (target_swap.Get_Type()==Inventory_Type.SHIELD||target_swap.Get_Type()==Inventory_Type.WEAPON)){
                         trade_skill_image.setOnClickListener(on_click_blacksmith_skill);
                     }
@@ -616,10 +603,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                mob_target.Set_Value_One(mob_target.Get_Value_One() - ((hand_one.Get_Type() == Inventory_Type.WEAPON) ?
+                mCardTableTarget.Set_Value_One(mCardTableTarget.Get_Value_One() - ((hand_one.Get_Type() == Inventory_Type.WEAPON) ?
                         hand_one.Get_Value_One() : 0) - ((hand_two.Get_Type() == Inventory_Type.WEAPON) ?
                         hand_two.Get_Value_One() : 0));
-                mob_target.Set_Value_One_text(mob_target.Get_Value_One());
+                mCardTableTarget.Set_Value_One_text(mCardTableTarget.Get_Value_One());
 
                 HP_Calculation();
 
@@ -648,41 +635,18 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
-                if (mob_target.Get_Value_One() < 1) {
+                if (mCardTableTarget.Get_Value_One() < 1) {
 
-                    mob_target.Set_Value_One_text(0);
-                    money += mob_target.Get_Money();
+                    mCardTableTarget.Set_Value_One_text(0);
+                    money += mCardTableTarget.Get_Money();
                     money_text.setText(String.valueOf(money));
-                    cards[4].setOnClickListener(on_click_card_6);
 
-                    card_6_rotate.start();
-
-                    shadow.bringToFront();
-
-                    loot_count = random.nextInt(4);
-/*
-                    loot_count = 3;
-*/
-                    for (int i = 0; i < loot_count; i++) {
-                        loot[i].bringToFront();
-                        loot[i].Change(db_open_helper, random);
-                        loot[i].setVisibility(View.VISIBLE);
-                        loot[i].Open();
-                    }
-
-                    is_loot_enable = true;
-                    loot_id = 0;
-                    Loot_Get();
-
-                    if (loot_count > 0) {
-                        button_continue.bringToFront();
-                        button_continue.setVisibility(View.VISIBLE);
-                    }
+                    mCardTableTarget.getCloseAnimation().start();
                 }
             }
 
             private void HP_Calculation() {
-                int mob_damage = mob_target.Get_Damage();
+                int mob_damage = mCardTableTarget.Get_Damage();
                 if(mob_damage>0&&hand_one.Get_Type() == Inventory_Type.SHIELD){
                     if (hand_one.Get_Value_One() < mob_damage){
                         mob_damage -= hand_one.Get_Value_One();
@@ -731,107 +695,15 @@ public class MainActivity extends AppCompatActivity {
 
     boolean is_animate;
     private final int card_back = R.drawable.card_back;
-
+    private final int cardCenterBack = R.drawable.perekrestok;
     Random random = new Random();
 
     DB_Open_Helper db_open_helper = new DB_Open_Helper(MainActivity.this);
     SQLiteDatabase data_base;
 
-    AnimatorListenerAdapter animator_listener_adapter_end = new AnimatorListenerAdapter() {
-        @Override
-        public void onAnimationStart(Animator animation) {
-
-        }
-
-        @Override
-        public void onAnimationEnd(Animator animation) {
-            is_animate = false;
-        }
-    };
-    AnimatorListenerAdapter animator_listener_adapter_walt_start_animation = new AnimatorListenerAdapter() {
-
-        @Override
-        public void onAnimationStart(Animator animation) {
-
-            if (animation.equals(card_animation_get_right)) {
-
-                cards[2].Close(card_back);
-                cards[4].Close(card_back);
-                cards[7].Close(card_back);
-            }
-
-            if (animation.equals(card_start_rotate)) {
-
-                if (cards[1].Is_Close(card_back)) {
-                    cards[1].Change(db_open_helper, random);
-                }
-
-                if (cards[3].Is_Close(card_back)) {
-                    cards[3].Change(db_open_helper, random);
-                }
-
-                if (cards[4].Is_Close(card_back)) {
-                    cards[4].Change(db_open_helper, random);
-                }
-
-                if (cards[6].Is_Close(card_back)) {
-                    cards[6].Change(db_open_helper, random);
-                }
-            }
-        }
-
-        @Override
-        public void onAnimationEnd(Animator animation) {
-
-        }
-    };
-    AnimatorListenerAdapter animator_listener_adapter_walt_end_animation = new AnimatorListenerAdapter() {
-
-        @Override
-        public void onAnimationStart(Animator animation) {
-
-        }
-
-        @Override
-        public void onAnimationEnd(Animator animation) {
-
-            if (animation.equals(card_animation_left)) {
-
-                cards[0].Copy(cards[1]);
-                cards[3].Close(card_back);
-                cards[5].Copy(cards[6]);
-            }
-
-            if (animation.equals(card_column_center_copy)) {
-
-                cards[1].Copy(cards[2]);
-                cards[6].Copy(cards[7]);
-            }
-
-            if (animation.equals(card_6_animatoin_rotate_front)) {
-
-                cards[4].Close(card_back);
-            }
-
-            if (animation.equals(card_start_rotate_back)) {
-                cards[1].Open();
-                cards[3].Open();
-                cards[4].Open();
-                cards[6].Open();
-            }
-        }
-    };
-    private AnimatorSet card_6_animation_increase = new AnimatorSet();
-    private Animator card_6_animation_movement;
-
     Drawable hp_bar_drawable;
 
-    private AnimatorSet card_6_animation_decrease = new AnimatorSet();
-    private AnimatorSet card_6_animation_increase_back = new AnimatorSet();
-
-    private Animator card_6_animation_movement_back_x;
     AnimatorSet card_6_animation_reset = new AnimatorSet();
-    private AnimatorSet card_6_rotate = new AnimatorSet();
 
     ConstraintLayout table;
 
@@ -840,6 +712,9 @@ public class MainActivity extends AppCompatActivity {
         final static byte LOOT = 0;
         final static byte HAND = 1;
         final static byte INVENTORY = 2;
+
+        private Slot_Type() {
+        }
     }
 
     View.OnClickListener card_trade_click_ok = card_trade_click_ok();
@@ -1090,50 +965,50 @@ public class MainActivity extends AppCompatActivity {
 
         card_center = findViewById(R.id.card_view_5);
 
-        cards[0] = findViewById(R.id.card_table_1);
-        cards[1] = findViewById(R.id.card_table_2);
-        cards[2] = findViewById(R.id.card_table_3);
-        cards[3] = findViewById(R.id.card_table_4);
-        cards[4] = findViewById(R.id.card_table_6);
-        cards[5] = findViewById(R.id.card_table_7);
-        cards[6] = findViewById(R.id.card_table_8);
-        cards[7] = findViewById(R.id.card_table_9);
+        mCardsTable[0] = findViewById(R.id.card_table_1);
+        mCardsTable[1] = findViewById(R.id.card_table_2);
+        mCardsTable[2] = findViewById(R.id.card_table_3);
+        mCardsTable[3] = findViewById(R.id.card_table_4);
+        mCardsTable[4] = findViewById(R.id.card_table_6);
+        mCardsTable[5] = findViewById(R.id.card_table_7);
+        mCardsTable[6] = findViewById(R.id.card_table_8);
+        mCardsTable[7] = findViewById(R.id.card_table_9);
 
-        cards[0].imageView = findViewById(R.id.card_view_1);
-        cards[1].imageView = findViewById(R.id.card_view_2);
-        cards[2].imageView = findViewById(R.id.card_view_3);
-        cards[3].imageView = findViewById(R.id.card_view_4);
-        cards[4].imageView = findViewById(R.id.card_view_6);
-        cards[5].imageView = findViewById(R.id.card_view_7);
-        cards[6].imageView = findViewById(R.id.card_view_8);
-        cards[7].imageView = findViewById(R.id.card_view_9);
+        mCardsTable[0].imageView = findViewById(R.id.card_view_1);
+        mCardsTable[1].imageView = findViewById(R.id.card_view_2);
+        mCardsTable[2].imageView = findViewById(R.id.card_view_3);
+        mCardsTable[3].imageView = findViewById(R.id.card_view_4);
+        mCardsTable[4].imageView = findViewById(R.id.card_view_6);
+        mCardsTable[5].imageView = findViewById(R.id.card_view_7);
+        mCardsTable[6].imageView = findViewById(R.id.card_view_8);
+        mCardsTable[7].imageView = findViewById(R.id.card_view_9);
 
-        cards[0].name_text = findViewById(R.id.card_name_1);
-        cards[1].name_text = findViewById(R.id.card_name_2);
-        cards[2].name_text = findViewById(R.id.card_name_3);
-        cards[3].name_text = findViewById(R.id.card_name_4);
-        cards[4].name_text = findViewById(R.id.card_name_6);
-        cards[5].name_text = findViewById(R.id.card_name_7);
-        cards[6].name_text = findViewById(R.id.card_name_8);
-        cards[7].name_text = findViewById(R.id.card_name_9);
+        mCardsTable[0].name_text = findViewById(R.id.card_name_1);
+        mCardsTable[1].name_text = findViewById(R.id.card_name_2);
+        mCardsTable[2].name_text = findViewById(R.id.card_name_3);
+        mCardsTable[3].name_text = findViewById(R.id.card_name_4);
+        mCardsTable[4].name_text = findViewById(R.id.card_name_6);
+        mCardsTable[5].name_text = findViewById(R.id.card_name_7);
+        mCardsTable[6].name_text = findViewById(R.id.card_name_8);
+        mCardsTable[7].name_text = findViewById(R.id.card_name_9);
 
-        cards[0].value_one_text = findViewById(R.id.card_hp_1);
-        cards[1].value_one_text = findViewById(R.id.card_hp_2);
-        cards[2].value_one_text = findViewById(R.id.card_hp_3);
-        cards[3].value_one_text = findViewById(R.id.card_hp_4);
-        cards[4].value_one_text = findViewById(R.id.card_hp_6);
-        cards[5].value_one_text = findViewById(R.id.card_hp_7);
-        cards[6].value_one_text = findViewById(R.id.card_hp_8);
-        cards[7].value_one_text = findViewById(R.id.card_hp_9);
+        mCardsTable[0].value_one_text = findViewById(R.id.card_hp_1);
+        mCardsTable[1].value_one_text = findViewById(R.id.card_hp_2);
+        mCardsTable[2].value_one_text = findViewById(R.id.card_hp_3);
+        mCardsTable[3].value_one_text = findViewById(R.id.card_hp_4);
+        mCardsTable[4].value_one_text = findViewById(R.id.card_hp_6);
+        mCardsTable[5].value_one_text = findViewById(R.id.card_hp_7);
+        mCardsTable[6].value_one_text = findViewById(R.id.card_hp_8);
+        mCardsTable[7].value_one_text = findViewById(R.id.card_hp_9);
 
-        cards[0].value_two_text = findViewById(R.id.card_damage_1);
-        cards[1].value_two_text = findViewById(R.id.card_damage_2);
-        cards[2].value_two_text = findViewById(R.id.card_damage_3);
-        cards[3].value_two_text = findViewById(R.id.card_damage_4);
-        cards[4].value_two_text = findViewById(R.id.card_damage_6);
-        cards[5].value_two_text = findViewById(R.id.card_damage_7);
-        cards[6].value_two_text = findViewById(R.id.card_damage_8);
-        cards[7].value_two_text = findViewById(R.id.card_damage_9);
+        mCardsTable[0].value_two_text = findViewById(R.id.card_damage_1);
+        mCardsTable[1].value_two_text = findViewById(R.id.card_damage_2);
+        mCardsTable[2].value_two_text = findViewById(R.id.card_damage_3);
+        mCardsTable[3].value_two_text = findViewById(R.id.card_damage_4);
+        mCardsTable[4].value_two_text = findViewById(R.id.card_damage_6);
+        mCardsTable[5].value_two_text = findViewById(R.id.card_damage_7);
+        mCardsTable[6].value_two_text = findViewById(R.id.card_damage_8);
+        mCardsTable[7].value_two_text = findViewById(R.id.card_damage_9);
 
         loot[0] = findViewById(R.id.card_loot_0);
         loot[1] = findViewById(R.id.card_loot_1);
@@ -1261,13 +1136,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void Game_Load() {
 
-        for (int i = 0; i < 8; i++) {
-            cards[i].name_text.setVisibility(View.INVISIBLE);
-            cards[i].value_two_text.setVisibility(View.INVISIBLE);
-            cards[i].value_one_text.setVisibility(View.INVISIBLE);
-            cards[i].imageView.setImageResource(card_back);
-            cards[i].Set_Id_Drawable(card_back);
-            cards[i].imageView.setVisibility(View.INVISIBLE);
+        for (byte i = 0; i < 8; i++) {
+            mCardsTable[i].setIdInArray(i);
+            mCardsTable[i].name_text.setVisibility(View.INVISIBLE);
+            mCardsTable[i].value_two_text.setVisibility(View.INVISIBLE);
+            mCardsTable[i].value_one_text.setVisibility(View.INVISIBLE);
+            mCardsTable[i].imageView.setImageResource(card_back);
+            mCardsTable[i].Set_Id_Drawable(card_back);
+            mCardsTable[i].imageView.setVisibility(View.INVISIBLE);
         }
         card_center.setVisibility(View.INVISIBLE);
 
@@ -1307,7 +1183,10 @@ public class MainActivity extends AppCompatActivity {
 
         is_animate = true;
 
-        cards[4].setOnClickListener(on_click_card_6);
+        mCardsTable[1].setOnClickListener(setTargetListener);
+        mCardsTable[3].setOnClickListener(setTargetListener);
+        mCardsTable[4].setOnClickListener(setTargetListener);
+        mCardsTable[6].setOnClickListener(setTargetListener);
 
         money_text.setText(String.valueOf(money_bank));
 
@@ -1357,8 +1236,8 @@ public class MainActivity extends AppCompatActivity {
     private void Set_Text_Size() {
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        int card_height = cards[0].imageView.getHeight();
-        int card_width = cards[0].imageView.getWidth();
+        int card_height = mCardsTable[0].imageView.getHeight();
+        int card_width = mCardsTable[0].imageView.getWidth();
 
         money_text_size = displayMetrics.heightPixels * money_text_size_constant;
         money_text.setTextSize(COMPLEX_UNIT_PX, money_text_size);
@@ -1368,9 +1247,9 @@ public class MainActivity extends AppCompatActivity {
         card_hp_and_damage_text_size = (float) (Math.sqrt(Math.pow(card_width, 2.0) +
                 Math.pow(card_height, 2.0)) * card_hp_and_damage_text_size_constant);
         for (int i = 0; i < 8; i++) {
-            cards[i].name_text.setTextSize(COMPLEX_UNIT_PX, card_name_text_size);
-            cards[i].value_one_text.setTextSize(COMPLEX_UNIT_PX, card_hp_and_damage_text_size);
-            cards[i].value_two_text.setTextSize(COMPLEX_UNIT_PX, card_hp_and_damage_text_size);
+            mCardsTable[i].name_text.setTextSize(COMPLEX_UNIT_PX, card_name_text_size);
+            mCardsTable[i].value_one_text.setTextSize(COMPLEX_UNIT_PX, card_hp_and_damage_text_size);
+            mCardsTable[i].value_two_text.setTextSize(COMPLEX_UNIT_PX, card_hp_and_damage_text_size);
         }
 
         float card_inventory_value_one_text_size = (float) (Math.sqrt(Math.pow(inventory[0].imageView.getWidth(), 2.0) +
@@ -1411,14 +1290,14 @@ public class MainActivity extends AppCompatActivity {
     int inventory_animation_delta;
     int hand_animation_delta;
     float loot_animation_delta;
-    Animator shadow_show;
-    Animator shadow_hide;
     private void Set_Animators() {
 
+        int duration = 500;
+        int card_animation_duration = 500;
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        int card_height = cards[0].imageView.getHeight();
-        int card_width = cards[0].imageView.getWidth();
+        int card_height = mCardsTable[0].imageView.getHeight();
+        int card_width = mCardsTable[0].imageView.getWidth();
 
         int[] card_5_coordinates = new int[2];
         int[] card_8_coordinates = new int[2];
@@ -1442,9 +1321,9 @@ public class MainActivity extends AppCompatActivity {
         loot_animation_delta = displayMetrics.heightPixels * 0.05f;
 
         card_center.getLocationOnScreen(card_5_coordinates);
-        cards[6].imageView.getLocationOnScreen(card_8_coordinates);
-        cards[3].imageView.getLocationOnScreen(card_4_coordinates);
-        cards[4].imageView.getLocationOnScreen(card_6_coordinates);
+        mCardsTable[6].imageView.getLocationOnScreen(card_8_coordinates);
+        mCardsTable[3].imageView.getLocationOnScreen(card_4_coordinates);
+        mCardsTable[4].imageView.getLocationOnScreen(card_6_coordinates);
 
         ConstraintLayout table_layout = findViewById(R.id.table);
         int card_distance_between_Y = card_5_coordinates[1] - card_8_coordinates[1];
@@ -1454,260 +1333,793 @@ public class MainActivity extends AppCompatActivity {
         int card_coordinates_animation_right_start = table_layout.getWidth() + card_width - card_4_coordinates[0];
         int card_coordinates_animation_left_start = -card_4_coordinates[0] - card_width;
 
-        shadow_show  = ObjectAnimator.ofFloat(shadow, View.ALPHA, 0f, .5f);
-        shadow_hide = ObjectAnimator.ofFloat(shadow, View.ALPHA, .5f, 0f);
-        card_6_animation_click_vendor.setDuration(card_animation_duration).playTogether(
-                ObjectAnimator.ofFloat(cards[4], View.TRANSLATION_X, 0f, card_4_coordinates[0]-card_6_coordinates[0]),
-                ObjectAnimator.ofFloat(cards[4], View.TRANSLATION_Y, 0f, -card_distance_between_Y),
-                shadow_show
+        AnimatorSet openCardTableRotateBack = new AnimatorSet();
+        openCardTableRotateBack.setDuration(duration).playTogether(
+                ObjectAnimator.ofFloat(mCardsTable[4], View.ROTATION_Y, 0f, 90f),
+                ObjectAnimator.ofFloat(mCardsTable[3], View.ROTATION_Y, 0f, 90f),
+                ObjectAnimator.ofFloat(mCardsTable[6], View.ROTATION_Y, 0f, 90f),
+                ObjectAnimator.ofFloat(mCardsTable[1], View.ROTATION_Y, 0f, 90f)
         );
+        AnimatorListenerAdapter openCardTableRotateBackListener = new AnimatorListenerAdapter() {
 
-        card_animation_left.setDuration(card_animation_duration).playTogether(
-                ObjectAnimator.ofFloat(cards[0], View.TRANSLATION_X, 0f, card_coordinates_animation_left_start),
-                ObjectAnimator.ofFloat(cards[3], View.TRANSLATION_X, 0f, card_coordinates_animation_left_start),
-                ObjectAnimator.ofFloat(cards[5], View.TRANSLATION_X, 0f, card_coordinates_animation_left_start),
+            @Override
+            public void onAnimationStart(Animator animation) {
 
-                ObjectAnimator.ofFloat(cards[1], View.TRANSLATION_X, 0f, -card_distance_between_X),
-                ObjectAnimator.ofFloat(cards[2], View.TRANSLATION_X, 0f, -card_distance_between_X),
-                ObjectAnimator.ofFloat(cards[4], View.TRANSLATION_X, 0f, -card_distance_between_X),
-                ObjectAnimator.ofFloat(cards[6], View.TRANSLATION_X, 0f, -card_distance_between_X),
-                ObjectAnimator.ofFloat(cards[7], View.TRANSLATION_X, 0f, -card_distance_between_X),
-                ObjectAnimator.ofFloat(card_center, View.TRANSLATION_X, 0f, -card_distance_between_X)
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mCardsTable[1].Open();
+                mCardsTable[3].Open();
+                mCardsTable[4].Open();
+                mCardsTable[6].Open();
+            }
+        };
+        openCardTableRotateBack.addListener(openCardTableRotateBackListener);
+        AnimatorSet openCardTableRotateFront = new AnimatorSet();
+        openCardTableRotateFront.setDuration(duration).playTogether(
+                ObjectAnimator.ofFloat(
+                        mCardsTable[4],
+                        View.ROTATION_Y,
+                        -90f,
+                        0f
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[3],
+                        View.ROTATION_Y,
+                        -90f,
+                        0f
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[6],
+                        View.ROTATION_Y,
+                        -90f,
+                        0f
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[1],
+                        View.ROTATION_Y,
+                        -90f,
+                        0f
+                )
+        );
+        openCardTable.playSequentially(
+                openCardTableRotateBack,
+                openCardTableRotateFront
+        );
+        AnimatorListenerAdapter openCardTableListener = new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                if (mCardsTable[1].Is_Close()) {
+                    mCardsTable[1].Change(db_open_helper, random);
+                }
+                if (mCardsTable[3].Is_Close()) {
+                    mCardsTable[3].Change(db_open_helper, random);
+                }
+                if (mCardsTable[4].Is_Close()) {
+                    mCardsTable[4].Change(db_open_helper, random);
+                }
+                if (mCardsTable[6].Is_Close()) {
+                    mCardsTable[6].Change(db_open_helper, random);
+                }
+            }
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                is_animate = false;
+            }
+        };
+        openCardTable.addListener(openCardTableListener);
+
+        Animator shadowShow  = ObjectAnimator.ofFloat(
+                shadow,
+                View.ALPHA,
+                0f,
+                .5f
+        );
+        Animator shadowHide = ObjectAnimator.ofFloat(
+                shadow,
+                View.ALPHA,
+                .5f,
+                0f);
+        AnimatorSet columnCenterCardTableReset = new AnimatorSet();
+        columnCenterCardTableReset.playTogether(
+                ObjectAnimator.ofFloat(
+                        mCardsTable[1],
+                        View.TRANSLATION_X,
+                        0f,
+                        0f
+                ),
+                ObjectAnimator.ofFloat(
+                        card_center,
+                        View.TRANSLATION_X,
+                        0f,
+                        0f
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[6],
+                        View.TRANSLATION_X,
+                        0f,
+                        0f
+                )
+        );
+        float cardTableIncreaseAnimationValue = 3f;
+        AnimatorListenerAdapter cardTableCloseListener = new AnimatorListenerAdapter() {
+
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mCardTableTarget.Close(card_back);
+            }
+        };
+        AnimatorListenerAdapter cardTableCloseBackAnimationListener = new AnimatorListenerAdapter() {
+
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                shadow.bringToFront();
+
+                loot_count = random.nextInt(4);
+/*
+                    loot_count = 3;
+*/
+                for (int i = 0; i < loot_count; i++) {
+                    loot[i].bringToFront();
+                    loot[i].Change(db_open_helper, random);
+                    loot[i].setVisibility(View.VISIBLE);
+                    loot[i].Open();
+                }
+
+                is_loot_enable = true;
+                loot_id = 0;
+                Loot_Get();
+
+                if (loot_count > 0) {
+                    button_continue.bringToFront();
+                    button_continue.setVisibility(View.VISIBLE);
+                }
+            }
+        };
+        AnimatorListenerAdapter TESTCLOSE = new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                    mCardsTable[1].Close(card_back);
+                    mCardsTable[3].Close(card_back);
+                    mCardsTable[4].Close(card_back);
+                    mCardsTable[6].Close(card_back);
+            }
+            @Override
+            public void onAnimationEnd(Animator animation) {
+            }
+        };
+        //region a
+        card_6_animation_click_vendor.setDuration(card_animation_duration).playTogether(
+                ObjectAnimator.ofFloat(mCardsTable[4], View.TRANSLATION_X, 0f, card_4_coordinates[0]-card_6_coordinates[0]),
+                ObjectAnimator.ofFloat(mCardsTable[4], View.TRANSLATION_Y, 0f, -card_distance_between_Y),
+                shadowShow
         );
 
         card_animation_right.setDuration(card_animation_duration).playTogether(
-                ObjectAnimator.ofFloat(cards[2], View.TRANSLATION_X, 0f, card_coordinates_animation_right_start),
-                ObjectAnimator.ofFloat(cards[4], View.TRANSLATION_X, 0f, card_coordinates_animation_right_start),
-                ObjectAnimator.ofFloat(cards[7], View.TRANSLATION_X, 0f, card_coordinates_animation_right_start),
+                ObjectAnimator.ofFloat(mCardsTable[2], View.TRANSLATION_X, 0f, card_coordinates_animation_right_start),
+                ObjectAnimator.ofFloat(mCardsTable[4], View.TRANSLATION_X, 0f, card_coordinates_animation_right_start),
+                ObjectAnimator.ofFloat(mCardsTable[7], View.TRANSLATION_X, 0f, card_coordinates_animation_right_start),
 
-                ObjectAnimator.ofFloat(cards[0], View.TRANSLATION_X, 0f, card_distance_between_X),
-                ObjectAnimator.ofFloat(cards[1], View.TRANSLATION_X, 0f, card_distance_between_X),
-                ObjectAnimator.ofFloat(cards[3], View.TRANSLATION_X, 0f, card_distance_between_X),
-                ObjectAnimator.ofFloat(cards[5], View.TRANSLATION_X, 0f, card_distance_between_X),
-                ObjectAnimator.ofFloat(cards[6], View.TRANSLATION_X, 0f, card_distance_between_X),
+                ObjectAnimator.ofFloat(mCardsTable[0], View.TRANSLATION_X, 0f, card_distance_between_X),
+                ObjectAnimator.ofFloat(mCardsTable[1], View.TRANSLATION_X, 0f, card_distance_between_X),
+                ObjectAnimator.ofFloat(mCardsTable[3], View.TRANSLATION_X, 0f, card_distance_between_X),
+                ObjectAnimator.ofFloat(mCardsTable[5], View.TRANSLATION_X, 0f, card_distance_between_X),
+                ObjectAnimator.ofFloat(mCardsTable[6], View.TRANSLATION_X, 0f, card_distance_between_X),
                 ObjectAnimator.ofFloat(card_center, View.TRANSLATION_X, 0f, card_distance_between_X)
         );
 
         card_animation_down.setDuration(card_animation_duration).playTogether(
-                ObjectAnimator.ofFloat(cards[0], View.TRANSLATION_Y, 0f, card_coordinates_animation_bottom_start),
-                ObjectAnimator.ofFloat(cards[1], View.TRANSLATION_Y, 0f, card_coordinates_animation_bottom_start),
-                ObjectAnimator.ofFloat(cards[2], View.TRANSLATION_Y, 0f, card_coordinates_animation_bottom_start),
+                ObjectAnimator.ofFloat(mCardsTable[0], View.TRANSLATION_Y, 0f, card_coordinates_animation_bottom_start),
+                ObjectAnimator.ofFloat(mCardsTable[1], View.TRANSLATION_Y, 0f, card_coordinates_animation_bottom_start),
+                ObjectAnimator.ofFloat(mCardsTable[2], View.TRANSLATION_Y, 0f, card_coordinates_animation_bottom_start),
 
-                ObjectAnimator.ofFloat(cards[3], View.TRANSLATION_Y, 0f, card_distance_between_Y),
-                ObjectAnimator.ofFloat(cards[4], View.TRANSLATION_Y, 0f, card_distance_between_Y),
-                ObjectAnimator.ofFloat(cards[5], View.TRANSLATION_Y, 0f, card_distance_between_Y),
-                ObjectAnimator.ofFloat(cards[6], View.TRANSLATION_Y, 0f, card_distance_between_Y),
-                ObjectAnimator.ofFloat(cards[7], View.TRANSLATION_Y, 0f, card_distance_between_Y),
+                ObjectAnimator.ofFloat(mCardsTable[3], View.TRANSLATION_Y, 0f, card_distance_between_Y),
+                ObjectAnimator.ofFloat(mCardsTable[4], View.TRANSLATION_Y, 0f, card_distance_between_Y),
+                ObjectAnimator.ofFloat(mCardsTable[5], View.TRANSLATION_Y, 0f, card_distance_between_Y),
+                ObjectAnimator.ofFloat(mCardsTable[6], View.TRANSLATION_Y, 0f, card_distance_between_Y),
+                ObjectAnimator.ofFloat(mCardsTable[7], View.TRANSLATION_Y, 0f, card_distance_between_Y),
                 ObjectAnimator.ofFloat(card_center, View.TRANSLATION_Y, 0f, card_distance_between_Y)
         );
 
         card_animation_up.setDuration(card_animation_duration).playTogether(
-                ObjectAnimator.ofFloat(cards[5], View.TRANSLATION_Y, 0f, card_coordinates_animation_top_start),
-                ObjectAnimator.ofFloat(cards[6], View.TRANSLATION_Y, 0f, card_coordinates_animation_top_start),
-                ObjectAnimator.ofFloat(cards[7], View.TRANSLATION_Y, 0f, card_coordinates_animation_top_start),
+                ObjectAnimator.ofFloat(mCardsTable[5], View.TRANSLATION_Y, 0f, card_coordinates_animation_top_start),
+                ObjectAnimator.ofFloat(mCardsTable[6], View.TRANSLATION_Y, 0f, card_coordinates_animation_top_start),
+                ObjectAnimator.ofFloat(mCardsTable[7], View.TRANSLATION_Y, 0f, card_coordinates_animation_top_start),
 
-                ObjectAnimator.ofFloat(cards[1], View.TRANSLATION_Y, 0f, -card_distance_between_Y),
-                ObjectAnimator.ofFloat(cards[2], View.TRANSLATION_Y, 0f, -card_distance_between_Y),
-                ObjectAnimator.ofFloat(cards[3], View.TRANSLATION_Y, 0f, -card_distance_between_Y),
-                ObjectAnimator.ofFloat(cards[4], View.TRANSLATION_Y, 0f, -card_distance_between_Y),
-                ObjectAnimator.ofFloat(cards[0], View.TRANSLATION_Y, 0f, -card_distance_between_Y),
+                ObjectAnimator.ofFloat(mCardsTable[1], View.TRANSLATION_Y, 0f, -card_distance_between_Y),
+                ObjectAnimator.ofFloat(mCardsTable[2], View.TRANSLATION_Y, 0f, -card_distance_between_Y),
+                ObjectAnimator.ofFloat(mCardsTable[3], View.TRANSLATION_Y, 0f, -card_distance_between_Y),
+                ObjectAnimator.ofFloat(mCardsTable[4], View.TRANSLATION_Y, 0f, -card_distance_between_Y),
+                ObjectAnimator.ofFloat(mCardsTable[0], View.TRANSLATION_Y, 0f, -card_distance_between_Y),
                 ObjectAnimator.ofFloat(card_center, View.TRANSLATION_Y, 0f, -card_distance_between_Y)
         );
 
         card_animation_get_top.setDuration(card_animation_duration).playTogether(
-                ObjectAnimator.ofFloat(cards[5], View.TRANSLATION_Y, card_coordinates_animation_top_start, 0f),
-                ObjectAnimator.ofFloat(cards[6], View.TRANSLATION_Y, card_coordinates_animation_top_start, 0f),
-                ObjectAnimator.ofFloat(cards[7], View.TRANSLATION_Y, card_coordinates_animation_top_start, 0f)
+                ObjectAnimator.ofFloat(mCardsTable[5], View.TRANSLATION_Y, card_coordinates_animation_top_start, 0f),
+                ObjectAnimator.ofFloat(mCardsTable[6], View.TRANSLATION_Y, card_coordinates_animation_top_start, 0f),
+                ObjectAnimator.ofFloat(mCardsTable[7], View.TRANSLATION_Y, card_coordinates_animation_top_start, 0f)
         );
 
         card_animation_get_bottom.setDuration(card_animation_duration).playTogether(
-                ObjectAnimator.ofFloat(cards[0], View.TRANSLATION_Y, card_coordinates_animation_bottom_start, 0f),
-                ObjectAnimator.ofFloat(cards[1], View.TRANSLATION_Y, card_coordinates_animation_bottom_start, 0f),
-                ObjectAnimator.ofFloat(cards[2], View.TRANSLATION_Y, card_coordinates_animation_bottom_start, 0f)
+                ObjectAnimator.ofFloat(mCardsTable[0], View.TRANSLATION_Y, card_coordinates_animation_bottom_start, 0f),
+                ObjectAnimator.ofFloat(mCardsTable[1], View.TRANSLATION_Y, card_coordinates_animation_bottom_start, 0f),
+                ObjectAnimator.ofFloat(mCardsTable[2], View.TRANSLATION_Y, card_coordinates_animation_bottom_start, 0f)
         );
 
         card_animation_get_left.setDuration(card_animation_duration).playTogether(
-                ObjectAnimator.ofFloat(cards[0], View.TRANSLATION_X, card_coordinates_animation_left_start, 0f),
-                ObjectAnimator.ofFloat(cards[3], View.TRANSLATION_X, card_coordinates_animation_left_start, 0f),
-                ObjectAnimator.ofFloat(cards[5], View.TRANSLATION_X, card_coordinates_animation_left_start, 0f)
-        );
-
-        card_animation_get_right.setDuration(card_animation_duration).playTogether(
-                ObjectAnimator.ofFloat(cards[2], View.TRANSLATION_X, card_coordinates_animation_right_start, 0f),
-                ObjectAnimator.ofFloat(cards[4], View.TRANSLATION_X, card_coordinates_animation_right_start, 0f),
-                ObjectAnimator.ofFloat(cards[7], View.TRANSLATION_X, card_coordinates_animation_right_start, 0f)
-        );
-
-        card_column_center_copy.playTogether(
-                ObjectAnimator.ofFloat(cards[1], View.TRANSLATION_X, -card_5_coordinates[0] - card_width, -card_5_coordinates[0] - card_width),
-                ObjectAnimator.ofFloat(card_center, View.TRANSLATION_X, -card_5_coordinates[0] - card_width, -card_5_coordinates[0] - card_width),
-                ObjectAnimator.ofFloat(cards[6], View.TRANSLATION_X, -card_5_coordinates[0] - card_width, -card_5_coordinates[0] - card_width)
+                ObjectAnimator.ofFloat(mCardsTable[0], View.TRANSLATION_X, card_coordinates_animation_left_start, 0f),
+                ObjectAnimator.ofFloat(mCardsTable[3], View.TRANSLATION_X, card_coordinates_animation_left_start, 0f),
+                ObjectAnimator.ofFloat(mCardsTable[5], View.TRANSLATION_X, card_coordinates_animation_left_start, 0f)
         );
 
         Set_Card_Animators_Reset();
+//endregion
 
-        card_start_rotate_back.setDuration(duration).playTogether(
-                ObjectAnimator.ofFloat(cards[4], View.ROTATION_Y, 0f, 90f),
-                ObjectAnimator.ofFloat(cards[3], View.ROTATION_Y, 0f, 90f),
-                ObjectAnimator.ofFloat(cards[6], View.ROTATION_Y, 0f, 90f),
-                ObjectAnimator.ofFloat(cards[1], View.ROTATION_Y, 0f, 90f)
+        //region Animation Right Card Table
+        AnimatorSet rightCardTableIncreaseAnimation = new AnimatorSet();
+        rightCardTableIncreaseAnimation.playTogether(
+                ObjectAnimator.ofFloat(
+                        mCardsTable[4],
+                        View.SCALE_X,
+                        1f,
+                        cardTableIncreaseAnimationValue
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[4],
+                        View.SCALE_Y,
+                        1f,
+                        cardTableIncreaseAnimationValue
+                )
+        );
+        Animator rightCardTableMoveAnimation = ObjectAnimator.ofFloat(
+                mCardsTable[4],
+                View.TRANSLATION_X,
+                0f,
+                -card_distance_between_X
+        );
+        mCardsTable[4].getTargetAnimation().setDuration(duration).playTogether(
+                shadowShow,
+                rightCardTableIncreaseAnimation,
+                rightCardTableMoveAnimation
+        );
+        Animator rightCardTableCloseFrontAnimation = ObjectAnimator.ofFloat(
+                mCardsTable[4],
+                View.ROTATION_Y,
+                0f,
+                90f
+        );
+        rightCardTableCloseFrontAnimation.addListener(cardTableCloseListener);
+        Animator rightCardTableCloseBackAnimation = ObjectAnimator.ofFloat(
+                mCardsTable[4],
+                View.ROTATION_Y,
+                -90f,
+                0f
+        );
+        rightCardTableCloseBackAnimation.addListener(cardTableCloseBackAnimationListener);
+        mCardsTable[4].getCloseAnimation().playSequentially(
+                rightCardTableCloseFrontAnimation,
+                rightCardTableCloseBackAnimation
+        );
+        AnimatorSet rightCardTableDicreaseAnimation = new AnimatorSet();
+        rightCardTableDicreaseAnimation.playTogether(
+                ObjectAnimator.ofFloat(
+                        mCardsTable[4],
+                        View.SCALE_X,
+                        cardTableIncreaseAnimationValue,
+                        1f
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[4],
+                        View.SCALE_Y,
+                        cardTableIncreaseAnimationValue,
+                        1f
+                )
+        );
+        Animator rightCardTableMoveBackAnimation = ObjectAnimator.ofFloat(
+                mCardsTable[4],
+                View.TRANSLATION_X,
+                -card_distance_between_X,
+                0f
+        );
+        AnimatorSet rightCardTableTargetResetAnimation = new AnimatorSet();
+        rightCardTableTargetResetAnimation.setDuration(duration).playTogether(
+                shadowHide,
+                rightCardTableDicreaseAnimation,
+                rightCardTableMoveBackAnimation
         );
 
-        card_start_rotate_front.setDuration(duration).playTogether(
-                ObjectAnimator.ofFloat(cards[4], View.ROTATION_Y, -90f, 0f),
-                ObjectAnimator.ofFloat(cards[3], View.ROTATION_Y, -90f, 0f),
-                ObjectAnimator.ofFloat(cards[6], View.ROTATION_Y, -90f, 0f),
-                ObjectAnimator.ofFloat(cards[1], View.ROTATION_Y, -90f, 0f)
+        AnimatorSet cardTableMoveToLeft = new AnimatorSet();
+        cardTableMoveToLeft.setDuration(card_animation_duration).playTogether(
+                ObjectAnimator.ofFloat(
+                        mCardsTable[0],
+                        View.TRANSLATION_X,
+                        0f,
+                        card_coordinates_animation_left_start
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[3],
+                        View.TRANSLATION_X,
+                        0f,
+                        card_coordinates_animation_left_start
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[5],
+                        View.TRANSLATION_X,
+                        0f,
+                        card_coordinates_animation_left_start
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[1],
+                        View.TRANSLATION_X,
+                        0f,
+                        -card_distance_between_X
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[2],
+                        View.TRANSLATION_X,
+                        0f,
+                        -card_distance_between_X
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[4],
+                        View.TRANSLATION_X,
+                        0f,
+                        -card_distance_between_X
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[6],
+                        View.TRANSLATION_X,
+                        0f,
+                        -card_distance_between_X
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[7],
+                        View.TRANSLATION_X,
+                        0f,
+                        -card_distance_between_X
+                ),
+                ObjectAnimator.ofFloat(
+                        card_center,
+                        View.TRANSLATION_X,
+                        0f,
+                        -card_distance_between_X
+                )
+        );
+        AnimatorListenerAdapter cardTableMoveToLeftListener = new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                    mCardsTable[0].Copy(mCardsTable[1]);
+                    mCardsTable[3].Close(cardCenterBack);
+                    mCardsTable[5].Copy(mCardsTable[6]);
+            }
+        };
+        cardTableMoveToLeft.addListener(cardTableMoveToLeftListener);
+
+        AnimatorSet columnLeftCardTableResetAnimation = new AnimatorSet();
+        columnLeftCardTableResetAnimation.playTogether(
+                ObjectAnimator.ofFloat(
+                        mCardsTable[0],
+                        View.TRANSLATION_X,
+                        0f,
+                        0f
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[3],
+                        View.TRANSLATION_X,
+                        0f,
+                        0f
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[5],
+                        View.TRANSLATION_X,
+                        0f,
+                        0f
+                )
+        );
+        AnimatorListenerAdapter columnLeftCardTableResetAnimationListener = new AnimatorListenerAdapter() {
+
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mCardsTable[1].Copy(mCardsTable[2]);
+                mCardsTable[6].Copy(mCardsTable[7]);
+            }
+        };
+        columnLeftCardTableResetAnimation.addListener(columnLeftCardTableResetAnimationListener);
+
+        AnimatorSet getColumnRightAnimation = new AnimatorSet();
+        getColumnRightAnimation.setDuration(card_animation_duration).playTogether(
+                ObjectAnimator.ofFloat(
+                        mCardsTable[2],
+                        View.TRANSLATION_X,
+                        card_coordinates_animation_right_start,
+                        0f
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[4],
+                        View.TRANSLATION_X,
+                        card_coordinates_animation_right_start,
+                        0f
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[7],
+                        View.TRANSLATION_X,
+                        card_coordinates_animation_right_start,
+                        0f
+                )
+        );
+        AnimatorListenerAdapter getColumnRightAnimationListener = new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                    mCardsTable[2].Close(card_back);
+                    mCardsTable[4].Close(card_back);
+                    mCardsTable[7].Close(card_back);
+            }
+            @Override
+            public void onAnimationEnd(Animator animation) {
+
+            }
+        };
+        getColumnRightAnimation.addListener(getColumnRightAnimationListener);
+
+        mCardsTable[4].getChangeAnimation().playSequentially(
+                rightCardTableTargetResetAnimation,
+                cardTableMoveToLeft,
+                columnLeftCardTableResetAnimation,
+                columnCenterCardTableReset,
+                getColumnRightAnimation,
+                openCardTable
+        );
+        //endregion
+        //region Animation Bottom Card Table
+        AnimatorSet mBottomCardTableIncreaseAnimation = new AnimatorSet();
+        mBottomCardTableIncreaseAnimation.playTogether(
+                ObjectAnimator.ofFloat(
+                        mCardsTable[1],
+                        View.SCALE_X,
+                        1f,
+                        cardTableIncreaseAnimationValue
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[1],
+                        View.SCALE_Y,
+                        1f,
+                        cardTableIncreaseAnimationValue
+                )
+        );
+        AnimatorSet mBottomCardTableDicreaseAnimation = new AnimatorSet();
+        mBottomCardTableDicreaseAnimation.playTogether(
+                ObjectAnimator.ofFloat(
+                        mCardsTable[1],
+                        View.SCALE_X,
+                        cardTableIncreaseAnimationValue,
+                        1f
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[1],
+                        View.SCALE_Y,
+                        cardTableIncreaseAnimationValue,
+                        1f
+                )
+        );
+        Animator card_2_animation_movement = ObjectAnimator.ofFloat(
+                mCardsTable[1],
+                View.TRANSLATION_Y,
+                0f,
+                -card_distance_between_Y
+        );
+        mCardsTable[1].getTargetAnimation().setDuration(duration).playTogether(
+                shadowShow,
+                mBottomCardTableIncreaseAnimation,
+                card_2_animation_movement
         );
 
-        card_start_rotate_back.addListener(animator_listener_adapter_walt_end_animation);
-
-        card_start_rotate.playSequentially(
-                card_start_rotate_back,
-                card_start_rotate_front
+        Animator bottomCardTableCloseFrontAnimation = ObjectAnimator.ofFloat(
+                mCardsTable[1],
+                View.ROTATION_Y,
+                0f,
+                90f
+        );
+        bottomCardTableCloseFrontAnimation.addListener(cardTableCloseListener);
+        Animator bottomCardTableCloseBackAnimation = ObjectAnimator.ofFloat(
+                mCardsTable[1],
+                View.ROTATION_Y,
+                -90f,
+                0f
+        );
+        bottomCardTableCloseBackAnimation.addListener(cardTableCloseBackAnimationListener);
+        mCardsTable[1].getCloseAnimation().playSequentially(
+                bottomCardTableCloseFrontAnimation,
+                bottomCardTableCloseBackAnimation
         );
 
-        card_6_animatoin_rotate_front = ObjectAnimator.ofFloat(cards[4], View.ROTATION_Y, 0f, 90f);
-        card_6_animatoin_rotate_back = ObjectAnimator.ofFloat(cards[4], View.ROTATION_Y, -90f, 0f);
-
-        card_6_animatoin_rotate_front.addListener(animator_listener_adapter_walt_end_animation);
-        card_animation_left.addListener(animator_listener_adapter_walt_end_animation);
-        card_column_center_copy.addListener(animator_listener_adapter_walt_end_animation);
-        card_animation_get_right.addListener(animator_listener_adapter_walt_start_animation);
-        card_start_rotate.addListener(animator_listener_adapter_end);
-        card_start_rotate.addListener(animator_listener_adapter_walt_start_animation);
-
-        card_6_animation_increase.playTogether(
-                ObjectAnimator.ofFloat(cards[4], View.SCALE_X, 1f, 3f),
-                ObjectAnimator.ofFloat(cards[4], View.SCALE_Y, 1f, 3f)
+        AnimatorSet bottomCardTableDicreaseAnimation = new AnimatorSet();
+        bottomCardTableDicreaseAnimation.playTogether(
+                ObjectAnimator.ofFloat(
+                        mCardsTable[1],
+                        View.SCALE_X,
+                        cardTableIncreaseAnimationValue,
+                        1f
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[1],
+                        View.SCALE_Y,
+                        cardTableIncreaseAnimationValue,
+                        1f
+                )
         );
-        card_6_animation_increase_back.playTogether(
-                ObjectAnimator.ofFloat(cards[4], View.SCALE_X, 3f, 1f),
-                ObjectAnimator.ofFloat(cards[4], View.SCALE_Y, 3f, 1f)
+        Animator bottomCardTableMoveBackAnimation = ObjectAnimator.ofFloat(
+                mCardsTable[1],
+                View.TRANSLATION_Y,
+                -card_distance_between_Y,
+                0f
         );
-        card_6_animation_movement = ObjectAnimator.ofFloat(cards[4], View.TRANSLATION_X, 0f, -card_distance_between_X);
-        card_6_animation_movement_back_x = ObjectAnimator.ofFloat(cards[4], View.TRANSLATION_X, -card_distance_between_X, 0f);
-        Animator card_6_animation_movement_back_y = ObjectAnimator.ofFloat(cards[4], View.TRANSLATION_Y, 0F, 0f);
-
-        card_6_animation_click_mob.setDuration(duration).playTogether(
-                shadow_show,
-                card_6_animation_increase,
-                card_6_animation_movement
+        AnimatorSet bottomCardTableTargetResetAnimation = new AnimatorSet();
+        bottomCardTableTargetResetAnimation.setDuration(duration).playTogether(
+                shadowHide,
+                bottomCardTableDicreaseAnimation,
+                bottomCardTableMoveBackAnimation
+        );
+        bottomCardTableCloseBackAnimation.addListener(TESTCLOSE);
+        mCardsTable[1].getChangeAnimation().playSequentially(
+                bottomCardTableTargetResetAnimation,
+/*                cardTableMoveToLeft,
+                columnLeftCardTableResetAnimation,
+                columnCenterCardTableReset,
+                getColumnRightAnimation,*/
+                openCardTable
+        );
+        //endregion
+        //region Animation Left Card Table
+        AnimatorSet mLeftCardTableIncreaseAnimation = new AnimatorSet();
+        mLeftCardTableIncreaseAnimation.playTogether(
+                ObjectAnimator.ofFloat(
+                        mCardsTable[3],
+                        View.SCALE_X,
+                        1f,
+                        cardTableIncreaseAnimationValue
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[3],
+                        View.SCALE_Y,
+                        1f,
+                        cardTableIncreaseAnimationValue
+                )
+        );
+        AnimatorSet mLeftCardTableDicreaseAnimation = new AnimatorSet();
+        mLeftCardTableDicreaseAnimation.playTogether(
+                ObjectAnimator.ofFloat(
+                        mCardsTable[3],
+                        View.SCALE_X,
+                        cardTableIncreaseAnimationValue,
+                        1f
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[3],
+                        View.SCALE_Y,
+                        cardTableIncreaseAnimationValue,
+                        1f
+                )
+        );
+        Animator card_4_animation_movement = ObjectAnimator.ofFloat(
+                mCardsTable[3],
+                View.TRANSLATION_X,
+                0f,
+                card_distance_between_X
+        );
+        mCardsTable[3].getTargetAnimation().setDuration(duration).playTogether(
+                shadowShow,
+                mLeftCardTableIncreaseAnimation,
+                card_4_animation_movement
         );
 
-        card_6_animation_decrease.setDuration(duration).playTogether(
-                shadow_hide,
-                card_6_animation_increase_back,
-                card_6_animation_movement_back_x,
-                card_6_animation_movement_back_y
+        Animator leftCardTableCloseFrontAnimation = ObjectAnimator.ofFloat(
+                mCardsTable[3],
+                View.ROTATION_Y,
+                0f,
+                90f
+        );
+        leftCardTableCloseFrontAnimation.addListener(cardTableCloseListener);
+        Animator leftCardTableCloseBackAnimation = ObjectAnimator.ofFloat(
+                mCardsTable[3],
+                View.ROTATION_Y,
+                -90f,
+                0f
+        );
+        leftCardTableCloseBackAnimation.addListener(cardTableCloseBackAnimationListener);
+        mCardsTable[3].getCloseAnimation().playSequentially(
+                leftCardTableCloseFrontAnimation,
+                leftCardTableCloseBackAnimation
         );
 
-        card_6_rotate.playSequentially(
-                card_6_animatoin_rotate_front,
-                card_6_animatoin_rotate_back
+        AnimatorSet leftCardTableDicreaseAnimation = new AnimatorSet();
+        leftCardTableDicreaseAnimation.playTogether(
+                ObjectAnimator.ofFloat(
+                        mCardsTable[3],
+                        View.SCALE_X,
+                        cardTableIncreaseAnimationValue,
+                        1f
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[3],
+                        View.SCALE_Y,
+                        cardTableIncreaseAnimationValue,
+                        1f
+                )
+        );
+        Animator leftCardTableMoveBackAnimation = ObjectAnimator.ofFloat(
+                mCardsTable[3],
+                View.TRANSLATION_X,
+                card_distance_between_X,
+                0f
+        );
+        AnimatorSet leftCardTableTargetResetAnimation = new AnimatorSet();
+        leftCardTableTargetResetAnimation.setDuration(duration).playTogether(
+                shadowHide,
+                leftCardTableDicreaseAnimation,
+                leftCardTableMoveBackAnimation
+        );
+        leftCardTableTargetResetAnimation.addListener(TESTCLOSE);
+        mCardsTable[3].getChangeAnimation().playSequentially(
+                leftCardTableTargetResetAnimation,
+/*                cardTableMoveToLeft,
+                columnLeftCardTableResetAnimation,
+                columnCenterCardTableReset,
+                getColumnRightAnimation,*/
+                openCardTable
+        );
+        //endregion
+        //region Animation Top Card Table
+        AnimatorSet mTopCardTableIncreaseAnimation = new AnimatorSet();
+        mTopCardTableIncreaseAnimation.playTogether(
+                ObjectAnimator.ofFloat(
+                        mCardsTable[6],
+                        View.SCALE_X,
+                        1f,
+                        cardTableIncreaseAnimationValue
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[6],
+                        View.SCALE_Y,
+                        1f,
+                        cardTableIncreaseAnimationValue
+                )
+        );
+        AnimatorSet mTopCardTableDicreaseAnimation = new AnimatorSet();
+        mTopCardTableDicreaseAnimation.playTogether(
+                ObjectAnimator.ofFloat(
+                        mCardsTable[6],
+                        View.SCALE_X,
+                        cardTableIncreaseAnimationValue,
+                        1f
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[6],
+                        View.SCALE_Y,
+                        cardTableIncreaseAnimationValue,
+                        1f
+                )
+        );
+        Animator card_8_animation_movement = ObjectAnimator.ofFloat(
+                mCardsTable[6],
+                View.TRANSLATION_Y,
+                0f,
+                card_distance_between_Y
+        );
+        mCardsTable[6].getTargetAnimation().setDuration(duration).playTogether(
+                shadowShow,
+                mTopCardTableIncreaseAnimation,
+                card_8_animation_movement
         );
 
-        card_6_animation_next.playSequentially(
-                card_6_animation_decrease,
-                card_animation_left,
-                card_reset_column_left,
-                card_column_center_copy,
-                card_reset_column_center,
-                card_animation_get_right,
-                card_start_rotate
+        Animator topCardTableCloseFrontAnimation = ObjectAnimator.ofFloat(
+                mCardsTable[6],
+                View.ROTATION_Y,
+                0f,
+                90f
+        );
+        topCardTableCloseFrontAnimation.addListener(cardTableCloseListener);
+        Animator topCardTableCloseBackAnimation = ObjectAnimator.ofFloat(
+                mCardsTable[6],
+                View.ROTATION_Y,
+                -90f,
+                0f
+        );
+        topCardTableCloseBackAnimation.addListener(cardTableCloseBackAnimationListener);
+        mCardsTable[6].getCloseAnimation().playSequentially(
+                topCardTableCloseFrontAnimation,
+                topCardTableCloseBackAnimation
         );
 
-        card_animation_click_left.playSequentially(
-                card_animation_right,
-                card_reset_column_right,
-                card_reset_column_center,
-                card_animation_get_left
+        AnimatorSet topCardTableDicreaseAnimation = new AnimatorSet();
+        topCardTableDicreaseAnimation.playTogether(
+                ObjectAnimator.ofFloat(
+                        mCardsTable[6],
+                        View.SCALE_X,
+                        cardTableIncreaseAnimationValue,
+                        1f
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[6],
+                        View.SCALE_Y,
+                        cardTableIncreaseAnimationValue,
+                        1f
+                )
         );
-
-        card_animation_click_top.playSequentially(
-                card_animation_down,
-                card_reset_row_bottom,
-                card_reset_row_center,
-                card_animation_get_top
+        Animator topCardTableMoveBackAnimation = ObjectAnimator.ofFloat(
+                mCardsTable[6],
+                View.TRANSLATION_Y,
+                card_distance_between_Y,
+                0f
         );
-
-        card_animation_click_bottom.playSequentially(
-                card_animation_up,
-                card_reset_row_top,
-                card_reset_row_center,
-                card_animation_get_bottom
+        AnimatorSet topCardTableTargetResetAnimation = new AnimatorSet();
+        topCardTableTargetResetAnimation.setDuration(duration).playTogether(
+                shadowHide,
+                topCardTableDicreaseAnimation,
+                topCardTableMoveBackAnimation
         );
-
-        card_6_animation_next.addListener(animator_listener_adapter_end);
-        card_animation_click_left.addListener(animator_listener_adapter_end);
-        card_animation_click_top.addListener(animator_listener_adapter_end);
-        card_animation_click_bottom.addListener(animator_listener_adapter_end);
+        topCardTableTargetResetAnimation.addListener(TESTCLOSE);
+        mCardsTable[6].getChangeAnimation().playSequentially(
+                topCardTableTargetResetAnimation,
+/*                cardTableMoveToLeft,
+                columnLeftCardTableResetAnimation,
+                columnCenterCardTableReset,
+                getColumnRightAnimation,*/
+                openCardTable
+        );
+        //endregion
     }
 
     private void Set_Card_Animators_Reset() {
         card_reset_row_top.playTogether(
-                ObjectAnimator.ofFloat(cards[5], View.TRANSLATION_Y, 0f, 0f),
-                ObjectAnimator.ofFloat(cards[6], View.TRANSLATION_Y, 0f, 0f),
-                ObjectAnimator.ofFloat(cards[7], View.TRANSLATION_Y, 0f, 0f)
+                ObjectAnimator.ofFloat(mCardsTable[5], View.TRANSLATION_Y, 0f, 0f),
+                ObjectAnimator.ofFloat(mCardsTable[6], View.TRANSLATION_Y, 0f, 0f),
+                ObjectAnimator.ofFloat(mCardsTable[7], View.TRANSLATION_Y, 0f, 0f)
         );
 
         card_reset_row_center.playTogether(
-                ObjectAnimator.ofFloat(cards[3], View.TRANSLATION_Y, 0f, 0f),
+                ObjectAnimator.ofFloat(mCardsTable[3], View.TRANSLATION_Y, 0f, 0f),
                 ObjectAnimator.ofFloat(card_center, View.TRANSLATION_Y, 0f, 0f),
-                ObjectAnimator.ofFloat(cards[4], View.TRANSLATION_Y, 0f, 0f)
+                ObjectAnimator.ofFloat(mCardsTable[4], View.TRANSLATION_Y, 0f, 0f)
         );
 
         card_reset_row_bottom.playTogether(
-                ObjectAnimator.ofFloat(cards[0], View.TRANSLATION_Y, 0f, 0f),
-                ObjectAnimator.ofFloat(cards[1], View.TRANSLATION_Y, 0f, 0f),
-                ObjectAnimator.ofFloat(cards[2], View.TRANSLATION_Y, 0f, 0f)
+                ObjectAnimator.ofFloat(mCardsTable[0], View.TRANSLATION_Y, 0f, 0f),
+                ObjectAnimator.ofFloat(mCardsTable[1], View.TRANSLATION_Y, 0f, 0f),
+                ObjectAnimator.ofFloat(mCardsTable[2], View.TRANSLATION_Y, 0f, 0f)
         );
 
         card_reset_column_right.playTogether(
-                ObjectAnimator.ofFloat(cards[2], View.TRANSLATION_X, 0f, 0f),
-                ObjectAnimator.ofFloat(cards[4], View.TRANSLATION_X, 0f, 0f),
-                ObjectAnimator.ofFloat(cards[7], View.TRANSLATION_X, 0f, 0f)
-        );
-
-        card_reset_column_left.playTogether(
-                ObjectAnimator.ofFloat(cards[0], View.TRANSLATION_X, 0f, 0f),
-                ObjectAnimator.ofFloat(cards[3], View.TRANSLATION_X, 0f, 0f),
-                ObjectAnimator.ofFloat(cards[5], View.TRANSLATION_X, 0f, 0f)
-        );
-
-        card_reset_column_center.playTogether(
-                ObjectAnimator.ofFloat(cards[1], View.TRANSLATION_X, 0f, 0f),
-                ObjectAnimator.ofFloat(card_center, View.TRANSLATION_X, 0f, 0f),
-                ObjectAnimator.ofFloat(cards[6], View.TRANSLATION_X, 0f, 0f)
+                ObjectAnimator.ofFloat(mCardsTable[2], View.TRANSLATION_X, 0f, 0f),
+                ObjectAnimator.ofFloat(mCardsTable[4], View.TRANSLATION_X, 0f, 0f),
+                ObjectAnimator.ofFloat(mCardsTable[7], View.TRANSLATION_X, 0f, 0f)
         );
 
         card_6_animation_reset.playTogether(
-                ObjectAnimator.ofFloat(cards[4], View.TRANSLATION_X, 0f, 0f),
-                ObjectAnimator.ofFloat(cards[4], View.TRANSLATION_Y, 0f, 0f),
-                ObjectAnimator.ofFloat(cards[4], View.SCALE_X, 1f, 1f),
-                ObjectAnimator.ofFloat(cards[4], View.SCALE_Y, 1f, 1f)
+                ObjectAnimator.ofFloat(mCardsTable[4], View.TRANSLATION_X, 0f, 0f),
+                ObjectAnimator.ofFloat(mCardsTable[4], View.TRANSLATION_Y, 0f, 0f),
+                ObjectAnimator.ofFloat(mCardsTable[4], View.SCALE_X, 1f, 1f),
+                ObjectAnimator.ofFloat(mCardsTable[4], View.SCALE_Y, 1f, 1f)
         );
-    }
-
-    public void on_Click_Card_Left(View view) {
-
-        if (!is_animate) {
-            card_animation_click_left.start();
-        }
-    }
-
-    public void on_Click_Card_Top(View view) {
-
-        if (!is_animate) {
-            card_animation_click_top.start();
-        }
-    }
-
-    public void on_Click_Card_Bottom(View view) {
-
-        if (!is_animate) {
-            card_animation_click_bottom.start();
-        }
     }
 
     public void on_Click_Button_Start(View view) {
@@ -1716,10 +2128,11 @@ public class MainActivity extends AppCompatActivity {
         Set_Text_Size();
         Set_Animators();
 
-        Button_Start();    }
+        Button_Start();
+    }
     void Button_Start() {
         for (int i = 0; i < 8; i++) {
-            cards[i].imageView.setVisibility(View.VISIBLE);
+            mCardsTable[i].imageView.setVisibility(View.VISIBLE);
         }
         card_center.setVisibility(View.VISIBLE);
 
@@ -1739,7 +2152,7 @@ public class MainActivity extends AppCompatActivity {
         money_text.setText(String.valueOf(money));
 
         is_animate = true;
-        card_start_rotate.start();
+        openCardTable.start();
     }
 
     public void on_Click_Button_Continue(View view) {
@@ -1753,12 +2166,13 @@ public class MainActivity extends AppCompatActivity {
         if (target_swap != null) {
             Target_Reset();
         }
+        mCardTableTarget.getChangeAnimation().start();
+        mCardTableTarget.setOnClickListener(setTargetListener);
         button_continue.setVisibility(View.GONE);
-        card_6_animation_next.start();
     }
 
     public void On_Click_Trade_Exit(View view){
-        card_6_animation_next.start();
+        mCardTableTarget.getChangeAnimation().start();
         trade_skill.setVisibility(View.GONE);
         trade_zone.setVisibility(View.GONE);
         table.setOnDragListener(on_drop);

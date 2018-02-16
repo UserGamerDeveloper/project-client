@@ -1,5 +1,6 @@
 package com.example.skatt.myapplication;
 
+import android.animation.AnimatorSet;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -9,21 +10,24 @@ import android.widget.TextView;
 
 import java.util.Random;
 
-class Card_Mob extends Card {
+class Card_Table extends Card {
 
+    private static final int cardCenterBack = R.drawable.perekrestok;
+    private AnimatorSet mTargetAnimation = new AnimatorSet();
+    private AnimatorSet mCloseAnimation = new AnimatorSet();
+    private AnimatorSet mChangeAnimation = new AnimatorSet();
+    private byte mIdInArray;
     private int value_two;
     TextView value_two_text;
     private int money;
 
-    public Card_Mob(Context context) {
+    public Card_Table(Context context) {
         super(context);
     }
-
-    public Card_Mob(Context context, AttributeSet attrs) {
+    public Card_Table(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
-
-    public Card_Mob(Context context, AttributeSet attrs, int defStyleAttr) {
+    public Card_Table(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
@@ -47,7 +51,7 @@ class Card_Mob extends Card {
                 DB_Open_Helper.id + "=?",
                 new String[]{String.valueOf(random.nextInt(8))},
 /*
-                new String[]{6+""},
+                new String[]{0+""},
 */
                 null,
                 null,
@@ -91,8 +95,7 @@ class Card_Mob extends Card {
 
         cursor.close();
     }
-
-    void Copy(Card_Mob card){
+    void Copy(Card_Table card){
 
         super.Copy(card);
         this.value_two = card.Get_Damage();
@@ -101,7 +104,6 @@ class Card_Mob extends Card {
     }
 
     void Open() {
-
         super.Open();
         if(type==Card_Table_Type.MOB){
             this.value_one_text.setVisibility(View.VISIBLE);
@@ -112,6 +114,16 @@ class Card_Mob extends Card {
     void Close(int card_back) {
         super.Close(card_back);
         this.value_two_text.setVisibility(View.INVISIBLE);
+    }
+    boolean Is_Close(){
+        return ((id_drawable == card_back) || (id_drawable==cardCenterBack));
+    }
+
+    public AnimatorSet getTargetAnimation() {
+        return mTargetAnimation;
+    }
+    public void setTargetAnimation(AnimatorSet targetAnimation) {
+        mTargetAnimation = targetAnimation;
     }
 
     int Get_Damage(){
@@ -125,8 +137,28 @@ class Card_Mob extends Card {
     int Get_Money(){
         return money;
     }
-
     void Set_Money(int money){
         this.money = money;
+    }
+
+    public byte getIdInArray() {
+        return mIdInArray;
+    }
+    public void setIdInArray(byte idInArray) {
+        mIdInArray = idInArray;
+    }
+
+    public AnimatorSet getCloseAnimation() {
+        return mCloseAnimation;
+    }
+    public void setCloseAnimation(AnimatorSet closeAnimation) {
+        mCloseAnimation = closeAnimation;
+    }
+
+    public AnimatorSet getChangeAnimation() {
+        return mChangeAnimation;
+    }
+    public void setChangeAnimation(AnimatorSet changeAnimation) {
+        mChangeAnimation = changeAnimation;
     }
 }

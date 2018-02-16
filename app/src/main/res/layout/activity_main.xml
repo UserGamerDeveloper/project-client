@@ -127,7 +127,7 @@
             app:layout_constraintTop_toTopOf="@+id/guideline_horizontal0"
             app:srcCompat="@drawable/krujka_stoll" />
 
-        <com.example.skatt.myapplication.Card_Mob
+        <com.example.skatt.myapplication.Card_Table
             android:id="@+id/card_table_9"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -185,13 +185,12 @@
                 app:layout_constraintTop_toTopOf="@+id/card_view_9"
                 app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
 
-        </com.example.skatt.myapplication.Card_Mob>
+        </com.example.skatt.myapplication.Card_Table>
 
-        <com.example.skatt.myapplication.Card_Mob
+        <com.example.skatt.myapplication.Card_Table
             android:id="@+id/card_table_8"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:onClick="on_Click_Card_Top"
             app:layout_constraintBottom_toBottomOf="@+id/guideline_horizontal1"
             app:layout_constraintLeft_toLeftOf="@+id/guideline_vertical2"
             app:layout_constraintRight_toRightOf="@+id/guideline_vertical3"
@@ -246,9 +245,9 @@
                 app:layout_constraintTop_toTopOf="@+id/card_view_8"
                 app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
 
-        </com.example.skatt.myapplication.Card_Mob>
+        </com.example.skatt.myapplication.Card_Table>
 
-        <com.example.skatt.myapplication.Card_Mob
+        <com.example.skatt.myapplication.Card_Table
             android:id="@+id/card_table_7"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -306,8 +305,8 @@
                 app:layout_constraintTop_toTopOf="@+id/card_view_7"
                 app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
 
-        </com.example.skatt.myapplication.Card_Mob>
-        <com.example.skatt.myapplication.Card_Mob
+        </com.example.skatt.myapplication.Card_Table>
+        <com.example.skatt.myapplication.Card_Table
             android:id="@+id/card_table_6"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -365,7 +364,7 @@
                     app:layout_constraintTop_toTopOf="@+id/card_view_6"
                     app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
 
-    </com.example.skatt.myapplication.Card_Mob>
+    </com.example.skatt.myapplication.Card_Table>
 
         <ImageView
             android:id="@+id/card_view_5"
@@ -378,11 +377,10 @@
             app:layout_constraintTop_toTopOf="@+id/guideline_horizontal2"
             app:srcCompat="@drawable/perekrestok" />
 
-        <com.example.skatt.myapplication.Card_Mob
+        <com.example.skatt.myapplication.Card_Table
             android:id="@+id/card_table_4"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:onClick="on_Click_Card_Left"
             app:layout_constraintBottom_toBottomOf="@+id/guideline_horizontal3"
             app:layout_constraintLeft_toLeftOf="@+id/guideline_vertical0"
             app:layout_constraintRight_toRightOf="@+id/guideline_vertical1"
@@ -437,9 +435,9 @@
                 app:layout_constraintTop_toTopOf="@+id/card_view_4"
                 app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
 
-        </com.example.skatt.myapplication.Card_Mob>
+        </com.example.skatt.myapplication.Card_Table>
 
-        <com.example.skatt.myapplication.Card_Mob
+        <com.example.skatt.myapplication.Card_Table
             android:id="@+id/card_table_3"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -497,13 +495,12 @@
                 app:layout_constraintTop_toTopOf="@+id/card_view_3"
                 app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
 
-        </com.example.skatt.myapplication.Card_Mob>
+        </com.example.skatt.myapplication.Card_Table>
 
-        <com.example.skatt.myapplication.Card_Mob
+        <com.example.skatt.myapplication.Card_Table
             android:id="@+id/card_table_2"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:onClick="on_Click_Card_Bottom"
             app:layout_constraintBottom_toBottomOf="@+id/guideline_horizontal5"
             app:layout_constraintLeft_toLeftOf="@+id/guideline_vertical2"
             app:layout_constraintRight_toRightOf="@+id/guideline_vertical3"
@@ -558,9 +555,9 @@
                 app:layout_constraintTop_toTopOf="@+id/card_view_2"
                 app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
 
-        </com.example.skatt.myapplication.Card_Mob>
+        </com.example.skatt.myapplication.Card_Table>
 
-        <com.example.skatt.myapplication.Card_Mob
+        <com.example.skatt.myapplication.Card_Table
             android:id="@+id/card_table_1"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -618,7 +615,7 @@
                 app:layout_constraintTop_toTopOf="@+id/card_view_1"
                 app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
 
-        </com.example.skatt.myapplication.Card_Mob>
+        </com.example.skatt.myapplication.Card_Table>
 
 
         <android.support.constraint.Guideline

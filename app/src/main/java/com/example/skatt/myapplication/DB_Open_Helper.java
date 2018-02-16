@@ -340,16 +340,6 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
                 DB_Open_Helper.table_mobs,
                 null,
                 values);
-
-        values.put(DB_Open_Helper.id, 8);
-        values.put(DB_Open_Helper.name, "Доска объявлений");
-        values.put(DB_Open_Helper.id_image, R.drawable.objavleniya);
-        values.put(DB_Open_Helper.type, Card_Table_Type.QUEST_BOARD);
-
-        sqLiteDatabase.insert(
-                DB_Open_Helper.table_mobs,
-                null,
-                values);
     }
 
     @Override

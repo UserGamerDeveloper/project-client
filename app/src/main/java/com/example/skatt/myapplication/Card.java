@@ -11,6 +11,7 @@ import com.squareup.picasso.Picasso;
 
 public class Card extends ConstraintLayout {
 
+    protected static final int card_back = R.drawable.card_back;
     int type;
     int value_one;
     int id_drawable;
@@ -62,7 +63,7 @@ public class Card extends ConstraintLayout {
         this.id_drawable = card_back;
     }
 
-    boolean Is_Close(int card_back){
+    boolean Is_Close(){
         return id_drawable == card_back;
     }
 
