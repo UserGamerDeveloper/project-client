@@ -58,7 +58,7 @@ class Card_Inventory extends Card {
         setData(random, cursor);
     }
     void Change(DB_Open_Helper db_open_helper, Random random, int gearScoreMob, int type){
-
+        gearScoreMob = 0;
         SQLiteDatabase data_base = db_open_helper.getReadableDatabase();
 
         Cursor cursor = data_base.query(

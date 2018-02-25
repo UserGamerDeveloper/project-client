@@ -85,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
     AnimatorSet openCardTable = new AnimatorSet();
 
     View.OnLongClickListener on_long_click = on_long_click();
+    private int mChanceChest;
 
     View.OnLongClickListener on_long_click() {
         return new View.OnLongClickListener() {
@@ -447,6 +448,12 @@ public class MainActivity extends AppCompatActivity {
                         mCardTableTarget.getTargetAnimation().start();
                         Change_HP(halt_health);
                         mCardTableTarget.getChangeAnimation().start();
+                    }
+                    if (mCardTableTarget.getType()== CardTableType.CHEST){
+                        shadow.bringToFront();
+                        mCardTableTarget.bringToFront();
+                        mCardTableTarget.getTargetAnimation().start();
+                        mCardTableTarget.getCloseAnimation().start();
                     }
                 }
             }
@@ -1262,7 +1269,8 @@ public class MainActivity extends AppCompatActivity {
                 DB_Open_Helper.sChanceHalt,
                 DB_Open_Helper.sChanceWeaponOrShield,
                 DB_Open_Helper.sChanceFood,
-                DB_Open_Helper.sChanceSpell
+                DB_Open_Helper.sChanceSpell,
+                DB_Open_Helper.sChanceChest
         };
 
         Cursor cursor = data_base.query(
@@ -1289,6 +1297,9 @@ public class MainActivity extends AppCompatActivity {
                 cursor.getColumnIndexOrThrow(DB_Open_Helper.sChanceFood)
         );
         mChanceSpell = cursor.getInt(
+                cursor.getColumnIndexOrThrow(DB_Open_Helper.sChanceSpell)
+        );
+        mChanceChest = cursor.getInt(
                 cursor.getColumnIndexOrThrow(DB_Open_Helper.sChanceSpell)
         );
         cursor.close();
@@ -2708,18 +2719,26 @@ public class MainActivity extends AppCompatActivity {
         shadow.bringToFront();
 
         int[] typeLoot = new int[3];
-        loot_count = 0;
-        if (random.nextInt(mChanceWeaponOrShield)==0){
-            typeLoot[loot_count]=random.nextInt(2);
-            loot_count++;
+        if (mCardTableTarget.getType()==CardTableType.MOB){
+            loot_count = 0;
+            if (random.nextInt(mChanceWeaponOrShield)==0){
+                typeLoot[loot_count]=random.nextInt(2);
+                loot_count++;
+            }
+            if (random.nextInt(mChanceFood)==0){
+                typeLoot[loot_count]= Inventory_Type.FOOD;
+                loot_count++;
+            }
+            if (random.nextInt(mChanceSpell)==0){
+                typeLoot[loot_count]=Inventory_Type.SPELL;
+                loot_count++;
+            }
         }
-        if (random.nextInt(mChanceFood)==0){
-            typeLoot[loot_count]= Inventory_Type.FOOD;
-            loot_count++;
-        }
-        if (random.nextInt(mChanceSpell)==0){
-            typeLoot[loot_count]=Inventory_Type.SPELL;
-            loot_count++;
+        else{
+            loot_count = random.nextInt(3)+1;
+            for (byte i=0;i<loot_count;i++){
+                typeLoot[i]=random.nextInt(4);
+            }
         }
         for (int i = 0; i < loot_count; i++) {
             loot[i].bringToFront();
@@ -2740,15 +2759,22 @@ public class MainActivity extends AppCompatActivity {
 
     private void spawn(Card_Table cardTable) {
         if (cardTable.Is_Close()) {
-            if (random.nextInt(mChanceVendor)==0){
-                cardTable.Change(db_open_helper, random.nextInt(3));
+            if (random.nextInt(mChanceChest)==0){
+                cardTable.Change(db_open_helper, 8);
+                cardTable.Set_Money(0);
+                cardTable.setGearScore(mGearScore);
             }
             else{
-                if (random.nextInt(mChanceHalt)==0){
-                    cardTable.Change(db_open_helper, 7);
+                if (random.nextInt(mChanceVendor)==0){
+                    cardTable.Change(db_open_helper, random.nextInt(3));
                 }
                 else{
-                    cardTable.Change(db_open_helper, random, mGearScore);
+                    if (random.nextInt(mChanceHalt)==0){
+                        cardTable.Change(db_open_helper, 7);
+                    }
+                    else{
+                        cardTable.Change(db_open_helper, random, mGearScore);
+                    }
                 }
             }
         }

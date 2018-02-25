@@ -30,6 +30,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
     public static final String sChanceWeaponOrShield = "ChanceWeaponOrShield";
     public static final String sChanceFood = "ChanceFood";
     public static final String sChanceSpell = "ChanceSpell";
+    public static final String sChanceChest = "ChanceChest";
 
     DB_Open_Helper(Context context) {
         super(context, DB_name, null, DB_version);
@@ -48,7 +49,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         String tableTestCreateQuery = "create table " + sTableTest + " ("+ money +" INTEGER, "
                 + sChanceHalt + " INTEGER, " + sChanceWeaponOrShield + " INTEGER, " + sChanceFood +
                 " INTEGER, " + sChanceSpell + " INTEGER, "+ sChanceVendor + " INTEGER, " +
-                MOBGEARSCORE + " INTEGER, " + type + " INTEGER)";
+                sChanceChest + " INTEGER, " + type + " INTEGER)";
 
         sqLiteDatabase.execSQL(query_table_mobs_create);
         sqLiteDatabase.execSQL(query_table_inventory_create);
@@ -71,6 +72,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.sChanceWeaponOrShield, 5);
         values.put(DB_Open_Helper.sChanceFood, 3);
         values.put(DB_Open_Helper.sChanceSpell, 10);
+        values.put(DB_Open_Helper.sChanceChest, 40);
 
         sqLiteDatabase.insert(
                 DB_Open_Helper.sTableTest,
@@ -431,6 +433,17 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.name, "Привал");
         values.put(DB_Open_Helper.id_image, R.drawable.prival);
         values.put(DB_Open_Helper.type, CardTableType.HALT);
+        values.put(DB_Open_Helper.GEARSCORE, 9999);
+
+        sqLiteDatabase.insert(
+                DB_Open_Helper.table_mobs,
+                null,
+                values);
+
+        values.put(DB_Open_Helper.id, 8);
+        values.put(DB_Open_Helper.name, "Сундук");
+        values.put(DB_Open_Helper.id_image, R.drawable.testblack);
+        values.put(DB_Open_Helper.type, CardTableType.CHEST);
         values.put(DB_Open_Helper.GEARSCORE, 9999);
 
         sqLiteDatabase.insert(
