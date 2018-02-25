@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.AttributeSet;
 import android.view.View;
+import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
@@ -18,12 +19,16 @@ class Card_Inventory extends Card {
             DB_Open_Helper.value_one,
             DB_Open_Helper.id_image,
             DB_Open_Helper.type,
-            DB_Open_Helper.cost
+            DB_Open_Helper.cost,
+            DB_Open_Helper.GEARSCORE,
+            DB_Open_Helper.MOBGEARSCORE
     };
     int durability;
     byte slot_type;
     byte slot_id;
     int cost;
+    int TEST_MOB_GEARSCORE;
+    TextView TEST_MOB_GEARSCORE_TEXT;
 
     public Card_Inventory(Context context) {
         super(context);
@@ -35,74 +40,51 @@ class Card_Inventory extends Card {
         super(context, attrs, defStyleAttr);
     }
 
-    void Change(DB_Open_Helper db_open_helper, Random random){
-
+    void Change(DB_Open_Helper db_open_helper, Random random, int gearScoreMob){
+        gearScoreMob = 0;
         SQLiteDatabase data_base = db_open_helper.getReadableDatabase();
 
         int type = random.nextInt(3);
-        String[] value = new String[]{
-                String.valueOf(type*DB_Open_Helper.count_id_in_type +
-                        random.nextInt(DB_Open_Helper.count_item_in_type.get(type)))
-        };
 
         Cursor cursor = data_base.query(
                 DB_Open_Helper.table_inventory,
                 column_name,
-                DB_Open_Helper.id + "=?",
-                value,
+                DB_Open_Helper.MOBGEARSCORE + "=? AND " + DB_Open_Helper.type + "=?",
+                new String[]{gearScoreMob+"",type+""},
                 null,
                 null,
                 null
         );
-
-        cursor.moveToFirst();
-
-        name_text.setText(
-                cursor.getString(
-                        cursor.getColumnIndexOrThrow(DB_Open_Helper.name)
-                )
-        );
-
-        value_one = cursor.getInt(
-                cursor.getColumnIndexOrThrow(DB_Open_Helper.value_one)
-        );
-
-        this.Set_Value_One_text(value_one);
-
-        id_drawable = cursor.getInt(
-                cursor.getColumnIndexOrThrow(DB_Open_Helper.id_image)
-        );
-
-        this.type = cursor.getInt(
-                cursor.getColumnIndexOrThrow(DB_Open_Helper.type)
-        );
-
-        this.cost = cursor.getInt(
-                cursor.getColumnIndexOrThrow(DB_Open_Helper.cost)
-        );
-        durability = random.nextInt(10)+1;
-        cursor.close();
+        setData(random, cursor);
     }
-    void Change(DB_Open_Helper db_open_helper, Random random, int type){
+    void Change(DB_Open_Helper db_open_helper, Random random, int gearScoreMob, int type){
 
         SQLiteDatabase data_base = db_open_helper.getReadableDatabase();
 
-        String[] value = new String[]{
-                String.valueOf(type*DB_Open_Helper.count_id_in_type +
-                        random.nextInt(DB_Open_Helper.count_item_in_type.get(type)))
-        };
-
         Cursor cursor = data_base.query(
                 DB_Open_Helper.table_inventory,
                 column_name,
-                DB_Open_Helper.id + "=?",
-                value,
+                DB_Open_Helper.MOBGEARSCORE + "=? AND " + DB_Open_Helper.type + "=?",
+                new String[]{gearScoreMob+"",type+""},
                 null,
                 null,
                 null
         );
 
-        cursor.moveToFirst();
+        setData(random, cursor);
+    }
+    private void setData(Random random, Cursor cursor) {
+        cursor.moveToPosition(random.nextInt(cursor.getCount()));
+
+        this.mGearScore = cursor.getInt(
+                cursor.getColumnIndexOrThrow(DB_Open_Helper.GEARSCORE)
+        );
+        this.TEST_GearScoreText.setText(String.format("%d", mGearScore));
+
+        TEST_MOB_GEARSCORE = cursor.getInt(
+                cursor.getColumnIndexOrThrow(DB_Open_Helper.MOBGEARSCORE)
+        );
+        this.TEST_GearScoreText.setText(String.format("%d", TEST_MOB_GEARSCORE));
 
         name_text.setText(
                 cursor.getString(
@@ -141,6 +123,8 @@ class Card_Inventory extends Card {
         this.value_one_text.setVisibility(View.VISIBLE);
         this.durability = card.Get_Durability();
         this.cost = card.Get_Cost();
+        this.TEST_MOB_GEARSCORE = card.TEST_MOB_GEARSCORE;
+        TEST_MOB_GEARSCORE_TEXT.setText(this.TEST_MOB_GEARSCORE+"");
     }
     void Copy(Card_Inventory_Temp card){
 
@@ -155,17 +139,23 @@ class Card_Inventory extends Card {
         this.type = card.Get_Type();
         this.durability = card.durability;
         this.cost = card.Get_Cost();
+        this.mGearScore = card.getGearScore();
+        this.TEST_GearScoreText.setText(String.format("%d", mGearScore));
+        this.TEST_MOB_GEARSCORE = card.TEST_MOB_GEARSCORE;
+        TEST_MOB_GEARSCORE_TEXT.setText(this.TEST_MOB_GEARSCORE+"");
     }
 
     int Get_Cost(){
         return cost;
     }
+
     int Get_Durability(){
         return durability;
     }
     void Set_Durability(int durability){
         this.durability = durability;
     }
+
     public byte getSlot_type() {
         return slot_type;
     }

@@ -7,15 +7,19 @@ public class Card_Inventory_Temp {
     CharSequence name_text = "";
     int durability;
     int cost;
+    int mGearScore;
+    int TEST_MOB_GEARSCORE;
 
     void Copy(Card_Inventory card){
 
         this.value_one = card.Get_Value_One();
         this.id_drawable = card.Get_Id_Drawable();
         this.name_text = card.name_text.getText();
-        this.type = card.Get_Type();
+        this.type = card.getType();
         this.durability = card.Get_Durability();
         this.cost = card.Get_Cost();
+        this.mGearScore = card.getGearScore();
+        this.TEST_MOB_GEARSCORE = card.TEST_MOB_GEARSCORE;
     }
 
     boolean Is_Close(int card_back){
@@ -35,5 +39,12 @@ public class Card_Inventory_Temp {
     }
     int Get_Cost(){
         return cost;
+    }
+
+    public int getGearScore() {
+        return mGearScore;
+    }
+    public void setGearScore(int gearScore) {
+        mGearScore = gearScore;
     }
 }

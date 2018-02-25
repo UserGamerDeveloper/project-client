@@ -5,27 +5,35 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.ClipData;
+import android.content.ContentValues;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 import static android.util.TypedValue.COMPLEX_UNIT_PX;
 
 public class MainActivity extends AppCompatActivity {
 
+    int mTopGearScoreWeaponOrShieldInInventory;
+    ArrayList<Integer> mGearScoreWeaponOrShieldInInventory = new ArrayList<>(6);
+    int mGearScore;
     int money;
     int money_bank = 0;
     int hp_max = 30;
@@ -54,6 +62,11 @@ public class MainActivity extends AppCompatActivity {
     float card_hp_and_damage_text_size_constant = 0.102033f;
     float hp_text_size;
     float hp_text_size_constant = 0.154202f;
+    private int mChanceVendor;
+    private int mChanceHalt;
+    private int mChanceWeaponOrShield;
+    private int mChanceFood;
+    private int mChanceSpell;
 
     AnimatorSet card_reset_column_right = new AnimatorSet();
     AnimatorSet card_reset_row_top = new AnimatorSet();
@@ -77,12 +90,13 @@ public class MainActivity extends AppCompatActivity {
         return new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-
-                if (target_swap.Get_Type() == Inventory_Type.FOOD) {
+                if (target_swap.getType() == Inventory_Type.FOOD) {
                     Change_HP(target_swap.Get_Value_One());
                     inventory_item_count--;
+                    ChangeGearScore(-target_swap.getGearScore());
                     Inventory_Sort();
                     Loot_Get();
+                    Log.d("Target_Reset", "use food");
                     Target_Reset();
                     return true;
                 }
@@ -93,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
                             inventory[inventory_item_count].Copy(card_hand);
                             inventory[inventory_item_count].setVisibility(View.VISIBLE);
                             inventory_item_count++;
+                            ChangeGearScore(getChangeGearScoreAfterReplace(null,0));
                             Set_Hand(card_hand);
                         }
                         else{
@@ -100,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
                             trade_window_text.setText("Нет места в инвентаре.");
                             trade_window_ok.setVisibility(View.VISIBLE);
                         }
+                        Log.d("Target_Reset", "hand take off");
                         Target_Reset();
                     }
                     return true;
@@ -116,11 +132,12 @@ public class MainActivity extends AppCompatActivity {
             public boolean onTouch(View v, MotionEvent event) {
                 if(MotionEvent.ACTION_MOVE==event.getAction()){
                     if (event.getHistorySize()==1){
-                        if (event.getY()!=event.getHistoricalY(0)) {
-                            target_swap.setVisibility(View.INVISIBLE);
+                        if (event.getY()<event.getHistoricalY(0)) {
                             ClipData data = ClipData.newPlainText("", "");
                             View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(target_swap);
                             target_swap.startDrag(data, shadowBuilder, target_swap, 0);
+                            target_swap.setVisibility(View.INVISIBLE);
+                            Log.d("INVISIBLE", "onTouch: ");
                         }
                     }
                 }
@@ -153,9 +170,144 @@ public class MainActivity extends AppCompatActivity {
         inventory[id].setVisibility(View.GONE);
     }
 
-    View.OnDragListener on_drop = Create_On_Drop();
+    View.OnDragListener mHandOnDropListener = mHandOnDropListener();
 
-    View.OnDragListener Create_On_Drop() {
+    View.OnDragListener mHandOnDropListener() {
+        return new View.OnDragListener() {
+            @Override
+            public boolean onDrag(View v, DragEvent event) {
+                if (!event.getResult() && event.getAction() == DragEvent.ACTION_DRAG_STARTED) {
+                    return true;
+                }
+                if (!event.getResult() && event.getAction() == DragEvent.ACTION_DRAG_ENDED) {
+                    target_swap.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            target_swap.setVisibility(View.VISIBLE);
+                        }
+                    });
+                    return false;
+                }
+                if (event.getAction() == DragEvent.ACTION_DROP) {
+                    Card_Hand target_swap_two = ((Card_Hand) v);
+                    if (target_swap_two.slot_type!=target_swap.slot_type) {
+                        if (target_swap.getType() == Inventory_Type.SHIELD || target_swap.getType() ==
+                                Inventory_Type.WEAPON) {
+                            if(target_swap_two.durability_text.getVisibility()==View.VISIBLE){
+                                inventory_temp.Copy(target_swap_two);
+                                target_swap_two.Copy(target_swap);
+                                target_swap.Copy(inventory_temp);
+                                target_swap.setVisibility(View.VISIBLE);
+                            }
+                            else{
+                                ChangeGearScore(getChangeGearScoreAfterReplace(0,null));
+                                target_swap_two.Copy(target_swap);
+                                target_swap_two.durability_text.setVisibility(View.VISIBLE);
+                                target_swap_two.durability_image.setVisibility(View.VISIBLE);
+                                inventory_item_count--;
+                                Inventory_Sort();
+                                Loot_Get();
+                            }
+                            Log.d("Target_Reset", "hand swap");
+                            Target_Reset();
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+        };
+    }
+
+    View.OnDragListener mLootOnDropListener = mLootOnDropListener();
+
+    View.OnDragListener mLootOnDropListener() {
+        return new View.OnDragListener() {
+            @Override
+            public boolean onDrag(View v, DragEvent event) {
+                if (!event.getResult() && event.getAction() == DragEvent.ACTION_DRAG_STARTED) {
+                    return true;
+                }
+                if (!event.getResult() && event.getAction() == DragEvent.ACTION_DRAG_ENDED) {
+                    target_swap.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            target_swap.setVisibility(View.VISIBLE);
+                        }
+                    });
+                    return false;
+                }
+                if (event.getAction() == DragEvent.ACTION_DROP) {
+                    Card_Inventory target_swap_two = ((Card_Inventory) v);
+                    if (target_swap.slot_type == Slot_Type.INVENTORY) {
+                        if ((target_swap_two.getType() == Inventory_Type.WEAPON ||
+                                target_swap_two.getType() == Inventory_Type.SHIELD) &&
+                                (target_swap.getType() == Inventory_Type.WEAPON ||
+                                        target_swap.getType() == Inventory_Type.SHIELD))
+                        {
+                            ChangeGearScore(getChangeGearScoreAfterReplace(target_swap.getGearScore(),target_swap_two.getGearScore()));
+                        }
+                        else{
+                            if (target_swap.getType() == Inventory_Type.WEAPON ||
+                                    target_swap.getType() == Inventory_Type.SHIELD)
+                            {
+                                ChangeGearScore(getChangeGearScoreAfterReplace(target_swap.getGearScore(),null));
+                                ChangeGearScore(target_swap_two.getGearScore());
+                            }
+                            else{
+                                if (target_swap_two.getType() == Inventory_Type.WEAPON ||
+                                        target_swap_two.getType() == Inventory_Type.SHIELD)
+                                {
+                                    ChangeGearScore(getChangeGearScoreAfterReplace(null,target_swap_two.getGearScore()));
+                                    ChangeGearScore(-target_swap.getGearScore());
+                                }
+                                else{
+                                    ChangeGearScore(target_swap_two.getGearScore()-target_swap.getGearScore());
+                                }
+                            }
+                        }
+                        inventory_temp.Copy(target_swap_two);
+                        target_swap_two.Copy(target_swap);
+                        target_swap.Copy(inventory_temp);
+                        target_swap.setVisibility(View.VISIBLE);
+                        Log.d("Target_Reset", "loot swap");
+                        Target_Reset();
+                        return true;
+                    }
+                    else {
+                        if (target_swap_two.getType() == Inventory_Type.WEAPON ||
+                                        target_swap_two.getType() == Inventory_Type.SHIELD)
+                        {
+                            if(((Card_Hand)target_swap).durability_text.getVisibility()==View.VISIBLE){
+                                        ChangeGearScore(getChangeGearScoreAfterReplace(target_swap.getGearScore(),target_swap_two.getGearScore()));
+                                        inventory_temp.Copy(target_swap_two);
+                                        target_swap_two.Copy(target_swap);
+                                        target_swap.Copy(inventory_temp);
+                            }
+                            else{
+                                        ChangeGearScore(getChangeGearScoreAfterReplace(target_swap.getGearScore(),target_swap_two.getGearScore()));
+                                        target_swap.Copy(target_swap_two);
+                                        ((Card_Hand)target_swap).durability_text.setVisibility(View.VISIBLE);
+                                        ((Card_Hand)target_swap).durability_image.setVisibility(View.VISIBLE);
+                                        target_swap_two.setVisibility(View.GONE);
+                                        loot_count--;
+                                        Try_Continue();
+                            }
+                            target_swap.setVisibility(View.VISIBLE);
+                            Log.d("Target_Reset", "loot swap");
+                            Target_Reset();
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+        };
+    }
+
+    View.OnDragListener mTableOnDropListener = mTableOnDropListener();
+
+    View.OnDragListener mTableOnDropListener() {
         return new View.OnDragListener() {
             @Override
             public boolean onDrag(View v, DragEvent event) {
@@ -173,99 +325,40 @@ public class MainActivity extends AppCompatActivity {
                     return false;
                 }
                 if (event.getAction() == DragEvent.ACTION_DROP) {
-                    if (v.equals(table)) {
-                        if (target_swap.Get_Type() == Inventory_Type.FOOD) {
+                        if (target_swap.getType() == Inventory_Type.FOOD) {
                             Change_HP(target_swap.Get_Value_One());
+                            ChangeGearScore(-target_swap.getGearScore());
                             inventory_item_count--;
                             Inventory_Sort();
                             Loot_Get();
+                            Log.d("Target_Reset", "use food");
                             Target_Reset();
                             return true;
                         }
-                    }
-                    else {
-                        Card_Inventory target_swap_two = ((Card_Inventory) v);
-                        if (target_swap_two.slot_type!=target_swap.slot_type) {
-                            if (target_swap_two.slot_type == Slot_Type.HAND) {
-                                if (target_swap.Get_Type() == Inventory_Type.SHIELD || target_swap.Get_Type() ==
-                                        Inventory_Type.WEAPON) {
-                                    if(((Card_Hand)target_swap_two).durability_text.getVisibility()==View.VISIBLE){
-                                            inventory_temp.Copy(target_swap_two);
-                                            target_swap_two.Copy(target_swap);
-                                            target_swap.Copy(inventory_temp);
-                                            target_swap.setVisibility(View.VISIBLE);
-                                    }
-                                    else{
-                                            if(target_swap.slot_type==Slot_Type.INVENTORY){
-                                                target_swap_two.Copy(target_swap);
-                                                ((Card_Hand)target_swap_two).durability_text.setVisibility(View.VISIBLE);
-                                                ((Card_Hand)target_swap_two).durability_image.setVisibility(View.VISIBLE);
-                                                inventory_item_count--;
-                                                Inventory_Sort();
-                                                Loot_Get();
-                                            }
-                                            else{
-                                                target_swap_two.Copy(target_swap);
-                                                ((Card_Hand)target_swap_two).durability_text.setVisibility(View.VISIBLE);
-                                                ((Card_Hand)target_swap_two).durability_image.setVisibility(View.VISIBLE);
-                                                target_swap.setVisibility(View.GONE);
-                                                loot_count--;
-                                                Try_Continue();
-                                            }
-                                    }
-                                    Target_Reset();
-                                    return true;
-                                }
-                                else {
-                                    target_swap.setVisibility(View.VISIBLE);
-                                    return false;
-                                }
-                            }
-                            if (target_swap_two.slot_type == Slot_Type.LOOT) {
-                                if (target_swap.slot_type != Slot_Type.HAND) {
-                                    inventory_temp.Copy(target_swap_two);
-                                    target_swap_two.Copy(target_swap);
-                                    target_swap.Copy(inventory_temp);
-                                    target_swap.setVisibility(View.VISIBLE);
-                                    Target_Reset();
-                                    return true;
-                                }
-                                else {
-                                    if (target_swap_two.Get_Type() == Inventory_Type.WEAPON ||
-                                            target_swap_two.Get_Type() == Inventory_Type.SHIELD) {
-                                        if(((Card_Hand)target_swap).durability_text.getVisibility()==View.VISIBLE){
-                                                inventory_temp.Copy(target_swap_two);
-                                                target_swap_two.Copy(target_swap);
-                                                target_swap.Copy(inventory_temp);
-                                        }
-                                        else{
-                                            target_swap.Copy(target_swap_two);
-                                            ((Card_Hand)target_swap).durability_text.setVisibility(View.VISIBLE);
-                                            ((Card_Hand)target_swap).durability_image.setVisibility(View.VISIBLE);
-                                            target_swap_two.setVisibility(View.GONE);
-                                            loot_count--;
-                                            Try_Continue();
-                                        }
-                                        target_swap.setVisibility(View.VISIBLE);
-                                        Target_Reset();
-                                        return true;
-                                    }
-                                    else {
-                                        target_swap.setVisibility(View.VISIBLE);
-                                        return false;
-                                    }
-                                }
-                            }
-                        }
-                        else{
-                            target_swap.setVisibility(View.VISIBLE);
-                            return false;
-                        }
-                    }
                 }
+
                 return false;
             }
         };
+    }
+
+    private int getChangeGearScoreAfterReplace(Object remove, Object add) {
+        if (remove!=null){
+            mGearScoreWeaponOrShieldInInventory.remove(Integer.valueOf((int)remove));
+        }
+        if (add!=null){
+            mGearScoreWeaponOrShieldInInventory.add((int)add);
+        }
+        int listSize = mGearScoreWeaponOrShieldInInventory.size();
+        Integer[] a = new Integer[listSize];
+        mGearScoreWeaponOrShieldInInventory.toArray(a);
+        Arrays.sort(a);
+        for (Integer b:a) {
+            Log.d("mGearScorelist", String.valueOf(b));
+        }
+        int b = a[listSize-1]+a[listSize-2]-mTopGearScoreWeaponOrShieldInInventory;
+        mTopGearScoreWeaponOrShieldInInventory = a[listSize-1]+a[listSize-2];
+        return b;
     }
 
     byte halt_health = 1;
@@ -278,92 +371,77 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (!is_animate) {
                     is_animate = true;
+                    Log.d("is_animate", String.valueOf(is_animate));
                     mCardTableTarget = (Card_Table) v;
-                    if(mCardTableTarget.Get_Type()==Card_Table_Type.MOB){
+                    if(mCardTableTarget.getType()== CardTableType.MOB){
                         mCardTableTarget.bringToFront();
                         mCardTableTarget.getTargetAnimation().start();
                         mCardTableTarget.setOnClickListener(damag_listener);
                     }
-                    if(mCardTableTarget.Get_Type()==Card_Table_Type.VENDOR){
-                        shadow.bringToFront();
-                        mCardTableTarget.bringToFront();
+                    if (mCardTableTarget.getType()==CardTableType.VENDOR){
+                        if(mCardTableTarget.getSubType()== CardTableSubType.TRADER){
+                            shadow.bringToFront();
+                            mCardTableTarget.bringToFront();
 /*
                         card_6_animation_click_vendor.start();
 */
-                        Picasso.with(getBaseContext()).load(R.drawable.navik_torgovca).into(trade_skill_image);
-                        trade_skill_image.setOnClickListener(on_click_vendor_skill);
-                        for (byte i = 0; i<loot_max_count;i++){
-                            trade_item[i].Change(db_open_helper,random);
-                            trade_item[i].Open();
-                            trade_item[i].setVisibility(View.VISIBLE);
-                            trade_cost[i].setText(String.format("%d", trade_item[i].Get_Cost()));
-                            trade_cost[i].setVisibility(View.VISIBLE);
-                            trade_cost_image[i].setVisibility(View.VISIBLE);
+                            Picasso.with(getBaseContext()).load(R.drawable.navik_torgovca).into(trade_skill_image);
+                            trade_skill_image.setOnClickListener(on_click_vendor_skill);
+                            for (byte i = 0; i<loot_max_count;i++){
+                                trade_item[i].Change(db_open_helper,random, mGearScore);
+                                trade_item[i].Open();
+                                trade_item[i].setVisibility(View.VISIBLE);
+                                trade_cost[i].setText(String.format("%d", trade_item[i].Get_Cost()));
+                                trade_cost[i].setVisibility(View.VISIBLE);
+                                trade_cost_image[i].setVisibility(View.VISIBLE);
+                            }
+                            trade_skill.setVisibility(View.VISIBLE);
+                            trade_zone.setVisibility(View.VISIBLE);
+                            table.setOnDragListener(null);
                         }
-                        trade_skill.setVisibility(View.VISIBLE);
-                        trade_zone.setVisibility(View.VISIBLE);
-                        table.setOnDragListener(null);
-                    }
-                    if (mCardTableTarget.Get_Type()==Card_Table_Type.BLACKSMITH){
-                        shadow.bringToFront();
-                        mCardTableTarget.bringToFront();
+                        if (mCardTableTarget.getSubType()== CardTableSubType.BLACKSMITH){
+                            shadow.bringToFront();
+                            mCardTableTarget.bringToFront();
 /*
                         card_6_animation_click_vendor.start();
 */
-                        Picasso.with(getBaseContext()).load(R.drawable.navik_kuznecaa).into(trade_skill_image);
-                        trade_skill_image.setOnClickListener(null);
-                        for (byte i = 0; i<loot_max_count;i++){
-                            trade_item[i].Change(db_open_helper,random, random.nextInt(2));
-                            trade_item[i].Open();
-                            trade_item[i].setVisibility(View.VISIBLE);
-                            trade_item[i].Set_Durability(10);
-                            trade_cost[i].setText(String.format("%d", trade_item[i].Get_Cost()));
-                            trade_cost[i].setVisibility(View.VISIBLE);
-                            trade_cost_image[i].setVisibility(View.VISIBLE);
+                            Picasso.with(getBaseContext()).load(R.drawable.navik_kuznecaa).into(trade_skill_image);
+                            trade_skill_image.setOnClickListener(null);
+                            for (byte i = 0; i<loot_max_count;i++){
+                                trade_item[i].Change(db_open_helper,random, mGearScore, random.nextInt(2));
+                                trade_item[i].Open();
+                                trade_item[i].setVisibility(View.VISIBLE);
+                                trade_item[i].Set_Durability(10);
+                                trade_cost[i].setText(String.format("%d", trade_item[i].Get_Cost()));
+                                trade_cost[i].setVisibility(View.VISIBLE);
+                                trade_cost_image[i].setVisibility(View.VISIBLE);
+                            }
+                            trade_skill.setVisibility(View.VISIBLE);
+                            trade_zone.setVisibility(View.VISIBLE);
+                            table.setOnDragListener(null);
                         }
-                        trade_skill.setVisibility(View.VISIBLE);
-                        trade_zone.setVisibility(View.VISIBLE);
-                        table.setOnDragListener(null);
-                    }
-                    if (mCardTableTarget.Get_Type()==Card_Table_Type.INNKEEPER){
-                        shadow.bringToFront();
-                        mCardTableTarget.bringToFront();
+                        if (mCardTableTarget.getSubType()== CardTableSubType.INNKEEPER){
+                            shadow.bringToFront();
+                            mCardTableTarget.bringToFront();
 /*
                         card_6_animation_click_vendor.start();
 */
-                        Picasso.with(getBaseContext()).load(R.drawable.navik_traktirshika).into(trade_skill_image);
-                        trade_skill_image.setOnClickListener(on_click_innkeeper_skill);
-                        for (byte i = 0; i<loot_max_count;i++){
-                            trade_item[i].Change(db_open_helper,random, Inventory_Type.FOOD);
-                            trade_item[i].Open();
-                            trade_item[i].setVisibility(View.VISIBLE);
-                            trade_cost[i].setText(String.format("%d", trade_item[i].Get_Cost()));
-                            trade_cost[i].setVisibility(View.VISIBLE);
-                            trade_cost_image[i].setVisibility(View.VISIBLE);
+                            Picasso.with(getBaseContext()).load(R.drawable.navik_traktirshika).into(trade_skill_image);
+                            trade_skill_image.setOnClickListener(on_click_innkeeper_skill);
+                            for (byte i = 0; i<loot_max_count;i++){
+                                trade_item[i].Change(db_open_helper,random, mGearScore, Inventory_Type.FOOD);
+                                trade_item[i].Open();
+                                trade_item[i].setVisibility(View.VISIBLE);
+                                trade_cost[i].setText(String.format("%d", trade_item[i].Get_Cost()));
+                                trade_cost[i].setVisibility(View.VISIBLE);
+                                trade_cost_image[i].setVisibility(View.VISIBLE);
+                            }
+                            trade_skill.setVisibility(View.VISIBLE);
+                            trade_zone.setVisibility(View.VISIBLE);
+                            table.setOnDragListener(null);
                         }
-                        trade_skill.setVisibility(View.VISIBLE);
-                        trade_zone.setVisibility(View.VISIBLE);
-                        table.setOnDragListener(null);
                     }
-                    if (mCardTableTarget.Get_Type()==Card_Table_Type.QUEST_BOARD){
-                        shadow.bringToFront();
-                        mCardTableTarget.bringToFront();
-                        card_6_animation_click_vendor.start();
-                        Picasso.with(getBaseContext()).load(R.drawable.navik_doska_objavleniy).into(trade_skill_image);
-                        trade_skill_image.setOnClickListener(on_click_innkeeper_skill);
-                        for (byte i = 0; i<loot_max_count;i++){
-                            trade_item[i].Change(db_open_helper,random, Inventory_Type.FOOD);
-                            trade_item[i].Open();
-                            trade_item[i].setVisibility(View.VISIBLE);
-                            trade_cost[i].setText(String.format("%d", trade_item[i].Get_Cost()));
-                            trade_cost[i].setVisibility(View.VISIBLE);
-                            trade_cost_image[i].setVisibility(View.VISIBLE);
-                        }
-                        trade_skill.setVisibility(View.VISIBLE);
-                        trade_zone.setVisibility(View.VISIBLE);
-                        table.setOnDragListener(null);
-                    }
-                    if (mCardTableTarget.Get_Type()==Card_Table_Type.HALT){
+                    if (mCardTableTarget.getType()== CardTableType.HALT){
                         shadow.bringToFront();
                         mCardTableTarget.bringToFront();
                         mCardTableTarget.getTargetAnimation().start();
@@ -416,13 +494,13 @@ public class MainActivity extends AppCompatActivity {
         public void onAnimationEnd(Animator animation) {
 
             for (byte i = 0; i < inventory_item_max_count; i++) {
-                inventory[i].setOnClickListener(inventory_swap);
+                inventory[i].setOnClickListener(mInventoryOnClickSwap);
             }
             for (int i = 0; i < loot_max_count; i++) {
-                loot[i].setOnClickListener(inventory_swap);
+                loot[i].setOnClickListener(mInventoryOnClickSwap);
             }
-            hand_one.setOnClickListener(inventory_swap);
-            hand_two.setOnClickListener(inventory_swap);
+            hand_one.setOnClickListener(mInventoryOnClickSwap);
+            hand_two.setOnClickListener(mInventoryOnClickSwap);
 
             target_swap.setOnLongClickListener(on_long_click);
             target_swap.setOnTouchListener(card_move);
@@ -438,28 +516,21 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onAnimationEnd(Animator animation) {
-
             for (byte i = 0; i < inventory_item_max_count; i++) {
-                inventory[i].setOnClickListener(inventory_swap);
+                inventory[i].setOnClickListener(mInventoryOnClickSwap);
             }
-/*
-            for (int i = 0; i < loot_max_count; i++) {
-                loot[i].setOnClickListener(inventory_swap);
-            }
-*/
-            hand_one.setOnClickListener(inventory_swap);
-            hand_two.setOnClickListener(inventory_swap);
+            hand_one.setOnClickListener(mInventoryOnClickSwap);
+            hand_two.setOnClickListener(mInventoryOnClickSwap);
         }
     };
     Animator target_on_animation;
     Animator target_off_animation;
-    View.OnClickListener inventory_swap = Create_Inventory_Swap();
+    View.OnClickListener mInventoryOnClickSwap = mInventoryOnClickSwap();
 
-    View.OnClickListener Create_Inventory_Swap() {
+    View.OnClickListener mInventoryOnClickSwap() {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 if (is_first_click) {
                     target_swap = (Card_Inventory) v;
                     if (target_swap.slot_type == Slot_Type.HAND) {
@@ -483,69 +554,83 @@ public class MainActivity extends AppCompatActivity {
                     target_on_animation.addListener(target_on_animation_end);
                     target_on_animation.start();
 
-                    if (trade_skill.getVisibility()==View.VISIBLE&& mCardTableTarget.Get_Type()==Card_Table_Type.BLACKSMITH&&
-                            (target_swap.Get_Type()==Inventory_Type.SHIELD||target_swap.Get_Type()==Inventory_Type.WEAPON)){
+                    if (trade_skill.getVisibility()==View.VISIBLE && mCardTableTarget.getSubType()== CardTableSubType.BLACKSMITH&&
+                            (target_swap.getType()==Inventory_Type.SHIELD||target_swap.getType()==Inventory_Type.WEAPON)){
                         trade_skill_image.setOnClickListener(on_click_blacksmith_skill);
                     }
-/*
-                    Delete_OnClickListener_Before_Anomation_Target_Reset();
-*/
                 }
                 else {
                     Card_Inventory target_swap_two = (Card_Inventory) v;
                     if (!target_swap.equals(target_swap_two) ) {
                         if (target_swap_two.slot_type!=target_swap.slot_type) {
                             if (target_swap_two.slot_type == Slot_Type.HAND) {
-                                if (target_swap.Get_Type() == Inventory_Type.SHIELD || target_swap.Get_Type() ==
+                                Card_Hand targetSwapTwoHand = (Card_Hand) v;
+                                if (target_swap.getType() == Inventory_Type.SHIELD || target_swap.getType() ==
                                         Inventory_Type.WEAPON) {
-                                    if(((Card_Hand)target_swap_two).durability_text.getVisibility()==View.VISIBLE){
-                                        inventory_temp.Copy(target_swap_two);
-                                        target_swap_two.Copy(target_swap);
+                                    if(targetSwapTwoHand.durability_text.getVisibility()==View.VISIBLE){
+                                        inventory_temp.Copy(targetSwapTwoHand);
+                                        targetSwapTwoHand.Copy(target_swap);
                                         target_swap.Copy(inventory_temp);
                                     }
                                     else{
-                                        if(target_swap.slot_type==Slot_Type.INVENTORY){
-                                            target_swap_two.Copy(target_swap);
-                                            ((Card_Hand)target_swap_two).durability_text.setVisibility(View.VISIBLE);
-                                            ((Card_Hand)target_swap_two).durability_image.setVisibility(View.VISIBLE);
-                                            inventory_item_count--;
-                                            Inventory_Sort();
-                                            Loot_Get();
-                                        }
-                                        else{
-                                            target_swap_two.Copy(target_swap);
-                                            ((Card_Hand)target_swap_two).durability_text.setVisibility(View.VISIBLE);
-                                            ((Card_Hand)target_swap_two).durability_image.setVisibility(View.VISIBLE);
-                                            target_swap.setVisibility(View.GONE);
-                                            loot_count--;
-                                            Try_Continue();
-                                        }
+                                        ChangeGearScore(getChangeGearScoreAfterReplace(0,null));
+                                        targetSwapTwoHand.Copy(target_swap);
+                                        targetSwapTwoHand.durability_text.setVisibility(View.VISIBLE);
+                                        targetSwapTwoHand.durability_image.setVisibility(View.VISIBLE);
+                                        inventory_item_count--;
+                                        Inventory_Sort();
+                                        Loot_Get();
                                     }
+                                    Log.d("Target_Reset", "hand swap click");
                                     Target_Reset();
-/*
-                                    Delete_OnClickListener_Before_Anomation_Target_Reset();
-*/
                                 }
                             }
                             if (target_swap_two.slot_type == Slot_Type.LOOT) {
-                                if (target_swap.slot_type != Slot_Type.HAND) {
+                                if (target_swap.slot_type == Slot_Type.INVENTORY) {
+                                    if ((target_swap_two.getType() == Inventory_Type.WEAPON ||
+                                            target_swap_two.getType() == Inventory_Type.SHIELD) &&
+                                            (target_swap.getType() == Inventory_Type.WEAPON ||
+                                                    target_swap.getType() == Inventory_Type.SHIELD))
+                                    {
+                                        ChangeGearScore(getChangeGearScoreAfterReplace(target_swap.getGearScore(),target_swap_two.getGearScore()));
+                                    }
+                                    else{
+                                        if (target_swap.getType() == Inventory_Type.WEAPON ||
+                                                target_swap.getType() == Inventory_Type.SHIELD)
+                                        {
+                                            ChangeGearScore(getChangeGearScoreAfterReplace(target_swap.getGearScore(),null));
+                                            ChangeGearScore(target_swap_two.getGearScore());
+                                        }
+                                        else{
+                                            if (target_swap_two.getType() == Inventory_Type.WEAPON ||
+                                                    target_swap_two.getType() == Inventory_Type.SHIELD)
+                                            {
+                                                ChangeGearScore(getChangeGearScoreAfterReplace(null,target_swap_two.getGearScore()));
+                                                ChangeGearScore(-target_swap.getGearScore());
+                                            }
+                                            else{
+                                                ChangeGearScore(target_swap_two.getGearScore()-target_swap.getGearScore());
+                                            }
+                                        }
+                                    }
                                     inventory_temp.Copy(target_swap_two);
                                     target_swap_two.Copy(target_swap);
                                     target_swap.Copy(inventory_temp);
+                                    Log.d("Target_Reset", "loot swap click");
                                     Target_Reset();
-/*
-                                    Delete_OnClickListener_Before_Anomation_Target_Reset();
-*/
                                 }
                                 else {
-                                    if (target_swap_two.Get_Type() == Inventory_Type.WEAPON ||
-                                            target_swap_two.Get_Type() == Inventory_Type.SHIELD) {
+                                    if (target_swap_two.getType() == Inventory_Type.WEAPON ||
+                                            target_swap_two.getType() == Inventory_Type.SHIELD)
+                                    {
                                         if(((Card_Hand)target_swap).durability_text.getVisibility()==View.VISIBLE){
+                                            ChangeGearScore(getChangeGearScoreAfterReplace(target_swap.getGearScore(),target_swap_two.getGearScore()));
                                             inventory_temp.Copy(target_swap_two);
                                             target_swap_two.Copy(target_swap);
                                             target_swap.Copy(inventory_temp);
                                         }
                                         else{
+                                            ChangeGearScore(getChangeGearScoreAfterReplace(target_swap.getGearScore(),target_swap_two.getGearScore()));
                                             target_swap.Copy(target_swap_two);
                                             ((Card_Hand)target_swap).durability_text.setVisibility(View.VISIBLE);
                                             ((Card_Hand)target_swap).durability_image.setVisibility(View.VISIBLE);
@@ -553,6 +638,7 @@ public class MainActivity extends AppCompatActivity {
                                             loot_count--;
                                             Try_Continue();
                                         }
+                                        Log.d("Target_Reset", "loot swap click");
                                         Target_Reset();
                                     }
                                 }
@@ -560,10 +646,8 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                     else {
+                        Log.d("Target_Reset", "target off");
                         Target_Reset();
-/*
-                        Delete_OnClickListener_Before_Anomation_Target_Reset();
-*/
                     }
                 }
             }
@@ -591,6 +675,11 @@ public class MainActivity extends AppCompatActivity {
         is_first_click = true;
     }
 
+    private void ChangeGearScore(int delta) {
+        mGearScore += delta;
+        mGearScoreText.setText(String.format("%d", mGearScore));
+    }
+
     int loot_count;
     byte loot_id;
     byte inventory_item_count = 0;
@@ -603,8 +692,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                mCardTableTarget.Set_Value_One(mCardTableTarget.Get_Value_One() - ((hand_one.Get_Type() == Inventory_Type.WEAPON) ?
-                        hand_one.Get_Value_One() : 0) - ((hand_two.Get_Type() == Inventory_Type.WEAPON) ?
+                mCardTableTarget.Set_Value_One(mCardTableTarget.Get_Value_One() - ((hand_one.getType() == Inventory_Type.WEAPON) ?
+                        hand_one.Get_Value_One() : 0) - ((hand_two.getType() == Inventory_Type.WEAPON) ?
                         hand_two.Get_Value_One() : 0));
                 mCardTableTarget.Set_Value_One_text(mCardTableTarget.Get_Value_One());
 
@@ -618,6 +707,7 @@ public class MainActivity extends AppCompatActivity {
                 if(hand_one.durability_text.getVisibility()==View.VISIBLE){
                     hand_one.Set_Durability(hand_one.Get_Durability()-1);
                     if (hand_one.Get_Durability()<1){
+                        ChangeGearScore(getChangeGearScoreAfterReplace(hand_one.getGearScore(),0));
                         Set_Hand(hand_one);
                     }
                     else{
@@ -628,6 +718,7 @@ public class MainActivity extends AppCompatActivity {
                 if(hand_two.durability_text.getVisibility()==View.VISIBLE){
                     hand_two.Set_Durability(hand_two.Get_Durability()-1);
                     if (hand_two.Get_Durability()<1){
+                        ChangeGearScore(getChangeGearScoreAfterReplace(hand_two.getGearScore(),0));
                         Set_Hand(hand_two);
                     }
                     else{
@@ -636,6 +727,8 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if (mCardTableTarget.Get_Value_One() < 1) {
+
+                    mCardTableTarget.setOnClickListener(null);
 
                     mCardTableTarget.Set_Value_One_text(0);
                     money += mCardTableTarget.Get_Money();
@@ -647,7 +740,7 @@ public class MainActivity extends AppCompatActivity {
 
             private void HP_Calculation() {
                 int mob_damage = mCardTableTarget.Get_Damage();
-                if(mob_damage>0&&hand_one.Get_Type() == Inventory_Type.SHIELD){
+                if(mob_damage>0&&hand_one.getType() == Inventory_Type.SHIELD){
                     if (hand_one.Get_Value_One() < mob_damage){
                         mob_damage -= hand_one.Get_Value_One();
                     }
@@ -655,7 +748,7 @@ public class MainActivity extends AppCompatActivity {
                         mob_damage = 0;
                     }
                 }
-                if(mob_damage>0&&hand_two.Get_Type() == Inventory_Type.SHIELD){
+                if(mob_damage>0&&hand_two.getType() == Inventory_Type.SHIELD){
                     if (hand_two.Get_Value_One() < mob_damage){
                         mob_damage -= hand_two.Get_Value_One();
                     }
@@ -679,6 +772,14 @@ public class MainActivity extends AppCompatActivity {
                 loot[loot_id].setVisibility(View.GONE);
                 inventory[inventory_item_count].setVisibility(View.VISIBLE);
                 inventory_item_count++;
+                if (loot[loot_id].getType()==Inventory_Type.WEAPON ||
+                        loot[loot_id].getType()==Inventory_Type.SHIELD)
+                {
+                    ChangeGearScore(getChangeGearScoreAfterReplace(null,loot[loot_id].getGearScore()));
+                }
+                else{
+                    ChangeGearScore(loot[loot_id].getGearScore());
+                }
                 loot_count--;
             }
             loot_id++;
@@ -730,8 +831,8 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
-    View.OnClickListener card_trade_buy_click_yes = card_trade_click_yes();
-    View.OnClickListener card_trade_click_yes() {
+    View.OnClickListener card_trade_buy_click_yes = card_trade_buy_click_yes();
+    View.OnClickListener card_trade_buy_click_yes() {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -744,6 +845,7 @@ public class MainActivity extends AppCompatActivity {
                 inventory[inventory_item_count].Copy(trade_target);
                 inventory[inventory_item_count].setVisibility(View.VISIBLE);
                 inventory_item_count++;
+                ChangeGearScore(trade_target.getGearScore());
                 Money_Change(-trade_target.Get_Cost());
             }
         };
@@ -758,6 +860,7 @@ public class MainActivity extends AppCompatActivity {
                 trade_window_no.setVisibility(View.GONE);
                 trade_window_yes.setVisibility(View.GONE);
                 target_swap.setVisibility(View.INVISIBLE);
+                ChangeGearScore(-target_swap.getGearScore());
                 inventory_item_count--;
                 Inventory_Sort();
                 Money_Change(target_swap.Get_Cost());
@@ -823,7 +926,7 @@ public class MainActivity extends AppCompatActivity {
                 trade_window_yes.setVisibility(View.GONE);
                 Money_Change(-cost_vendor_skill);
                 for (byte i = 0; i<loot_max_count;i++){
-                    trade_item[i].Change(db_open_helper,random);
+                    trade_item[i].Change(db_open_helper,random, mGearScore);
                     trade_item[i].Open();
                     trade_item[i].setVisibility(View.VISIBLE);
                     trade_cost[i].setText(String.format("%d", trade_item[i].Get_Cost()));
@@ -919,13 +1022,16 @@ public class MainActivity extends AppCompatActivity {
     ImageView trade_window_yes;
     ImageView trade_window_no;
     ImageView trade_skill_image;
+    TextView mGearScoreText;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mGearScoreText = findViewById(R.id.gearScore);
+
         table = findViewById(R.id.table);
-        table.setOnDragListener(on_drop);
+        table.setOnDragListener(mTableOnDropListener);
 
         trade_skill = findViewById(R.id.trade_skill);
         trade_zone = findViewById(R.id.trade_zone);
@@ -942,10 +1048,6 @@ public class MainActivity extends AppCompatActivity {
         trade_window_no.setVisibility(View.GONE);
         trade_skill_image = findViewById(R.id.trade_skill_image);
         trade_skill_image.setOnClickListener(on_click_vendor_skill);
-
-        DB_Open_Helper.count_item_in_type.put(Inventory_Type.WEAPON, 5);
-        DB_Open_Helper.count_item_in_type.put(Inventory_Type.SHIELD, 5);
-        DB_Open_Helper.count_item_in_type.put(Inventory_Type.FOOD, 5);
 
         shadow = findViewById(R.id.shadow);
 
@@ -1014,9 +1116,9 @@ public class MainActivity extends AppCompatActivity {
         loot[1] = findViewById(R.id.card_loot_1);
         loot[2] = findViewById(R.id.card_loot_2);
 
-        loot[0].setOnDragListener(on_drop);
-        loot[1].setOnDragListener(on_drop);
-        loot[2].setOnDragListener(on_drop);
+        loot[0].setOnDragListener(mLootOnDropListener);
+        loot[1].setOnDragListener(mLootOnDropListener);
+        loot[2].setOnDragListener(mLootOnDropListener);
 
         loot[0].slot_type = Slot_Type.LOOT;
         loot[1].slot_type = Slot_Type.LOOT;
@@ -1075,8 +1177,8 @@ public class MainActivity extends AppCompatActivity {
         hand_two.name_text = findViewById(R.id.card_hand_right_name);
         hand_one.value_one_text = findViewById(R.id.card_hand_left_value);
         hand_two.value_one_text = findViewById(R.id.card_hand_right_value);
-        hand_one.setOnDragListener(on_drop);
-        hand_two.setOnDragListener(on_drop);
+        hand_one.setOnDragListener(mHandOnDropListener);
+        hand_two.setOnDragListener(mHandOnDropListener);
         hand_one.durability_text = findViewById(R.id.hand_one_durability_text);
         hand_two.durability_text = findViewById(R.id.hand_two_durability_text);
         hand_one.durability_image = findViewById(R.id.hand_one_durability_image);
@@ -1107,34 +1209,89 @@ public class MainActivity extends AppCompatActivity {
         inventory[2].value_one_text = findViewById(R.id.card_inventory_2_value);
         inventory[3].value_one_text = findViewById(R.id.card_inventory_3_value);
 
+        mCardsTable[0].TEST_GearScoreText = findViewById(R.id.card1GearScore);
+        mCardsTable[1].TEST_GearScoreText = findViewById(R.id.card2GearScore);
+        mCardsTable[2].TEST_GearScoreText = findViewById(R.id.card3GearScore);
+        mCardsTable[3].TEST_GearScoreText = findViewById(R.id.card4GearScore);
+        mCardsTable[4].TEST_GearScoreText = findViewById(R.id.card6GearScore);
+        mCardsTable[5].TEST_GearScoreText = findViewById(R.id.card7GearScore);
+        mCardsTable[6].TEST_GearScoreText = findViewById(R.id.card8GearScore);
+        mCardsTable[7].TEST_GearScoreText = findViewById(R.id.card9GearScore);
+
+        loot[0].TEST_GearScoreText = findViewById(R.id.loot0GearScore);
+        loot[1].TEST_GearScoreText = findViewById(R.id.loot1GearScore);
+        loot[2].TEST_GearScoreText = findViewById(R.id.loot2GearScore);
+
+        trade_item[0].TEST_GearScoreText = findViewById(R.id.cardTrade0GearScore);
+        trade_item[1].TEST_GearScoreText = findViewById(R.id.cardTrade1GearScore);
+        trade_item[2].TEST_GearScoreText = findViewById(R.id.cardTrade2GearScore);
+
+        hand_one.TEST_GearScoreText = findViewById(R.id.cardHandLeftGearScore);
+        hand_two.TEST_GearScoreText = findViewById(R.id.cardHandRightGearScore);
+
+        inventory[0].TEST_GearScoreText = findViewById(R.id.cardInventory0GearScore);
+        inventory[1].TEST_GearScoreText = findViewById(R.id.cardInventory1GearScore);
+        inventory[2].TEST_GearScoreText = findViewById(R.id.cardInventory2GearScore);
+        inventory[3].TEST_GearScoreText = findViewById(R.id.cardInventory3GearScore);
+
+        loot[0].TEST_MOB_GEARSCORE_TEXT = findViewById(R.id.loot0GearScoreMob);
+        loot[1].TEST_MOB_GEARSCORE_TEXT = findViewById(R.id.loot1GearScoreMob);
+        loot[2].TEST_MOB_GEARSCORE_TEXT = findViewById(R.id.loot2GearScoreMob);
+
+        trade_item[0].TEST_MOB_GEARSCORE_TEXT = findViewById(R.id.cardTrade0GearScoreMob);
+        trade_item[1].TEST_MOB_GEARSCORE_TEXT = findViewById(R.id.cardTrade1GearScoreMob);
+        trade_item[2].TEST_MOB_GEARSCORE_TEXT = findViewById(R.id.cardTrade2GearScoreMob);
+
+        hand_one.TEST_MOB_GEARSCORE_TEXT = findViewById(R.id.cardHandLeftGearScoreMob);
+        hand_two.TEST_MOB_GEARSCORE_TEXT = findViewById(R.id.cardHandRightGearScoreMob);
+
+        inventory[0].TEST_MOB_GEARSCORE_TEXT = findViewById(R.id.cardInventory0GearScoreMob);
+        inventory[1].TEST_MOB_GEARSCORE_TEXT = findViewById(R.id.cardInventory1GearScoreMob);
+        inventory[2].TEST_MOB_GEARSCORE_TEXT = findViewById(R.id.cardInventory2GearScoreMob);
+        inventory[3].TEST_MOB_GEARSCORE_TEXT = findViewById(R.id.cardInventory3GearScoreMob);
+
         Game_Load();
 
-/*
-        if (savedInstanceState == null) {
-            getFragmentManager()
-                    .beginTransaction()
-                    .add(R.id, new CardFrontFragment())
-                    .commit();
-        }
-*/
-
-/*        ConstraintLayout llBottomSheet = (ConstraintLayout) findViewById(R.id.bottom_sheet);
-        TopSheetBehavior bottomSheetBehavior = TopSheetBehavior.from(llBottomSheet);
-
-        bottomSheetBehavior.setTopSheetCallback(new TopSheetBehavior.TopSheetCallback() {
-            @Override
-            public void onStateChanged(@NonNull View bottomSheet, int newState) {
-
-            }
-
-            @Override
-            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-
-            }
-        });*/
     }
 
     private void Game_Load() {
+        SQLiteDatabase data_base = db_open_helper.getReadableDatabase();
+
+        String[] column_name = {
+                DB_Open_Helper.sChanceVendor,
+                DB_Open_Helper.sChanceHalt,
+                DB_Open_Helper.sChanceWeaponOrShield,
+                DB_Open_Helper.sChanceFood,
+                DB_Open_Helper.sChanceSpell
+        };
+
+        Cursor cursor = data_base.query(
+                DB_Open_Helper.sTableTest,
+                column_name,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+        cursor.moveToFirst();
+
+        mChanceVendor = cursor.getInt(
+                cursor.getColumnIndexOrThrow(DB_Open_Helper.sChanceVendor)
+        );
+        mChanceHalt = cursor.getInt(
+                cursor.getColumnIndexOrThrow(DB_Open_Helper.sChanceHalt)
+        );
+        mChanceWeaponOrShield = cursor.getInt(
+                cursor.getColumnIndexOrThrow(DB_Open_Helper.sChanceWeaponOrShield)
+        );
+        mChanceFood = cursor.getInt(
+                cursor.getColumnIndexOrThrow(DB_Open_Helper.sChanceFood)
+        );
+        mChanceSpell = cursor.getInt(
+                cursor.getColumnIndexOrThrow(DB_Open_Helper.sChanceSpell)
+        );
+        cursor.close();
 
         for (byte i = 0; i < 8; i++) {
             mCardsTable[i].setIdInArray(i);
@@ -1162,12 +1319,18 @@ public class MainActivity extends AppCompatActivity {
         inventory[0].Set_Type(Inventory_Type.FOOD);
         inventory[0].setOnClickListener(null);
         inventory[0].cost = 1;
+        inventory[0].setGearScore(1);
+        ChangeGearScore(1);
 
         hand_one.hand_drawable = R.drawable.kulak_levo;
         hand_two.hand_drawable = R.drawable.kulak_pravo;
         hand_one.setOnClickListener(null);
         hand_two.setOnClickListener(null);
+        mGearScoreWeaponOrShieldInInventory.add(0);
+        mGearScoreWeaponOrShieldInInventory.add(0);
+        ChangeGearScore(getChangeGearScoreAfterReplace(0,0));
         Set_Hand(hand_one);
+        ChangeGearScore(getChangeGearScoreAfterReplace(0,0));
         Set_Hand(hand_two);
 
         inventory[0].slot_id = 0;
@@ -1182,6 +1345,7 @@ public class MainActivity extends AppCompatActivity {
         hp_bar_drawable.setLevel(10000 * hp / hp_max);
 
         is_animate = true;
+        Log.d("is_animate", String.valueOf(is_animate));
 
         mCardsTable[1].setOnClickListener(setTargetListener);
         mCardsTable[3].setOnClickListener(setTargetListener);
@@ -1195,6 +1359,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void Set_Hand(Card_Hand hand) {
+        hand.setGearScore(0);
+        hand.TEST_MOB_GEARSCORE_TEXT.setText(0+"");
         hand.Set_Value_One(1);
         hand.name_text.setText("Кулак");
         hand.id_drawable = hand.hand_drawable;
@@ -1292,6 +1458,7 @@ public class MainActivity extends AppCompatActivity {
     float loot_animation_delta;
     private void Set_Animators() {
 
+        float cardTableIncreaseAnimationValue = 3f;
         int duration = 500;
         int card_animation_duration = 500;
         DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -1333,6 +1500,7 @@ public class MainActivity extends AppCompatActivity {
         int card_coordinates_animation_right_start = table_layout.getWidth() + card_width - card_4_coordinates[0];
         int card_coordinates_animation_left_start = -card_4_coordinates[0] - card_width;
 
+        //region General Animation
         AnimatorSet openCardTableRotateBack = new AnimatorSet();
         openCardTableRotateBack.setDuration(duration).playTogether(
                 ObjectAnimator.ofFloat(mCardsTable[4], View.ROTATION_Y, 0f, 90f),
@@ -1390,22 +1558,15 @@ public class MainActivity extends AppCompatActivity {
         AnimatorListenerAdapter openCardTableListener = new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
-                if (mCardsTable[1].Is_Close()) {
-                    mCardsTable[1].Change(db_open_helper, random);
-                }
-                if (mCardsTable[3].Is_Close()) {
-                    mCardsTable[3].Change(db_open_helper, random);
-                }
-                if (mCardsTable[4].Is_Close()) {
-                    mCardsTable[4].Change(db_open_helper, random);
-                }
-                if (mCardsTable[6].Is_Close()) {
-                    mCardsTable[6].Change(db_open_helper, random);
-                }
+                spawn(mCardsTable[1]);
+                spawn(mCardsTable[3]);
+                spawn(mCardsTable[4]);
+                spawn(mCardsTable[6]);
             }
             @Override
             public void onAnimationEnd(Animator animation) {
                 is_animate = false;
+                Log.d("is_animate", String.valueOf(is_animate));
             }
         };
         openCardTable.addListener(openCardTableListener);
@@ -1416,11 +1577,14 @@ public class MainActivity extends AppCompatActivity {
                 0f,
                 .5f
         );
+
         Animator shadowHide = ObjectAnimator.ofFloat(
                 shadow,
                 View.ALPHA,
                 .5f,
-                0f);
+                0f
+        );
+
         AnimatorSet columnCenterCardTableReset = new AnimatorSet();
         columnCenterCardTableReset.playTogether(
                 ObjectAnimator.ofFloat(
@@ -1442,7 +1606,29 @@ public class MainActivity extends AppCompatActivity {
                         0f
                 )
         );
-        float cardTableIncreaseAnimationValue = 3f;
+
+        AnimatorSet rowCenterCardTableReset = new AnimatorSet();
+        columnCenterCardTableReset.playTogether(
+                ObjectAnimator.ofFloat(
+                        mCardsTable[3],
+                        View.TRANSLATION_Y,
+                        0f,
+                        0f
+                ),
+                ObjectAnimator.ofFloat(
+                        card_center,
+                        View.TRANSLATION_Y,
+                        0f,
+                        0f
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[4],
+                        View.TRANSLATION_Y,
+                        0f,
+                        0f
+                )
+        );
+
         AnimatorListenerAdapter cardTableCloseListener = new AnimatorListenerAdapter() {
 
             @Override
@@ -1464,41 +1650,10 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                shadow.bringToFront();
-
-                loot_count = random.nextInt(4);
-/*
-                    loot_count = 3;
-*/
-                for (int i = 0; i < loot_count; i++) {
-                    loot[i].bringToFront();
-                    loot[i].Change(db_open_helper, random);
-                    loot[i].setVisibility(View.VISIBLE);
-                    loot[i].Open();
-                }
-
-                is_loot_enable = true;
-                loot_id = 0;
-                Loot_Get();
-
-                if (loot_count > 0) {
-                    button_continue.bringToFront();
-                    button_continue.setVisibility(View.VISIBLE);
-                }
+                loot();
             }
         };
-        AnimatorListenerAdapter TESTCLOSE = new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                    mCardsTable[1].Close(card_back);
-                    mCardsTable[3].Close(card_back);
-                    mCardsTable[4].Close(card_back);
-                    mCardsTable[6].Close(card_back);
-            }
-            @Override
-            public void onAnimationEnd(Animator animation) {
-            }
-        };
+        //endregion
         //region a
         card_6_animation_click_vendor.setDuration(card_animation_duration).playTogether(
                 ObjectAnimator.ofFloat(mCardsTable[4], View.TRANSLATION_X, 0f, card_4_coordinates[0]-card_6_coordinates[0]),
@@ -1565,7 +1720,6 @@ public class MainActivity extends AppCompatActivity {
 
         Set_Card_Animators_Reset();
 //endregion
-
         //region Animation Right Card Table
         AnimatorSet rightCardTableIncreaseAnimation = new AnimatorSet();
         rightCardTableIncreaseAnimation.playTogether(
@@ -1873,19 +2027,162 @@ public class MainActivity extends AppCompatActivity {
                 -card_distance_between_Y,
                 0f
         );
+
         AnimatorSet bottomCardTableTargetResetAnimation = new AnimatorSet();
         bottomCardTableTargetResetAnimation.setDuration(duration).playTogether(
                 shadowHide,
                 bottomCardTableDicreaseAnimation,
                 bottomCardTableMoveBackAnimation
         );
-        bottomCardTableCloseBackAnimation.addListener(TESTCLOSE);
+
+        AnimatorSet cardTableMoveToUp = new AnimatorSet();
+        cardTableMoveToUp.setDuration(card_animation_duration).playTogether(
+                ObjectAnimator.ofFloat(
+                        mCardsTable[0],
+                        View.TRANSLATION_X,
+                        0f,
+                        card_coordinates_animation_left_start
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[3],
+                        View.TRANSLATION_X,
+                        0f,
+                        card_coordinates_animation_left_start
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[5],
+                        View.TRANSLATION_X,
+                        0f,
+                        card_coordinates_animation_left_start
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[1],
+                        View.TRANSLATION_X,
+                        0f,
+                        -card_distance_between_X
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[2],
+                        View.TRANSLATION_X,
+                        0f,
+                        -card_distance_between_X
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[4],
+                        View.TRANSLATION_X,
+                        0f,
+                        -card_distance_between_X
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[6],
+                        View.TRANSLATION_X,
+                        0f,
+                        -card_distance_between_X
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[7],
+                        View.TRANSLATION_X,
+                        0f,
+                        -card_distance_between_X
+                ),
+                ObjectAnimator.ofFloat(
+                        card_center,
+                        View.TRANSLATION_X,
+                        0f,
+                        -card_distance_between_X
+                )
+        );
+        AnimatorListenerAdapter cardTableMoveToUpListener = new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mCardsTable[5].Copy(mCardsTable[3]);
+                mCardsTable[6].Close(cardCenterBack);
+                mCardsTable[7].Copy(mCardsTable[4]);
+            }
+        };
+        cardTableMoveToUp.addListener(cardTableMoveToUpListener);
+
+        AnimatorSet rowTopCardTableResetAnimation = new AnimatorSet();
+        rowTopCardTableResetAnimation.playTogether(
+                ObjectAnimator.ofFloat(
+                        mCardsTable[0],
+                        View.TRANSLATION_X,
+                        0f,
+                        0f
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[3],
+                        View.TRANSLATION_X,
+                        0f,
+                        0f
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[5],
+                        View.TRANSLATION_X,
+                        0f,
+                        0f
+                )
+        );
+        AnimatorListenerAdapter rowTopCardTableResetAnimationListener = new AnimatorListenerAdapter() {
+
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mCardsTable[3].Copy(mCardsTable[0]);
+                mCardsTable[4].Copy(mCardsTable[2]);
+            }
+        };
+        rowTopCardTableResetAnimation.addListener(rowTopCardTableResetAnimationListener);
+
+        AnimatorSet getRowBottomAnimation = new AnimatorSet();
+        getRowBottomAnimation.setDuration(card_animation_duration).playTogether(
+                ObjectAnimator.ofFloat(
+                        mCardsTable[2],
+                        View.TRANSLATION_X,
+                        card_coordinates_animation_right_start,
+                        0f
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[4],
+                        View.TRANSLATION_X,
+                        card_coordinates_animation_right_start,
+                        0f
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[7],
+                        View.TRANSLATION_X,
+                        card_coordinates_animation_right_start,
+                        0f
+                )
+        );
+        AnimatorListenerAdapter getRowBottomAnimationListener = new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                mCardsTable[0].Close(card_back);
+                mCardsTable[1].Close(card_back);
+                mCardsTable[2].Close(card_back);
+            }
+            @Override
+            public void onAnimationEnd(Animator animation) {
+
+            }
+        };
+        getRowBottomAnimation.addListener(getRowBottomAnimationListener);
+
         mCardsTable[1].getChangeAnimation().playSequentially(
                 bottomCardTableTargetResetAnimation,
-/*                cardTableMoveToLeft,
-                columnLeftCardTableResetAnimation,
+                cardTableMoveToUp,
+                rowTopCardTableResetAnimation,
                 columnCenterCardTableReset,
-                getColumnRightAnimation,*/
+                getRowBottomAnimation,
                 openCardTable
         );
         //endregion
@@ -1972,19 +2269,162 @@ public class MainActivity extends AppCompatActivity {
                 card_distance_between_X,
                 0f
         );
+
         AnimatorSet leftCardTableTargetResetAnimation = new AnimatorSet();
         leftCardTableTargetResetAnimation.setDuration(duration).playTogether(
                 shadowHide,
                 leftCardTableDicreaseAnimation,
                 leftCardTableMoveBackAnimation
         );
-        leftCardTableTargetResetAnimation.addListener(TESTCLOSE);
+
+        AnimatorSet cardTableMoveToRight = new AnimatorSet();
+        cardTableMoveToRight.setDuration(card_animation_duration).playTogether(
+                ObjectAnimator.ofFloat(
+                        mCardsTable[0],
+                        View.TRANSLATION_X,
+                        0f,
+                        card_coordinates_animation_left_start
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[3],
+                        View.TRANSLATION_X,
+                        0f,
+                        card_coordinates_animation_left_start
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[5],
+                        View.TRANSLATION_X,
+                        0f,
+                        card_coordinates_animation_left_start
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[1],
+                        View.TRANSLATION_X,
+                        0f,
+                        -card_distance_between_X
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[2],
+                        View.TRANSLATION_X,
+                        0f,
+                        -card_distance_between_X
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[4],
+                        View.TRANSLATION_X,
+                        0f,
+                        -card_distance_between_X
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[6],
+                        View.TRANSLATION_X,
+                        0f,
+                        -card_distance_between_X
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[7],
+                        View.TRANSLATION_X,
+                        0f,
+                        -card_distance_between_X
+                ),
+                ObjectAnimator.ofFloat(
+                        card_center,
+                        View.TRANSLATION_X,
+                        0f,
+                        -card_distance_between_X
+                )
+        );
+        AnimatorListenerAdapter cardTableMoveToRightListener = new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mCardsTable[2].Copy(mCardsTable[1]);
+                mCardsTable[4].Close(cardCenterBack);
+                mCardsTable[7].Copy(mCardsTable[6]);
+            }
+        };
+        cardTableMoveToRight.addListener(cardTableMoveToRightListener);
+
+        AnimatorSet columnRingtCardTableResetAnimation = new AnimatorSet();
+        columnRingtCardTableResetAnimation.playTogether(
+                ObjectAnimator.ofFloat(
+                        mCardsTable[0],
+                        View.TRANSLATION_X,
+                        0f,
+                        0f
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[3],
+                        View.TRANSLATION_X,
+                        0f,
+                        0f
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[5],
+                        View.TRANSLATION_X,
+                        0f,
+                        0f
+                )
+        );
+        AnimatorListenerAdapter columnRingtCardTableResetAnimationListener = new AnimatorListenerAdapter() {
+
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mCardsTable[1].Copy(mCardsTable[0]);
+                mCardsTable[6].Copy(mCardsTable[5]);
+            }
+        };
+        columnRingtCardTableResetAnimation.addListener(columnRingtCardTableResetAnimationListener);
+
+        AnimatorSet getColumnLeftAnimation = new AnimatorSet();
+        getColumnLeftAnimation.setDuration(card_animation_duration).playTogether(
+                ObjectAnimator.ofFloat(
+                        mCardsTable[2],
+                        View.TRANSLATION_X,
+                        card_coordinates_animation_right_start,
+                        0f
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[4],
+                        View.TRANSLATION_X,
+                        card_coordinates_animation_right_start,
+                        0f
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[7],
+                        View.TRANSLATION_X,
+                        card_coordinates_animation_right_start,
+                        0f
+                )
+        );
+        AnimatorListenerAdapter getColumnLeftAnimationListener = new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                mCardsTable[0].Close(card_back);
+                mCardsTable[3].Close(card_back);
+                mCardsTable[5].Close(card_back);
+            }
+            @Override
+            public void onAnimationEnd(Animator animation) {
+
+            }
+        };
+        getColumnLeftAnimation.addListener(getColumnLeftAnimationListener);
+
         mCardsTable[3].getChangeAnimation().playSequentially(
                 leftCardTableTargetResetAnimation,
-/*                cardTableMoveToLeft,
-                columnLeftCardTableResetAnimation,
+                cardTableMoveToRight,
+                columnRingtCardTableResetAnimation,
                 columnCenterCardTableReset,
-                getColumnRightAnimation,*/
+                getColumnLeftAnimation,
                 openCardTable
         );
         //endregion
@@ -2071,24 +2511,166 @@ public class MainActivity extends AppCompatActivity {
                 card_distance_between_Y,
                 0f
         );
+
         AnimatorSet topCardTableTargetResetAnimation = new AnimatorSet();
         topCardTableTargetResetAnimation.setDuration(duration).playTogether(
                 shadowHide,
                 topCardTableDicreaseAnimation,
                 topCardTableMoveBackAnimation
         );
-        topCardTableTargetResetAnimation.addListener(TESTCLOSE);
+
+        AnimatorSet cardTableMoveToDown = new AnimatorSet();
+        cardTableMoveToDown.setDuration(card_animation_duration).playTogether(
+                ObjectAnimator.ofFloat(
+                        mCardsTable[0],
+                        View.TRANSLATION_X,
+                        0f,
+                        card_coordinates_animation_left_start
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[3],
+                        View.TRANSLATION_X,
+                        0f,
+                        card_coordinates_animation_left_start
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[5],
+                        View.TRANSLATION_X,
+                        0f,
+                        card_coordinates_animation_left_start
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[1],
+                        View.TRANSLATION_X,
+                        0f,
+                        -card_distance_between_X
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[2],
+                        View.TRANSLATION_X,
+                        0f,
+                        -card_distance_between_X
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[4],
+                        View.TRANSLATION_X,
+                        0f,
+                        -card_distance_between_X
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[6],
+                        View.TRANSLATION_X,
+                        0f,
+                        -card_distance_between_X
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[7],
+                        View.TRANSLATION_X,
+                        0f,
+                        -card_distance_between_X
+                ),
+                ObjectAnimator.ofFloat(
+                        card_center,
+                        View.TRANSLATION_X,
+                        0f,
+                        -card_distance_between_X
+                )
+        );
+        AnimatorListenerAdapter cardTableMoveToDownListener = new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mCardsTable[0].Copy(mCardsTable[3]);
+                mCardsTable[1].Close(cardCenterBack);
+                mCardsTable[2].Copy(mCardsTable[4]);
+            }
+        };
+        cardTableMoveToDown.addListener(cardTableMoveToDownListener);
+
+        AnimatorSet rowBottomCardTableResetAnimation = new AnimatorSet();
+        rowBottomCardTableResetAnimation.playTogether(
+                ObjectAnimator.ofFloat(
+                        mCardsTable[0],
+                        View.TRANSLATION_X,
+                        0f,
+                        0f
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[3],
+                        View.TRANSLATION_X,
+                        0f,
+                        0f
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[5],
+                        View.TRANSLATION_X,
+                        0f,
+                        0f
+                )
+        );
+        AnimatorListenerAdapter rowBottomCardTableResetAnimationListener = new AnimatorListenerAdapter() {
+
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mCardsTable[3].Copy(mCardsTable[5]);
+                mCardsTable[4].Copy(mCardsTable[7]);
+            }
+        };
+        rowBottomCardTableResetAnimation.addListener(rowBottomCardTableResetAnimationListener);
+
+        AnimatorSet getRowTopAnimation = new AnimatorSet();
+        getRowTopAnimation.setDuration(card_animation_duration).playTogether(
+                ObjectAnimator.ofFloat(
+                        mCardsTable[2],
+                        View.TRANSLATION_X,
+                        card_coordinates_animation_right_start,
+                        0f
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[4],
+                        View.TRANSLATION_X,
+                        card_coordinates_animation_right_start,
+                        0f
+                ),
+                ObjectAnimator.ofFloat(
+                        mCardsTable[7],
+                        View.TRANSLATION_X,
+                        card_coordinates_animation_right_start,
+                        0f
+                )
+        );
+        AnimatorListenerAdapter getRowTopAnimationListener = new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                mCardsTable[5].Close(card_back);
+                mCardsTable[6].Close(card_back);
+                mCardsTable[7].Close(card_back);
+            }
+            @Override
+            public void onAnimationEnd(Animator animation) {
+
+            }
+        };
+        getRowTopAnimation.addListener(getRowTopAnimationListener);
+
         mCardsTable[6].getChangeAnimation().playSequentially(
                 topCardTableTargetResetAnimation,
-/*                cardTableMoveToLeft,
-                columnLeftCardTableResetAnimation,
+                cardTableMoveToDown,
+                rowBottomCardTableResetAnimation,
                 columnCenterCardTableReset,
-                getColumnRightAnimation,*/
+                getRowTopAnimation,
                 openCardTable
         );
         //endregion
     }
-
     private void Set_Card_Animators_Reset() {
         card_reset_row_top.playTogether(
                 ObjectAnimator.ofFloat(mCardsTable[5], View.TRANSLATION_Y, 0f, 0f),
@@ -2122,6 +2704,56 @@ public class MainActivity extends AppCompatActivity {
         );
     }
 
+    private void loot() {
+        shadow.bringToFront();
+
+        int[] typeLoot = new int[3];
+        loot_count = 0;
+        if (random.nextInt(mChanceWeaponOrShield)==0){
+            typeLoot[loot_count]=random.nextInt(2);
+            loot_count++;
+        }
+        if (random.nextInt(mChanceFood)==0){
+            typeLoot[loot_count]= Inventory_Type.FOOD;
+            loot_count++;
+        }
+        if (random.nextInt(mChanceSpell)==0){
+            typeLoot[loot_count]=Inventory_Type.SPELL;
+            loot_count++;
+        }
+        for (int i = 0; i < loot_count; i++) {
+            loot[i].bringToFront();
+            loot[i].Change(db_open_helper, random, mCardTableTarget.getGearScore(),typeLoot[i]);
+            loot[i].setVisibility(View.VISIBLE);
+            loot[i].Open();
+        }
+
+        is_loot_enable = true;
+        loot_id = 0;
+        Loot_Get();
+
+        if (loot_count > 0) {
+            button_continue.bringToFront();
+            button_continue.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void spawn(Card_Table cardTable) {
+        if (cardTable.Is_Close()) {
+            if (random.nextInt(mChanceVendor)==0){
+                cardTable.Change(db_open_helper, random.nextInt(3));
+            }
+            else{
+                if (random.nextInt(mChanceHalt)==0){
+                    cardTable.Change(db_open_helper, 7);
+                }
+                else{
+                    cardTable.Change(db_open_helper, random, mGearScore);
+                }
+            }
+        }
+    }
+
     public void on_Click_Button_Start(View view) {
         data_base = db_open_helper.getWritableDatabase();
         data_base.close();
@@ -2137,21 +2769,22 @@ public class MainActivity extends AppCompatActivity {
         card_center.setVisibility(View.VISIBLE);
 
         for (byte i = 0; i < inventory_item_max_count; i++) {
-            inventory[i].setOnClickListener(inventory_swap);
+            inventory[i].setOnClickListener(mInventoryOnClickSwap);
         }
 /*
         for (int i = 0; i < loot_max_count; i++) {
-            loot[i].setOnClickListener(inventory_swap);
+            loot[i].setOnClickListener(mInventoryOnClickSwap);
         }
 */
-        hand_one.setOnClickListener(inventory_swap);
-        hand_two.setOnClickListener(inventory_swap);
+        hand_one.setOnClickListener(mInventoryOnClickSwap);
+        hand_two.setOnClickListener(mInventoryOnClickSwap);
 
         button_start.setVisibility(View.GONE);
 
         money_text.setText(String.valueOf(money));
 
         is_animate = true;
+        Log.d("is_animate", String.valueOf(is_animate));
         openCardTable.start();
     }
 
@@ -2175,6 +2808,87 @@ public class MainActivity extends AppCompatActivity {
         mCardTableTarget.getChangeAnimation().start();
         trade_skill.setVisibility(View.GONE);
         trade_zone.setVisibility(View.GONE);
-        table.setOnDragListener(on_drop);
+        table.setOnDragListener(mTableOnDropListener);
+    }
+
+    public void onClickIconStats(View view){
+
+    }
+
+    public void onClickIconMenu(View view){
+        if (findViewById(R.id.testMenu).getVisibility()==View.GONE){
+            findViewById(R.id.testMenu).setVisibility(View.VISIBLE);
+        }
+        else{
+            findViewById(R.id.testMenu).setVisibility(View.GONE);
+        }
+    }
+
+    public void onClickTESTButton(View view){
+
+        EditText baseText = findViewById(R.id.TEST1);
+        EditText idText = findViewById(R.id.id);
+        EditText paramText = findViewById(R.id.parmetr);
+        EditText valueText = findViewById(R.id.value);
+
+       try {
+            String base = baseText.getText().toString();
+            String id = idText.getText().toString();
+            String param = paramText.getText().toString();
+            String value = valueText.getText().toString();
+            Integer.parseInt(value);
+            final String a = "0";
+            final String b = "1";
+            final String c = "2";
+            String where = null;
+            String[] arg = null;
+            ContentValues values = new ContentValues();
+
+            switch (base){
+                case a:{
+                    base = DB_Open_Helper.sTableTest;
+                    break;
+                }
+                case b:{
+                    Integer.parseInt(id);
+                    base = DB_Open_Helper.table_mobs;
+                    where = DB_Open_Helper.id +"=?";
+                    arg = new String[]{id+""};
+                    break;
+                }
+                case c:{
+                    Integer.parseInt(id);
+                    base = DB_Open_Helper.table_inventory;
+                    where = DB_Open_Helper.id +"=?";
+                    arg = new String[]{id+""};
+                    break;
+                }
+                default:{
+                    break;
+                }
+            }
+            values.put(param, value);
+
+            SQLiteDatabase data_base = db_open_helper.getWritableDatabase();
+
+            data_base.update(
+                    base,
+                    values,
+                    where,
+                    arg
+            );
+            data_base.close();
+        }
+        catch (Exception e){
+            baseText.setText("");
+            idText.setText("");
+            paramText.setText("");
+            valueText.setText("");
+        }
+
+        baseText.setText("");
+        idText.setText("");
+        paramText.setText("");
+        valueText.setText("");
     }
 }

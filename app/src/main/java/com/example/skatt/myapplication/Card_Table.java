@@ -20,6 +20,19 @@ class Card_Table extends Card {
     private int value_two;
     TextView value_two_text;
     private int money;
+    private int mExperience;
+    static float sGearScoreRangeRate = 0.5f;
+    static final String[] column_name = {
+            DB_Open_Helper.id,
+            DB_Open_Helper.name,
+            DB_Open_Helper.value_one,
+            DB_Open_Helper.value_two,
+            DB_Open_Helper.id_image,
+            DB_Open_Helper.money,
+            DB_Open_Helper.type,
+            DB_Open_Helper.GEARSCORE,
+            DB_Open_Helper.EXPERIENCE
+    };
 
     public Card_Table(Context context) {
         super(context);
@@ -31,35 +44,40 @@ class Card_Table extends Card {
         super(context, attrs, defStyleAttr);
     }
 
-    void Change(DB_Open_Helper db_open_helper, Random random){
-
+    void Change(DB_Open_Helper db_open_helper, Random random, int gearScore){
+        gearScore = 0;
         SQLiteDatabase data_base = db_open_helper.getReadableDatabase();
 
-        String[] column_name = {
-                DB_Open_Helper.id,
-                DB_Open_Helper.name,
-                DB_Open_Helper.value_one,
-                DB_Open_Helper.value_two,
-                DB_Open_Helper.id_image,
-                DB_Open_Helper.money,
-                DB_Open_Helper.type
-        };
+        Cursor cursor = data_base.query(
+                DB_Open_Helper.table_mobs,
+                column_name,
+                DB_Open_Helper.GEARSCORE + ">=? AND "+ DB_Open_Helper.GEARSCORE + "<=?",
+                new String[]{(gearScore* sGearScoreRangeRate)+"",gearScore+""},
+                null,
+                null,
+                null
+        );
+        cursor.moveToPosition(random.nextInt(cursor.getCount()));
+
+        setData(cursor);
+    }
+    void Change(DB_Open_Helper db_open_helper, int id){
+        SQLiteDatabase data_base = db_open_helper.getReadableDatabase();
 
         Cursor cursor = data_base.query(
                 DB_Open_Helper.table_mobs,
                 column_name,
                 DB_Open_Helper.id + "=?",
-                new String[]{String.valueOf(random.nextInt(8))},
-/*
-                new String[]{0+""},
-*/
+                new String[]{id+""},
                 null,
                 null,
                 null
         );
-
         cursor.moveToFirst();
 
+        setData(cursor);
+    }
+    private void setData(Cursor cursor) {
         name_text.setText(
                 cursor.getString(
                         cursor.getColumnIndexOrThrow(DB_Open_Helper.name)
@@ -74,7 +92,12 @@ class Card_Table extends Card {
                 cursor.getColumnIndexOrThrow(DB_Open_Helper.type)
         );
 
-        if(type==Card_Table_Type.MOB){
+        this.mGearScore = cursor.getInt(
+                cursor.getColumnIndexOrThrow(DB_Open_Helper.GEARSCORE)
+        );
+        this.TEST_GearScoreText.setText(String.format("%d", mGearScore));
+
+        if(type== CardTableType.MOB){
 
             value_one = cursor.getInt(
                     cursor.getColumnIndexOrThrow(DB_Open_Helper.value_one)
@@ -91,21 +114,26 @@ class Card_Table extends Card {
             money = cursor.getInt(
                     cursor.getColumnIndexOrThrow(DB_Open_Helper.money)
             );
+            mExperience = cursor.getInt(
+                    cursor.getColumnIndexOrThrow(DB_Open_Helper.EXPERIENCE)
+            );
         }
 
         cursor.close();
     }
+
     void Copy(Card_Table card){
 
         super.Copy(card);
         this.value_two = card.Get_Damage();
         this.value_two_text.setText(card.value_two_text.getText());
         this.value_two_text.setVisibility(card.value_two_text.getVisibility());
+        this.mExperience = card.getExperience();
     }
 
     void Open() {
         super.Open();
-        if(type==Card_Table_Type.MOB){
+        if(type== CardTableType.MOB){
             this.value_one_text.setVisibility(View.VISIBLE);
             this.value_two_text.setVisibility(View.VISIBLE);
         }
@@ -160,5 +188,12 @@ class Card_Table extends Card {
     }
     public void setChangeAnimation(AnimatorSet changeAnimation) {
         mChangeAnimation = changeAnimation;
+    }
+
+    public int getExperience() {
+        return mExperience;
+    }
+    public void setExperience(int experience) {
+        mExperience = experience;
     }
 }

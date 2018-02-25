@@ -18,6 +18,9 @@ public class Card extends ConstraintLayout {
     ImageView imageView;
     TextView name_text;
     TextView value_one_text;
+    int mGearScore;
+    TextView TEST_GearScoreText;
+    byte mSubType;
 
     public Card(Context context) {
         super(context);
@@ -41,7 +44,9 @@ public class Card extends ConstraintLayout {
         this.name_text.setVisibility(card.name_text.getVisibility());
         this.value_one_text.setText(card.value_one_text.getText());
         this.value_one_text.setVisibility(card.value_one_text.getVisibility());
-        this.type = card.Get_Type();
+        this.type = card.getType();
+        this.mGearScore = card.getGearScore();
+        this.TEST_GearScoreText.setText(String.format("%d", mGearScore));
     }
 
     void Open() {
@@ -67,7 +72,7 @@ public class Card extends ConstraintLayout {
         return id_drawable == card_back;
     }
 
-    int Get_Type(){
+    int getType(){
         return type;
     }
     void Set_Type(int type){
@@ -99,5 +104,20 @@ public class Card extends ConstraintLayout {
     }
     void Set_Id_Drawable(int id_drawable){
         this.id_drawable = id_drawable;
+    }
+
+    public int getGearScore() {
+        return mGearScore;
+    }
+    public void setGearScore(int gearScore) {
+        mGearScore = gearScore;
+        TEST_GearScoreText.setText(String.format("%d", mGearScore));
+    }
+
+    public byte getSubType() {
+        return mSubType;
+    }
+    public void setSubType(byte subType) {
+        mSubType = subType;
     }
 }
