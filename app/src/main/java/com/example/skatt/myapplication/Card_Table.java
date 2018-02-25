@@ -124,26 +124,26 @@ class Card_Table extends Card {
 
     void Copy(Card_Table card){
 
-        super.Copy(card);
-        this.value_two = card.Get_Damage();
+        super.copy(card);
+        this.value_two = card.getValueTwo();
         this.value_two_text.setText(card.value_two_text.getText());
         this.value_two_text.setVisibility(card.value_two_text.getVisibility());
         this.mExperience = card.getExperience();
     }
 
-    void Open() {
-        super.Open();
+    void open() {
+        super.open();
         if(type== CardTableType.MOB){
             this.value_one_text.setVisibility(View.VISIBLE);
             this.value_two_text.setVisibility(View.VISIBLE);
         }
     }
 
-    void Close(int card_back) {
-        super.Close(card_back);
+    void close(int card_back) {
+        super.close(card_back);
         this.value_two_text.setVisibility(View.INVISIBLE);
     }
-    boolean Is_Close(){
+    boolean isClose(){
         return ((id_drawable == card_back) || (id_drawable==cardCenterBack));
     }
 
@@ -154,12 +154,24 @@ class Card_Table extends Card {
         mTargetAnimation = targetAnimation;
     }
 
-    int Get_Damage(){
+    int getValueTwo(){
         return value_two;
     }
-
-    void Set_Value_Two(int damage){
+    void setValueTwo(int damage){
         this.value_two = damage;
+    }
+
+    void setValueTwoText(int hp){
+        if (hp/10>1){
+            value_two_text.setText(
+                    String.format("%s", hp)
+            );
+        }
+        else{
+            value_two_text.setText(
+                    String.format(" %s", hp)
+            );
+        }
     }
 
     int Get_Money(){

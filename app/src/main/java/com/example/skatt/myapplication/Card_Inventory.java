@@ -96,7 +96,7 @@ class Card_Inventory extends Card {
                 cursor.getColumnIndexOrThrow(DB_Open_Helper.value_one)
         );
 
-        this.Set_Value_One_text(value_one);
+        this.setValueOneText(value_one);
 
         id_drawable = cursor.getInt(
                 cursor.getColumnIndexOrThrow(DB_Open_Helper.id_image)
@@ -113,13 +113,13 @@ class Card_Inventory extends Card {
         cursor.close();
     }
 
-    void Open() {
-        super.Open();
+    void open() {
+        super.open();
         this.value_one_text.setVisibility(View.VISIBLE);
     }
 
     void Copy(Card_Inventory card){
-        super.Copy(card);
+        super.copy(card);
         this.value_one_text.setVisibility(View.VISIBLE);
         this.durability = card.Get_Durability();
         this.cost = card.Get_Cost();
@@ -135,7 +135,7 @@ class Card_Inventory extends Card {
         this.imageView.setImageResource(id_drawable);
 */
         this.name_text.setText(card.name_text);
-        this.Set_Value_One_text(card.value_one);
+        this.setValueOneText(card.value_one);
         this.type = card.Get_Type();
         this.durability = card.durability;
         this.cost = card.Get_Cost();

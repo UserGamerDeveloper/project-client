@@ -92,18 +92,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onLongClick(View v) {
                 if (target_swap.getType() == Inventory_Type.FOOD) {
-                    Change_HP(target_swap.Get_Value_One());
-                    inventory_item_count--;
-                    ChangeGearScore(-target_swap.getGearScore());
-                    Inventory_Sort();
-                    Loot_Get();
-                    Log.d("Target_Reset", "use food");
-                    Target_Reset();
+                    useFood();
+                    return true;
+                }
+                if (target_swap.getType() == Inventory_Type.SPELL) {
+                    useSpell();
                     return true;
                 }
                 if(target_swap.slot_type == Slot_Type.HAND){
                     Card_Hand card_hand = (Card_Hand) target_swap;
-                    if (card_hand.Get_Id_Drawable()!=card_hand.hand_drawable){
+                    if (card_hand.getIdDrawable()!=card_hand.hand_drawable){
                         if (inventory_item_count<inventory_item_max_count){
                             inventory[inventory_item_count].Copy(card_hand);
                             inventory[inventory_item_count].setVisibility(View.VISIBLE);
@@ -124,6 +122,29 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         };
+    }
+
+    private void useFood() {
+        Change_HP(target_swap.getValueOne());
+        inventory_item_count--;
+        ChangeGearScore(-target_swap.getGearScore());
+        Inventory_Sort();
+        Loot_Get();
+        Log.d("Target_Reset", "use food");
+        Target_Reset();
+    }
+
+    private void useSpell() {
+        mobHPChange(-target_swap.getValueOne());
+        ChangeGearScore(-target_swap.getGearScore());
+        inventory_item_count--;
+        Inventory_Sort();
+        Loot_Get();
+        Log.d("Target_Reset", "use spell");
+        Target_Reset();
+        if (mCardTableTarget.getValueTwo() < 1) {
+            mobDead();
+        }
     }
 
     View.OnTouchListener card_move = card_move();
@@ -326,16 +347,14 @@ public class MainActivity extends AppCompatActivity {
                     return false;
                 }
                 if (event.getAction() == DragEvent.ACTION_DROP) {
-                        if (target_swap.getType() == Inventory_Type.FOOD) {
-                            Change_HP(target_swap.Get_Value_One());
-                            ChangeGearScore(-target_swap.getGearScore());
-                            inventory_item_count--;
-                            Inventory_Sort();
-                            Loot_Get();
-                            Log.d("Target_Reset", "use food");
-                            Target_Reset();
-                            return true;
-                        }
+                    if (target_swap.getType() == Inventory_Type.FOOD) {
+                        useFood();
+                        return true;
+                    }
+                    if (target_swap.getType() == Inventory_Type.SPELL) {
+                        useSpell();
+                        return true;
+                    }
                 }
 
                 return false;
@@ -390,7 +409,7 @@ public class MainActivity extends AppCompatActivity {
                             trade_skill_image.setOnClickListener(on_click_vendor_skill);
                             for (byte i = 0; i<loot_max_count;i++){
                                 trade_item[i].Change(db_open_helper,random, mGearScore);
-                                trade_item[i].Open();
+                                trade_item[i].open();
                                 trade_item[i].setVisibility(View.VISIBLE);
                                 trade_cost[i].setText(String.format("%d", trade_item[i].Get_Cost()));
                                 trade_cost[i].setVisibility(View.VISIBLE);
@@ -410,7 +429,7 @@ public class MainActivity extends AppCompatActivity {
                             trade_skill_image.setOnClickListener(null);
                             for (byte i = 0; i<loot_max_count;i++){
                                 trade_item[i].Change(db_open_helper,random, mGearScore, random.nextInt(2));
-                                trade_item[i].Open();
+                                trade_item[i].open();
                                 trade_item[i].setVisibility(View.VISIBLE);
                                 trade_item[i].Set_Durability(10);
                                 trade_cost[i].setText(String.format("%d", trade_item[i].Get_Cost()));
@@ -431,7 +450,7 @@ public class MainActivity extends AppCompatActivity {
                             trade_skill_image.setOnClickListener(on_click_innkeeper_skill);
                             for (byte i = 0; i<loot_max_count;i++){
                                 trade_item[i].Change(db_open_helper,random, mGearScore, Inventory_Type.FOOD);
-                                trade_item[i].Open();
+                                trade_item[i].open();
                                 trade_item[i].setVisibility(View.VISIBLE);
                                 trade_cost[i].setText(String.format("%d", trade_item[i].Get_Cost()));
                                 trade_cost[i].setVisibility(View.VISIBLE);
@@ -699,10 +718,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                mCardTableTarget.Set_Value_One(mCardTableTarget.Get_Value_One() - ((hand_one.getType() == Inventory_Type.WEAPON) ?
-                        hand_one.Get_Value_One() : 0) - ((hand_two.getType() == Inventory_Type.WEAPON) ?
-                        hand_two.Get_Value_One() : 0));
-                mCardTableTarget.Set_Value_One_text(mCardTableTarget.Get_Value_One());
+                int damage = ((hand_one.getType() == Inventory_Type.WEAPON) ?
+                        hand_one.getValueOne() : 0) + ((hand_two.getType() == Inventory_Type.WEAPON) ?
+                        hand_two.getValueOne() : 0);
+
+                mobHPChange(-damage);
 
                 HP_Calculation();
 
@@ -733,31 +753,24 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
-                if (mCardTableTarget.Get_Value_One() < 1) {
-
-                    mCardTableTarget.setOnClickListener(null);
-
-                    mCardTableTarget.Set_Value_One_text(0);
-                    money += mCardTableTarget.Get_Money();
-                    money_text.setText(String.valueOf(money));
-
-                    mCardTableTarget.getCloseAnimation().start();
+                if (mCardTableTarget.getValueTwo() < 1) {
+                    mobDead();
                 }
             }
 
             private void HP_Calculation() {
-                int mob_damage = mCardTableTarget.Get_Damage();
+                int mob_damage = mCardTableTarget.getValueOne();
                 if(mob_damage>0&&hand_one.getType() == Inventory_Type.SHIELD){
-                    if (hand_one.Get_Value_One() < mob_damage){
-                        mob_damage -= hand_one.Get_Value_One();
+                    if (hand_one.getValueOne() < mob_damage){
+                        mob_damage -= hand_one.getValueOne();
                     }
                     else{
                         mob_damage = 0;
                     }
                 }
                 if(mob_damage>0&&hand_two.getType() == Inventory_Type.SHIELD){
-                    if (hand_two.Get_Value_One() < mob_damage){
-                        mob_damage -= hand_two.Get_Value_One();
+                    if (hand_two.getValueOne() < mob_damage){
+                        mob_damage -= hand_two.getValueOne();
                     }
                     else{
                         mob_damage = 0;
@@ -768,6 +781,21 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         };
+    }
+
+    private void mobHPChange(int delta) {
+        mCardTableTarget.setValueTwo(mCardTableTarget.getValueTwo()+delta);
+        mCardTableTarget.setValueTwoText(mCardTableTarget.getValueTwo());
+    }
+
+    private void mobDead() {
+        mCardTableTarget.setOnClickListener(null);
+
+        mCardTableTarget.setValueTwoText(0);
+        money += mCardTableTarget.Get_Money();
+        money_text.setText(String.valueOf(money));
+
+        mCardTableTarget.getCloseAnimation().start();
     }
 
     boolean is_loot_enable = false;
@@ -889,8 +917,8 @@ public class MainActivity extends AppCompatActivity {
 */
                 if (event.getAction() == DragEvent.ACTION_DROP) {
                     target_swap.setVisibility(View.VISIBLE);
-                    if (target_swap.Get_Id_Drawable()!=R.drawable.kulak_levo||
-                            target_swap.Get_Id_Drawable()!=R.drawable.kulak_pravo){
+                    if (target_swap.getIdDrawable()!=R.drawable.kulak_levo||
+                            target_swap.getIdDrawable()!=R.drawable.kulak_pravo){
                         trade_window.setVisibility(View.VISIBLE);
                         trade_window_no.setVisibility(View.VISIBLE);
                         trade_window_yes.setVisibility(View.VISIBLE);
@@ -934,7 +962,7 @@ public class MainActivity extends AppCompatActivity {
                 Money_Change(-cost_vendor_skill);
                 for (byte i = 0; i<loot_max_count;i++){
                     trade_item[i].Change(db_open_helper,random, mGearScore);
-                    trade_item[i].Open();
+                    trade_item[i].open();
                     trade_item[i].setVisibility(View.VISIBLE);
                     trade_cost[i].setText(String.format("%d", trade_item[i].Get_Cost()));
                     trade_cost[i].setVisibility(View.VISIBLE);
@@ -1310,7 +1338,7 @@ public class MainActivity extends AppCompatActivity {
             mCardsTable[i].value_two_text.setVisibility(View.INVISIBLE);
             mCardsTable[i].value_one_text.setVisibility(View.INVISIBLE);
             mCardsTable[i].imageView.setImageResource(card_back);
-            mCardsTable[i].Set_Id_Drawable(card_back);
+            mCardsTable[i].setIdDrawable(card_back);
             mCardsTable[i].imageView.setVisibility(View.INVISIBLE);
         }
         card_center.setVisibility(View.INVISIBLE);
@@ -1319,7 +1347,7 @@ public class MainActivity extends AppCompatActivity {
         loot[2].setVisibility(View.GONE);
 
         inventory_item_count = 1;
-        inventory[0].Set_Value_One(1);
+        inventory[0].setValueOne(1);
         inventory[0].id_drawable = R.drawable.yablachko;
         inventory[0].name_text.setText("Яблоко");
         inventory[0].value_one_text.setText(" 1");
@@ -1327,7 +1355,7 @@ public class MainActivity extends AppCompatActivity {
 /*
         inventory[0].imageView.setImageResource(R.drawable.yablachko);
 */
-        inventory[0].Set_Type(Inventory_Type.FOOD);
+        inventory[0].setType(Inventory_Type.FOOD);
         inventory[0].setOnClickListener(null);
         inventory[0].cost = 1;
         inventory[0].setGearScore(1);
@@ -1372,10 +1400,10 @@ public class MainActivity extends AppCompatActivity {
     private void Set_Hand(Card_Hand hand) {
         hand.setGearScore(0);
         hand.TEST_MOB_GEARSCORE_TEXT.setText(0+"");
-        hand.Set_Value_One(1);
+        hand.setValueOne(1);
         hand.name_text.setText("Кулак");
         hand.id_drawable = hand.hand_drawable;
-        hand.Set_Type(Inventory_Type.WEAPON);
+        hand.setType(Inventory_Type.WEAPON);
         hand.value_one_text.setText(" 1");
         Picasso.with(getBaseContext()).load(hand.hand_drawable).into(hand.imageView);
 /*
@@ -1528,10 +1556,10 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                mCardsTable[1].Open();
-                mCardsTable[3].Open();
-                mCardsTable[4].Open();
-                mCardsTable[6].Open();
+                mCardsTable[1].open();
+                mCardsTable[3].open();
+                mCardsTable[4].open();
+                mCardsTable[6].open();
             }
         };
         openCardTableRotateBack.addListener(openCardTableRotateBackListener);
@@ -1649,7 +1677,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                mCardTableTarget.Close(card_back);
+                mCardTableTarget.close(card_back);
             }
         };
         AnimatorListenerAdapter cardTableCloseBackAnimationListener = new AnimatorListenerAdapter() {
@@ -1869,7 +1897,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAnimationEnd(Animator animation) {
                     mCardsTable[0].Copy(mCardsTable[1]);
-                    mCardsTable[3].Close(cardCenterBack);
+                    mCardsTable[3].close(cardCenterBack);
                     mCardsTable[5].Copy(mCardsTable[6]);
             }
         };
@@ -1935,9 +1963,9 @@ public class MainActivity extends AppCompatActivity {
         AnimatorListenerAdapter getColumnRightAnimationListener = new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
-                    mCardsTable[2].Close(card_back);
-                    mCardsTable[4].Close(card_back);
-                    mCardsTable[7].Close(card_back);
+                    mCardsTable[2].close(card_back);
+                    mCardsTable[4].close(card_back);
+                    mCardsTable[7].close(card_back);
             }
             @Override
             public void onAnimationEnd(Animator animation) {
@@ -2111,7 +2139,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAnimationEnd(Animator animation) {
                 mCardsTable[5].Copy(mCardsTable[3]);
-                mCardsTable[6].Close(cardCenterBack);
+                mCardsTable[6].close(cardCenterBack);
                 mCardsTable[7].Copy(mCardsTable[4]);
             }
         };
@@ -2177,9 +2205,9 @@ public class MainActivity extends AppCompatActivity {
         AnimatorListenerAdapter getRowBottomAnimationListener = new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
-                mCardsTable[0].Close(card_back);
-                mCardsTable[1].Close(card_back);
-                mCardsTable[2].Close(card_back);
+                mCardsTable[0].close(card_back);
+                mCardsTable[1].close(card_back);
+                mCardsTable[2].close(card_back);
             }
             @Override
             public void onAnimationEnd(Animator animation) {
@@ -2353,7 +2381,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAnimationEnd(Animator animation) {
                 mCardsTable[2].Copy(mCardsTable[1]);
-                mCardsTable[4].Close(cardCenterBack);
+                mCardsTable[4].close(cardCenterBack);
                 mCardsTable[7].Copy(mCardsTable[6]);
             }
         };
@@ -2419,9 +2447,9 @@ public class MainActivity extends AppCompatActivity {
         AnimatorListenerAdapter getColumnLeftAnimationListener = new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
-                mCardsTable[0].Close(card_back);
-                mCardsTable[3].Close(card_back);
-                mCardsTable[5].Close(card_back);
+                mCardsTable[0].close(card_back);
+                mCardsTable[3].close(card_back);
+                mCardsTable[5].close(card_back);
             }
             @Override
             public void onAnimationEnd(Animator animation) {
@@ -2595,7 +2623,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAnimationEnd(Animator animation) {
                 mCardsTable[0].Copy(mCardsTable[3]);
-                mCardsTable[1].Close(cardCenterBack);
+                mCardsTable[1].close(cardCenterBack);
                 mCardsTable[2].Copy(mCardsTable[4]);
             }
         };
@@ -2661,9 +2689,9 @@ public class MainActivity extends AppCompatActivity {
         AnimatorListenerAdapter getRowTopAnimationListener = new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
-                mCardsTable[5].Close(card_back);
-                mCardsTable[6].Close(card_back);
-                mCardsTable[7].Close(card_back);
+                mCardsTable[5].close(card_back);
+                mCardsTable[6].close(card_back);
+                mCardsTable[7].close(card_back);
             }
             @Override
             public void onAnimationEnd(Animator animation) {
@@ -2744,7 +2772,7 @@ public class MainActivity extends AppCompatActivity {
             loot[i].bringToFront();
             loot[i].Change(db_open_helper, random, mCardTableTarget.getGearScore(),typeLoot[i]);
             loot[i].setVisibility(View.VISIBLE);
-            loot[i].Open();
+            loot[i].open();
         }
 
         is_loot_enable = true;
@@ -2758,7 +2786,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void spawn(Card_Table cardTable) {
-        if (cardTable.Is_Close()) {
+        if (cardTable.isClose()) {
             if (random.nextInt(mChanceChest)==0){
                 cardTable.Change(db_open_helper, 8);
                 cardTable.Set_Money(0);
@@ -2818,7 +2846,7 @@ public class MainActivity extends AppCompatActivity {
 
         is_loot_enable = false;
         for (byte i = 0; i < loot_max_count; i++) {
-            loot[i].Close(card_back);
+            loot[i].close(card_back);
             loot[i].setVisibility(View.GONE);
         }
         loot_count = 0;

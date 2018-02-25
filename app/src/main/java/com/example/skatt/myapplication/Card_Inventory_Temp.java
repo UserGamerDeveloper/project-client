@@ -12,8 +12,8 @@ public class Card_Inventory_Temp {
 
     void Copy(Card_Inventory card){
 
-        this.value_one = card.Get_Value_One();
-        this.id_drawable = card.Get_Id_Drawable();
+        this.value_one = card.getValueOne();
+        this.id_drawable = card.getIdDrawable();
         this.name_text = card.name_text.getText();
         this.type = card.getType();
         this.durability = card.Get_Durability();

@@ -32,10 +32,10 @@ public class Card extends ConstraintLayout {
         super(context, attrs, defStyleAttr);
     }
 
-    void Copy(Card card){
+    void copy(Card card){
 
-        this.value_one = card.Get_Value_One();
-        this.id_drawable = card.Get_Id_Drawable();
+        this.value_one = card.getValueOne();
+        this.id_drawable = card.getIdDrawable();
         Picasso.with(getContext()).load(id_drawable).placeholder(R.color.color_black).into(imageView);
 /*
         this.imageView.setImageResource(id_drawable);
@@ -49,7 +49,7 @@ public class Card extends ConstraintLayout {
         this.TEST_GearScoreText.setText(String.format("%d", mGearScore));
     }
 
-    void Open() {
+    void open() {
         this.name_text.setVisibility(View.VISIBLE);
         Picasso.with(getContext()).load(id_drawable).placeholder(R.color.color_black).into(imageView);
 /*
@@ -57,7 +57,7 @@ public class Card extends ConstraintLayout {
 */
     }
 
-    void Close(int card_back) {
+    void close(int card_back) {
 
         this.name_text.setVisibility(View.INVISIBLE);
         this.value_one_text.setVisibility(View.INVISIBLE);
@@ -68,25 +68,25 @@ public class Card extends ConstraintLayout {
         this.id_drawable = card_back;
     }
 
-    boolean Is_Close(){
+    boolean isClose(){
         return id_drawable == card_back;
     }
 
     int getType(){
         return type;
     }
-    void Set_Type(int type){
+    void setType(int type){
         this.type = type;
     }
 
-    int Get_Value_One(){
+    int getValueOne(){
         return value_one;
     }
-    void Set_Value_One(int hp){
+    void setValueOne(int hp){
         this.value_one = hp;
     }
 
-    void Set_Value_One_text(int hp){
+    void setValueOneText(int hp){
         if (hp/10>1){
             value_one_text.setText(
                     String.format("%s", hp)
@@ -99,10 +99,10 @@ public class Card extends ConstraintLayout {
         }
     }
 
-    int Get_Id_Drawable(){
+    int getIdDrawable(){
         return id_drawable;
     }
-    void Set_Id_Drawable(int id_drawable){
+    void setIdDrawable(int id_drawable){
         this.id_drawable = id_drawable;
     }
 
