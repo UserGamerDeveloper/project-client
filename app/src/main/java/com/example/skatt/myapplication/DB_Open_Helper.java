@@ -31,6 +31,8 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
     public static final String sChanceFood = "ChanceFood";
     public static final String sChanceSpell = "ChanceSpell";
     public static final String sChanceChest = "ChanceChest";
+    public static final String sGearScoreRangeRate = "GearScoreRangeRate";
+    public static final String sHaltHealth = "HaltHealth";
 
     DB_Open_Helper(Context context) {
         super(context, DB_name, null, DB_version);
@@ -49,7 +51,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         String tableTestCreateQuery = "create table " + sTableTest + " ("+ money +" INTEGER, "
                 + sChanceHalt + " INTEGER, " + sChanceWeaponOrShield + " INTEGER, " + sChanceFood +
                 " INTEGER, " + sChanceSpell + " INTEGER, "+ sChanceVendor + " INTEGER, " +
-                sChanceChest + " INTEGER, " + type + " INTEGER)";
+                sChanceChest + " INTEGER, " + sHaltHealth + " INTEGER, " + sGearScoreRangeRate + " INTEGER)";
 
         sqLiteDatabase.execSQL(query_table_mobs_create);
         sqLiteDatabase.execSQL(query_table_inventory_create);
@@ -73,6 +75,8 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.sChanceFood, 3);
         values.put(DB_Open_Helper.sChanceSpell, 10);
         values.put(DB_Open_Helper.sChanceChest, 40);
+        values.put(DB_Open_Helper.sGearScoreRangeRate, 50);
+        values.put(DB_Open_Helper.sHaltHealth, 3);
 
         sqLiteDatabase.insert(
                 DB_Open_Helper.sTableTest,
@@ -332,7 +336,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.name, "Алхимик");
         values.put(DB_Open_Helper.value_one, 1);
         values.put(DB_Open_Helper.value_two, 1);
-        values.put(DB_Open_Helper.id_image, R.drawable.testblack);
+        values.put(DB_Open_Helper.id_image, R.drawable.alhimik);
         values.put(DB_Open_Helper.money, 1);
         values.put(DB_Open_Helper.type, CardTableType.MOB);
         values.put(DB_Open_Helper.SUBTYPE, CardTableSubType.GOBLIN);
@@ -348,7 +352,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.name, "Лазутчик");
         values.put(DB_Open_Helper.value_one, 2);
         values.put(DB_Open_Helper.value_two, 2);
-        values.put(DB_Open_Helper.id_image, R.drawable.testblack);
+        values.put(DB_Open_Helper.id_image, R.drawable.lazutchik);
         values.put(DB_Open_Helper.money, 2);
         values.put(DB_Open_Helper.type, CardTableType.MOB);
         values.put(DB_Open_Helper.SUBTYPE, CardTableSubType.GOBLIN);
@@ -364,7 +368,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.name, "Горный тролль");
         values.put(DB_Open_Helper.value_one, 3);
         values.put(DB_Open_Helper.value_two, 3);
-        values.put(DB_Open_Helper.id_image, R.drawable.testblack);
+        values.put(DB_Open_Helper.id_image, R.drawable.troll);
         values.put(DB_Open_Helper.money, 3);
         values.put(DB_Open_Helper.type, CardTableType.MOB);
         values.put(DB_Open_Helper.SUBTYPE, CardTableSubType.TROLL);
@@ -380,7 +384,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.name, "Головорез");
         values.put(DB_Open_Helper.value_one, 4);
         values.put(DB_Open_Helper.value_two, 4);
-        values.put(DB_Open_Helper.id_image, R.drawable.testblack);
+        values.put(DB_Open_Helper.id_image, R.drawable.golovorez);
         values.put(DB_Open_Helper.money, 4);
         values.put(DB_Open_Helper.type, CardTableType.MOB);
         values.put(DB_Open_Helper.SUBTYPE, CardTableSubType.BANDIT);
@@ -451,7 +455,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
                 null,
                 values);
     }
-
+    //8
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
     }

@@ -21,7 +21,7 @@ class Card_Table extends Card {
     TextView value_two_text;
     private int money;
     private int mExperience;
-    static float sGearScoreRangeRate = 0.5f;
+    static float sGearScoreRangeRate;
     static final String[] column_name = {
             DB_Open_Helper.id,
             DB_Open_Helper.name,
@@ -207,5 +207,12 @@ class Card_Table extends Card {
     }
     public void setExperience(int experience) {
         mExperience = experience;
+    }
+
+    public static float getGearScoreRangeRate() {
+        return sGearScoreRangeRate;
+    }
+    public static void setGearScoreRangeRate(float gearScoreRangeRate) {
+        sGearScoreRangeRate = gearScoreRangeRate;
     }
 }

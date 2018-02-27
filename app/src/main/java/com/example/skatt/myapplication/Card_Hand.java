@@ -26,7 +26,6 @@ public class Card_Hand extends Card_Inventory {
         super.Copy(card);
         Set_Durability_Text(durability);
     }
-
     void Copy(Card_Inventory_Temp card){
 
         super.Copy(card);

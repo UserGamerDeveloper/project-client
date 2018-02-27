@@ -73,6 +73,21 @@ class Card_Inventory extends Card {
 
         setData(random, cursor);
     }
+    void Change(DB_Open_Helper db_open_helper, int id){
+        SQLiteDatabase data_base = db_open_helper.getReadableDatabase();
+
+        Cursor cursor = data_base.query(
+                DB_Open_Helper.table_inventory,
+                column_name,
+                DB_Open_Helper.id + "=?",
+                new String[]{id+""},
+                null,
+                null,
+                null
+        );
+
+        setData(new Random(), cursor);
+    }
     private void setData(Random random, Cursor cursor) {
         cursor.moveToPosition(random.nextInt(cursor.getCount()));
 

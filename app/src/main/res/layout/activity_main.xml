@@ -34,6 +34,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:adjustViewBounds="true"
+        android:onClick="onClickIconCollection"
         app:layout_constraintBottom_toBottomOf="@+id/guideline_table_top"
         app:layout_constraintLeft_toLeftOf="@+id/guideline_menu"
         app:layout_constraintRight_toRightOf="@+id/guideline_collection"
@@ -2381,6 +2382,47 @@
         android:id="@+id/testMenu"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@color/color_black"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guideline_table_top">
+
+        <EditText
+            android:id="@+id/idslot"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:hint="ид слота"
+            android:inputType="number" />
+
+        <EditText
+            android:id="@+id/iditem"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:hint="ид итема"
+            android:inputType="number" />
+
+        <ImageView
+            android:id="@+id/imageViewa"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="onClickTestButton"
+            app:srcCompat="@drawable/knopka_vihod" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/balanceMenu"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:background="@color/color_black"
         android:orientation="vertical"
         android:visibility="gone"
@@ -2430,7 +2472,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:onClick="onClickTESTButton"
+            android:onClick="onClickBalanceButton"
             app:srcCompat="@drawable/knopka_vihod" />
 
     </LinearLayout>
