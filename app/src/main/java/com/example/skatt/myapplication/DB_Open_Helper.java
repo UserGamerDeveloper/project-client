@@ -463,7 +463,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         //endregion
         //region Vendors
         values.put(DB_Open_Helper.id, 0);
-        values.put(DB_Open_Helper.name, "Горговец");
+        values.put(DB_Open_Helper.name, "Торговец");
         values.put(DB_Open_Helper.id_image, R.drawable.torgovec);
         values.put(DB_Open_Helper.type, CardTableType.VENDOR);
         values.put(DB_Open_Helper.SUBTYPE, CardTableSubType.TRADER);

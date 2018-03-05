@@ -20,7 +20,7 @@ public class Card extends ConstraintLayout {
     TextView value_one_text;
     int mGearScore;
     TextView TEST_GearScoreText;
-    byte mSubType;
+    int mSubType;
 
     public Card(Context context) {
         super(context);
@@ -114,7 +114,7 @@ public class Card extends ConstraintLayout {
         TEST_GearScoreText.setText(String.format("%d", mGearScore));
     }
 
-    public byte getSubType() {
+    public int getSubType() {
         return mSubType;
     }
     public void setSubType(byte subType) {

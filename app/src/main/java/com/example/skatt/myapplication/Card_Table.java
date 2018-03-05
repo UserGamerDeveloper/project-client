@@ -31,7 +31,8 @@ class Card_Table extends Card {
             DB_Open_Helper.money,
             DB_Open_Helper.type,
             DB_Open_Helper.GEARSCORE,
-            DB_Open_Helper.EXPERIENCE
+            DB_Open_Helper.EXPERIENCE,
+            DB_Open_Helper.SUBTYPE
     };
 
     public Card_Table(Context context) {
@@ -90,6 +91,9 @@ class Card_Table extends Card {
 
         type = cursor.getInt(
                 cursor.getColumnIndexOrThrow(DB_Open_Helper.type)
+        );
+        mSubType = cursor.getInt(
+                cursor.getColumnIndexOrThrow(DB_Open_Helper.SUBTYPE)
         );
 
         this.mGearScore = cursor.getInt(

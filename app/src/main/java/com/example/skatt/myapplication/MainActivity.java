@@ -48,8 +48,8 @@ public class MainActivity extends AppCompatActivity {
     ImageView card_center;
     ConstraintLayout button_start;
     ConstraintLayout button_continue;
-    ConstraintLayout trade_zone;
-    ImageView shadow;
+    ConstraintLayout mTradeZone;
+    ImageView mShadow;
     ImageView hp_view;
     ImageView hp_bar;
     TextView money_text;
@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
     final byte INVENTORYMAXCOUNT = 4;
     byte loot_max_count = 3;
     boolean is_loot_enable = false;
-    boolean is_animate;
+    boolean mIsAnimate;
     private final int card_back = R.drawable.card_back;
     private final int cardCenterBack = R.drawable.perekrestok;
     Random random = new Random();
@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
     SQLiteDatabase data_base;
     Drawable hp_bar_drawable;
     AnimatorSet card_6_animation_reset = new AnimatorSet();
-    ConstraintLayout table;
+    ConstraintLayout mTable;
     final class Slot_Type {
 
         final static byte LOOT = 0;
@@ -145,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
     TextView[] mTradeCost = new TextView[3];
     ImageView[] mTradeCostImage = new ImageView[3];
     Card_Inventory[] mTradeItem = new Card_Inventory[3];
-    ConstraintLayout trade_skill;
+    ConstraintLayout mTradeSkill;
     ImageView mTradeSkillImage;
     DialogWindow mDialogWindow = new DialogWindow();
     TextView mGearScoreText;
@@ -461,9 +461,9 @@ public class MainActivity extends AppCompatActivity {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!is_animate) {
-                    is_animate = true;
-                    Log.d("is_animate", String.valueOf(is_animate));
+                if (!mIsAnimate) {
+                    mIsAnimate = true;
+                    Log.d("mIsAnimate", String.valueOf(mIsAnimate));
                     mCardTableTarget = (Card_Table) v;
                     if(mCardTableTarget.getType()== CardTableType.MOB){
                         mCardTableTarget.bringToFront();
@@ -471,12 +471,10 @@ public class MainActivity extends AppCompatActivity {
                         mCardTableTarget.setOnClickListener(mDamagListener);
                     }
                     if (mCardTableTarget.getType()==CardTableType.VENDOR){
-                        if(mCardTableTarget.getSubType()== CardTableSubType.TRADER){
-                            shadow.bringToFront();
-                            mCardTableTarget.bringToFront();
-/*
                         card_6_animation_click_vendor.start();
-*/
+                        if(mCardTableTarget.getSubType()== CardTableSubType.TRADER){
+                            mShadow.bringToFront();
+                            mCardTableTarget.bringToFront();
                             Picasso.with(getBaseContext()).load(R.drawable.navik_torgovca).into(mTradeSkillImage);
                             mTradeSkillImage.setOnClickListener(mOnClickVendorSkill);
                             for (byte i = 0; i<loot_max_count;i++){
@@ -487,16 +485,13 @@ public class MainActivity extends AppCompatActivity {
                                 mTradeCost[i].setVisibility(View.VISIBLE);
                                 mTradeCostImage[i].setVisibility(View.VISIBLE);
                             }
-                            trade_skill.setVisibility(View.VISIBLE);
-                            trade_zone.setVisibility(View.VISIBLE);
-                            table.setOnDragListener(null);
+                            mTradeSkill.setVisibility(View.VISIBLE);
+                            mTradeZone.setVisibility(View.VISIBLE);
+                            mTable.setOnDragListener(null);
                         }
                         if (mCardTableTarget.getSubType()== CardTableSubType.BLACKSMITH){
-                            shadow.bringToFront();
+                            mShadow.bringToFront();
                             mCardTableTarget.bringToFront();
-/*
-                        card_6_animation_click_vendor.start();
-*/
                             Picasso.with(getBaseContext()).load(R.drawable.navik_kuznecaa).into(mTradeSkillImage);
                             mTradeSkillImage.setOnClickListener(null);
                             for (byte i = 0; i<loot_max_count;i++){
@@ -508,16 +503,13 @@ public class MainActivity extends AppCompatActivity {
                                 mTradeCost[i].setVisibility(View.VISIBLE);
                                 mTradeCostImage[i].setVisibility(View.VISIBLE);
                             }
-                            trade_skill.setVisibility(View.VISIBLE);
-                            trade_zone.setVisibility(View.VISIBLE);
-                            table.setOnDragListener(null);
+                            mTradeSkill.setVisibility(View.VISIBLE);
+                            mTradeZone.setVisibility(View.VISIBLE);
+                            mTable.setOnDragListener(null);
                         }
                         if (mCardTableTarget.getSubType()== CardTableSubType.INNKEEPER){
-                            shadow.bringToFront();
+                            mShadow.bringToFront();
                             mCardTableTarget.bringToFront();
-/*
-                        card_6_animation_click_vendor.start();
-*/
                             Picasso.with(getBaseContext()).load(R.drawable.navik_traktirshika).into(mTradeSkillImage);
                             mTradeSkillImage.setOnClickListener(mOnClickInnkeeperSkill);
                             for (byte i = 0; i<loot_max_count;i++){
@@ -528,20 +520,20 @@ public class MainActivity extends AppCompatActivity {
                                 mTradeCost[i].setVisibility(View.VISIBLE);
                                 mTradeCostImage[i].setVisibility(View.VISIBLE);
                             }
-                            trade_skill.setVisibility(View.VISIBLE);
-                            trade_zone.setVisibility(View.VISIBLE);
-                            table.setOnDragListener(null);
+                            mTradeSkill.setVisibility(View.VISIBLE);
+                            mTradeZone.setVisibility(View.VISIBLE);
+                            mTable.setOnDragListener(null);
                         }
                     }
                     if (mCardTableTarget.getType()== CardTableType.HALT){
-                        shadow.bringToFront();
+                        mShadow.bringToFront();
                         mCardTableTarget.bringToFront();
                         mCardTableTarget.getTargetAnimation().start();
                         changeHP(mHpMax);
                         mCardTableTarget.getChangeAnimation().start();
                     }
                     if (mCardTableTarget.getType()== CardTableType.CHEST){
-                        shadow.bringToFront();
+                        mShadow.bringToFront();
                         mCardTableTarget.bringToFront();
                         mCardTableTarget.getTargetAnimation().start();
                         mCardTableTarget.getCloseAnimation().start();
@@ -607,7 +599,7 @@ public class MainActivity extends AppCompatActivity {
                     target_on_animation.addListener(target_on_animation_end);
                     target_on_animation.start();
 
-                    if (trade_skill.getVisibility()==View.VISIBLE && mCardTableTarget.getSubType()== CardTableSubType.BLACKSMITH&&
+                    if (mTradeSkill.getVisibility()==View.VISIBLE && mCardTableTarget.getSubType()== CardTableSubType.BLACKSMITH&&
                             (target_swap.getType()==Inventory_Type.SHIELD||target_swap.getType()==Inventory_Type.WEAPON)){
                         mTradeSkillImage.setOnClickListener(mOnClickBlacksmithSkill);
                     }
@@ -1039,12 +1031,12 @@ public class MainActivity extends AppCompatActivity {
 
         mGearScoreText = findViewById(R.id.gearScore);
 
-        table = findViewById(R.id.table);
-        table.setOnDragListener(mTableOnDropListener);
+        mTable = findViewById(R.id.table);
+        mTable.setOnDragListener(mTableOnDropListener);
 
-        trade_skill = findViewById(R.id.trade_skill);
-        trade_zone = findViewById(R.id.trade_zone);
-        trade_zone.setOnDragListener(mOnSell);
+        mTradeSkill = findViewById(R.id.trade_skill);
+        mTradeZone = findViewById(R.id.trade_zone);
+        mTradeZone.setOnDragListener(mOnSell);
 
         mDialogWindow.setLayout(findViewById(R.id.trade_window));
         mDialogWindow.setText(findViewById(R.id.trade_window_text));
@@ -1055,7 +1047,7 @@ public class MainActivity extends AppCompatActivity {
         mTradeSkillImage = findViewById(R.id.trade_skill_image);
         mTradeSkillImage.setOnClickListener(mOnClickVendorSkill);
 
-        shadow = findViewById(R.id.shadow);
+        mShadow = findViewById(R.id.shadow);
 
         button_start = findViewById(R.id.button_start_layout);
         button_continue = findViewById(R.id.button_continue_layout);
@@ -1297,8 +1289,8 @@ public class MainActivity extends AppCompatActivity {
         hp_text.setText(String.valueOf(hp));
         hp_bar_drawable.setLevel(10000 * hp / mHpMax);
 
-        is_animate = true;
-        Log.d("is_animate", String.valueOf(is_animate));
+        mIsAnimate = true;
+        Log.d("mIsAnimate", String.valueOf(mIsAnimate));
 
         mCardsTable[1].setOnClickListener(setTargetListener);
         mCardsTable[3].setOnClickListener(setTargetListener);
@@ -1307,8 +1299,8 @@ public class MainActivity extends AppCompatActivity {
 
         money_text.setText(String.valueOf(money_bank));
 
-        shadow.setVisibility(View.VISIBLE);
-        shadow.setAlpha(0f);
+        mShadow.setVisibility(View.VISIBLE);
+        mShadow.setAlpha(0f);
     }
 
     private void setHand(Card_Hand hand) {
@@ -1517,21 +1509,21 @@ public class MainActivity extends AppCompatActivity {
             }
             @Override
             public void onAnimationEnd(Animator animation) {
-                is_animate = false;
-                Log.d("is_animate", String.valueOf(is_animate));
+                mIsAnimate = false;
+                Log.d("mIsAnimate", String.valueOf(mIsAnimate));
             }
         };
         openCardTable.addListener(openCardTableListener);
 
         Animator shadowShow  = ObjectAnimator.ofFloat(
-                shadow,
+                mShadow,
                 View.ALPHA,
                 0f,
                 .5f
         );
 
         Animator shadowHide = ObjectAnimator.ofFloat(
-                shadow,
+                mShadow,
                 View.ALPHA,
                 .5f,
                 0f
@@ -1607,8 +1599,10 @@ public class MainActivity extends AppCompatActivity {
         //endregion
         //region a
         card_6_animation_click_vendor.setDuration(card_animation_duration).playTogether(
+/*
                 ObjectAnimator.ofFloat(mCardsTable[4], View.TRANSLATION_X, 0f, card_4_coordinates[0]-card_6_coordinates[0]),
                 ObjectAnimator.ofFloat(mCardsTable[4], View.TRANSLATION_Y, 0f, -card_distance_between_Y),
+*/
                 shadowShow
         );
 
@@ -2649,7 +2643,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loot() {
-        shadow.bringToFront();
+        mShadow.bringToFront();
 
         int[] typeLoot = new int[3];
         if (mCardTableTarget.getType()==CardTableType.MOB){
@@ -2809,8 +2803,8 @@ public class MainActivity extends AppCompatActivity {
 
         money_text.setText(String.valueOf(money));
 
-        is_animate = true;
-        Log.d("is_animate", String.valueOf(is_animate));
+        mIsAnimate = true;
+        Log.d("mIsAnimate", String.valueOf(mIsAnimate));
         openCardTable.start();
     }
 
@@ -2832,9 +2826,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void onClickTradeExit(View view){
         mCardTableTarget.getChangeAnimation().start();
-        trade_skill.setVisibility(View.GONE);
-        trade_zone.setVisibility(View.GONE);
-        table.setOnDragListener(mTableOnDropListener);
+        mTradeSkill.setVisibility(View.GONE);
+        mTradeZone.setVisibility(View.GONE);
+        mTable.setOnDragListener(mTableOnDropListener);
     }
 
     Stats mStats;

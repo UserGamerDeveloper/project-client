@@ -21,7 +21,8 @@ class Card_Inventory extends Card {
             DB_Open_Helper.type,
             DB_Open_Helper.cost,
             DB_Open_Helper.GEARSCORE,
-            DB_Open_Helper.MOBGEARSCORE
+            DB_Open_Helper.MOBGEARSCORE,
+            DB_Open_Helper.DURABILITY
     };
     int mDurability;
     int mDurabilityMax;
@@ -117,10 +118,18 @@ class Card_Inventory extends Card {
         switch (type){
             case Inventory_Type.WEAPON :{
                 mValueOne +=stats.getDamageBonus();
+                mDurabilityMax = cursor.getInt(
+                        cursor.getColumnIndexOrThrow(DB_Open_Helper.DURABILITY)
+                );
+                mDurability = random.nextInt(mDurabilityMax)+1;
                 break;
             }
             case Inventory_Type.SHIELD :{
                 mValueOne +=stats.getDefenceBonus();
+                mDurabilityMax = cursor.getInt(
+                        cursor.getColumnIndexOrThrow(DB_Open_Helper.DURABILITY)
+                );
+                mDurability = random.nextInt(mDurabilityMax)+1;
                 break;
             }
             default:{
@@ -137,12 +146,7 @@ class Card_Inventory extends Card {
         this.mCost = cursor.getInt(
                 cursor.getColumnIndexOrThrow(DB_Open_Helper.cost)
         );
-
-        mDurabilityMax = cursor.getInt(
-                cursor.getColumnIndexOrThrow(DB_Open_Helper.DURABILITY)
-        );
-        mDurability = random.nextInt(mDurabilityMax)+1;
-
+        
         cursor.close();
     }
 
