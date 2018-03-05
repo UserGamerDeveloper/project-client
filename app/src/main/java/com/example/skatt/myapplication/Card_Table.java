@@ -25,8 +25,8 @@ class Card_Table extends Card {
     static final String[] column_name = {
             DB_Open_Helper.id,
             DB_Open_Helper.name,
-            DB_Open_Helper.value_one,
-            DB_Open_Helper.value_two,
+            DB_Open_Helper.VALUEONE,
+            DB_Open_Helper.VALUETWO,
             DB_Open_Helper.id_image,
             DB_Open_Helper.money,
             DB_Open_Helper.type,
@@ -100,13 +100,13 @@ class Card_Table extends Card {
         if(type== CardTableType.MOB){
 
             value_one = cursor.getInt(
-                    cursor.getColumnIndexOrThrow(DB_Open_Helper.value_one)
+                    cursor.getColumnIndexOrThrow(DB_Open_Helper.VALUEONE)
             );
             value_one_text.setText(
                     String.format(" %s", value_one)
             );
             value_two = cursor.getInt(
-                    cursor.getColumnIndexOrThrow(DB_Open_Helper.value_two)
+                    cursor.getColumnIndexOrThrow(DB_Open_Helper.VALUETWO)
             );
             value_two_text.setText(
                     String.format("%s ", value_two)

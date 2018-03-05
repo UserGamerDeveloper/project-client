@@ -16,7 +16,7 @@ class Card_Inventory extends Card {
     static String[] column_name = {
             DB_Open_Helper.id,
             DB_Open_Helper.name,
-            DB_Open_Helper.value_one,
+            DB_Open_Helper.VALUEONE,
             DB_Open_Helper.id_image,
             DB_Open_Helper.type,
             DB_Open_Helper.cost,
@@ -40,7 +40,7 @@ class Card_Inventory extends Card {
         super(context, attrs, defStyleAttr);
     }
 
-    void Change(DB_Open_Helper db_open_helper, Random random, int gearScoreMob){
+    void Change(Stats stats, DB_Open_Helper db_open_helper, Random random, int gearScoreMob){
         gearScoreMob = 0;
         SQLiteDatabase data_base = db_open_helper.getReadableDatabase();
 
@@ -55,9 +55,9 @@ class Card_Inventory extends Card {
                 null,
                 null
         );
-        setData(random, cursor);
+        setData(stats, random, cursor);
     }
-    void Change(DB_Open_Helper db_open_helper, Random random, int gearScoreMob, int type){
+    void Change(Stats stats, DB_Open_Helper db_open_helper, Random random, int gearScoreMob, int type){
         gearScoreMob = 0;
         SQLiteDatabase data_base = db_open_helper.getReadableDatabase();
 
@@ -71,9 +71,9 @@ class Card_Inventory extends Card {
                 null
         );
 
-        setData(random, cursor);
+        setData(stats, random, cursor);
     }
-    void Change(DB_Open_Helper db_open_helper, int id){
+    void Change(Stats stats, DB_Open_Helper db_open_helper, int id){
         SQLiteDatabase data_base = db_open_helper.getReadableDatabase();
 
         Cursor cursor = data_base.query(
@@ -86,9 +86,9 @@ class Card_Inventory extends Card {
                 null
         );
 
-        setData(new Random(), cursor);
+        setData(stats, new Random(), cursor);
     }
-    private void setData(Random random, Cursor cursor) {
+    private void setData(Stats stats, Random random, Cursor cursor) {
         cursor.moveToPosition(random.nextInt(cursor.getCount()));
 
         this.mGearScore = cursor.getInt(
@@ -106,20 +106,31 @@ class Card_Inventory extends Card {
                         cursor.getColumnIndexOrThrow(DB_Open_Helper.name)
                 )
         );
-
-        value_one = cursor.getInt(
-                cursor.getColumnIndexOrThrow(DB_Open_Helper.value_one)
+        this.type = cursor.getInt(
+                cursor.getColumnIndexOrThrow(DB_Open_Helper.type)
         );
-
+        value_one = cursor.getInt(
+                cursor.getColumnIndexOrThrow(DB_Open_Helper.VALUEONE)
+        );
+        switch (type){
+            case Inventory_Type.WEAPON :{
+                value_one+=stats.getDamageBonus();
+                break;
+            }
+            case Inventory_Type.SHIELD :{
+                value_one+=stats.getDefenceBonus();
+                break;
+            }
+            default:{
+                break;
+            }
+        }
         this.setValueOneText(value_one);
 
         id_drawable = cursor.getInt(
                 cursor.getColumnIndexOrThrow(DB_Open_Helper.id_image)
         );
 
-        this.type = cursor.getInt(
-                cursor.getColumnIndexOrThrow(DB_Open_Helper.type)
-        );
 
         this.cost = cursor.getInt(
                 cursor.getColumnIndexOrThrow(DB_Open_Helper.cost)
