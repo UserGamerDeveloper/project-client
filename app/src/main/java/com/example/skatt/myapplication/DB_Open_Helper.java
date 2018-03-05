@@ -57,6 +57,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
     static final String GSPERSTAT = "GSPERSTAT";
     static final String HPBONUS = "HPBONUS";
     static final String DURABILITY = "DURABILITY";
+    static final String HP = "HP";
 
     DB_Open_Helper(Context context) {
         super(context, DB_name, null, DB_version);
@@ -84,7 +85,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
                 + LVL13+ " INTEGER, " + LVL14 + " INTEGER, " + LVL15+ " INTEGER, "
                 + LVL16+ " INTEGER, " + LVL17 + " INTEGER, " + LVL18+ " INTEGER, "
                 + LVL19+ " INTEGER, " + LVL20 + " INTEGER, " + GSPERSTAT + " INTEGER, " +
-                HPBONUS + " INTEGER, " + GSRANGERATE + " INTEGER)";
+                HPBONUS + " INTEGER, " + HP + " INTEGER, " + GSRANGERATE + " INTEGER)";
 
         sqLiteDatabase.execSQL(query_table_mobs_create);
         sqLiteDatabase.execSQL(query_table_inventory_create);
@@ -132,6 +133,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.LVL18, 1000);
         values.put(DB_Open_Helper.LVL19, 1000);
         values.put(DB_Open_Helper.LVL20, 1000);
+        values.put(DB_Open_Helper.HP, 30);
 
         sqLiteDatabase.insert(
                 DB_Open_Helper.sTableTest,

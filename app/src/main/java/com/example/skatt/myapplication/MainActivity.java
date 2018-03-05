@@ -2723,7 +2723,8 @@ public class MainActivity extends AppCompatActivity {
                 DB_Open_Helper.CFood,
                 DB_Open_Helper.CSpell,
                 DB_Open_Helper.CChest,
-                DB_Open_Helper.GSRANGERATE
+                DB_Open_Helper.GSRANGERATE,
+                DB_Open_Helper.HP
         };
 
         Cursor cursor = data_base.query(
@@ -2759,6 +2760,9 @@ public class MainActivity extends AppCompatActivity {
                 cursor.getInt(
                         cursor.getColumnIndexOrThrow(DB_Open_Helper.GSRANGERATE)
                 )/100f
+        );
+        mHpMaxDefault = cursor.getInt(
+                cursor.getColumnIndexOrThrow(DB_Open_Helper.HP)
         );
         cursor.close();
 
