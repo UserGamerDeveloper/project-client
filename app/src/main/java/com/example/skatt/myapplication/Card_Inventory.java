@@ -13,7 +13,7 @@ import java.util.Random;
 
 class Card_Inventory extends Card {
 
-    static String[] column_name = {
+    final static String[] COLUMN_NAME = {
             DB_Open_Helper.id,
             DB_Open_Helper.name,
             DB_Open_Helper.VALUEONE,
@@ -23,10 +23,11 @@ class Card_Inventory extends Card {
             DB_Open_Helper.GEARSCORE,
             DB_Open_Helper.MOBGEARSCORE
     };
-    int durability;
-    byte slot_type;
-    byte slot_id;
-    int cost;
+    int mDurability;
+    int mDurabilityMax;
+    byte mSlotType;
+    byte mSlotId;
+    int mCost;
     int TEST_MOB_GEARSCORE;
     TextView TEST_MOB_GEARSCORE_TEXT;
 
@@ -40,7 +41,7 @@ class Card_Inventory extends Card {
         super(context, attrs, defStyleAttr);
     }
 
-    void Change(Stats stats, DB_Open_Helper db_open_helper, Random random, int gearScoreMob){
+    void change(Stats stats, DB_Open_Helper db_open_helper, Random random, int gearScoreMob){
         gearScoreMob = 0;
         SQLiteDatabase data_base = db_open_helper.getReadableDatabase();
 
@@ -48,7 +49,7 @@ class Card_Inventory extends Card {
 
         Cursor cursor = data_base.query(
                 DB_Open_Helper.table_inventory,
-                column_name,
+                COLUMN_NAME,
                 DB_Open_Helper.MOBGEARSCORE + "=? AND " + DB_Open_Helper.type + "=?",
                 new String[]{gearScoreMob+"",type+""},
                 null,
@@ -57,13 +58,13 @@ class Card_Inventory extends Card {
         );
         setData(stats, random, cursor);
     }
-    void Change(Stats stats, DB_Open_Helper db_open_helper, Random random, int gearScoreMob, int type){
+    void change(Stats stats, DB_Open_Helper db_open_helper, Random random, int gearScoreMob, int type){
         gearScoreMob = 0;
         SQLiteDatabase data_base = db_open_helper.getReadableDatabase();
 
         Cursor cursor = data_base.query(
                 DB_Open_Helper.table_inventory,
-                column_name,
+                COLUMN_NAME,
                 DB_Open_Helper.MOBGEARSCORE + "=? AND " + DB_Open_Helper.type + "=?",
                 new String[]{gearScoreMob+"",type+""},
                 null,
@@ -73,12 +74,12 @@ class Card_Inventory extends Card {
 
         setData(stats, random, cursor);
     }
-    void Change(Stats stats, DB_Open_Helper db_open_helper, int id){
+    void change(Stats stats, DB_Open_Helper db_open_helper, int id){
         SQLiteDatabase data_base = db_open_helper.getReadableDatabase();
 
         Cursor cursor = data_base.query(
                 DB_Open_Helper.table_inventory,
-                column_name,
+                COLUMN_NAME,
                 DB_Open_Helper.id + "=?",
                 new String[]{id+""},
                 null,
@@ -88,6 +89,7 @@ class Card_Inventory extends Card {
 
         setData(stats, new Random(), cursor);
     }
+
     private void setData(Stats stats, Random random, Cursor cursor) {
         cursor.moveToPosition(random.nextInt(cursor.getCount()));
 
@@ -101,7 +103,7 @@ class Card_Inventory extends Card {
         );
         this.TEST_GearScoreText.setText(String.format("%d", TEST_MOB_GEARSCORE));
 
-        name_text.setText(
+        mNameText.setText(
                 cursor.getString(
                         cursor.getColumnIndexOrThrow(DB_Open_Helper.name)
                 )
@@ -109,33 +111,38 @@ class Card_Inventory extends Card {
         this.type = cursor.getInt(
                 cursor.getColumnIndexOrThrow(DB_Open_Helper.type)
         );
-        value_one = cursor.getInt(
+        mValueOne = cursor.getInt(
                 cursor.getColumnIndexOrThrow(DB_Open_Helper.VALUEONE)
         );
         switch (type){
             case Inventory_Type.WEAPON :{
-                value_one+=stats.getDamageBonus();
+                mValueOne +=stats.getDamageBonus();
                 break;
             }
             case Inventory_Type.SHIELD :{
-                value_one+=stats.getDefenceBonus();
+                mValueOne +=stats.getDefenceBonus();
                 break;
             }
             default:{
                 break;
             }
         }
-        this.setValueOneText(value_one);
+        this.setValueOneText(mValueOne);
 
-        id_drawable = cursor.getInt(
+        mIdDrawable = cursor.getInt(
                 cursor.getColumnIndexOrThrow(DB_Open_Helper.id_image)
         );
 
 
-        this.cost = cursor.getInt(
+        this.mCost = cursor.getInt(
                 cursor.getColumnIndexOrThrow(DB_Open_Helper.cost)
         );
-        durability = random.nextInt(10)+1;
+
+        mDurabilityMax = cursor.getInt(
+                cursor.getColumnIndexOrThrow(DB_Open_Helper.DURABILITY)
+        );
+        mDurability = random.nextInt(mDurabilityMax)+1;
+
         cursor.close();
     }
 
@@ -144,48 +151,52 @@ class Card_Inventory extends Card {
         this.value_one_text.setVisibility(View.VISIBLE);
     }
 
-    void Copy(Card_Inventory card){
+    void copy(Card_Inventory card){
         super.copy(card);
         this.value_one_text.setVisibility(View.VISIBLE);
-        this.durability = card.Get_Durability();
-        this.cost = card.Get_Cost();
+        this.mDurability = card.getDurability();
+        this.mCost = card.getCost();
         this.TEST_MOB_GEARSCORE = card.TEST_MOB_GEARSCORE;
         TEST_MOB_GEARSCORE_TEXT.setText(this.TEST_MOB_GEARSCORE+"");
     }
-    void Copy(Card_Inventory_Temp card){
+    void copy(Card_Inventory_Temp card){
 
-        this.value_one = card.Get_Hp();
-        this.id_drawable = card.Get_Id_Drawable();
-        Picasso.with(getContext()).load(id_drawable).placeholder(R.color.color_black).into(imageView);
+        this.mValueOne = card.Get_Hp();
+        this.mIdDrawable = card.Get_Id_Drawable();
+        Picasso.with(getContext()).load(mIdDrawable).placeholder(R.color.color_black).into(imageView);
 /*
-        this.imageView.setImageResource(id_drawable);
+        this.imageView.setImageResource(mIdDrawable);
 */
-        this.name_text.setText(card.name_text);
+        this.mNameText.setText(card.name_text);
         this.setValueOneText(card.value_one);
         this.type = card.Get_Type();
-        this.durability = card.durability;
-        this.cost = card.Get_Cost();
+        this.mDurability = card.durability;
+        this.mCost = card.Get_Cost();
         this.mGearScore = card.getGearScore();
         this.TEST_GearScoreText.setText(String.format("%d", mGearScore));
         this.TEST_MOB_GEARSCORE = card.TEST_MOB_GEARSCORE;
         TEST_MOB_GEARSCORE_TEXT.setText(this.TEST_MOB_GEARSCORE+"");
     }
 
-    int Get_Cost(){
-        return cost;
+    int getCost(){
+        return mCost;
     }
 
-    int Get_Durability(){
-        return durability;
+    int getDurability(){
+        return mDurability;
     }
-    void Set_Durability(int durability){
-        this.durability = durability;
+    void setDurability(int durability){
+        this.mDurability = durability;
     }
 
-    public byte getSlot_type() {
-        return slot_type;
+    public int getDurabilityMax() {
+        return mDurabilityMax;
     }
-    public void setSlot_type(byte slot_type) {
-        this.slot_type = slot_type;
+
+    public byte getSlotType() {
+        return mSlotType;
+    }
+    public void setSlotType(byte slotType) {
+        this.mSlotType = slotType;
     }
 }

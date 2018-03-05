@@ -78,13 +78,13 @@ class Card_Table extends Card {
         setData(cursor);
     }
     private void setData(Cursor cursor) {
-        name_text.setText(
+        mNameText.setText(
                 cursor.getString(
                         cursor.getColumnIndexOrThrow(DB_Open_Helper.name)
                 )
         );
 
-        id_drawable = cursor.getInt(
+        mIdDrawable = cursor.getInt(
                 cursor.getColumnIndexOrThrow(DB_Open_Helper.id_image)
         );
 
@@ -99,11 +99,11 @@ class Card_Table extends Card {
 
         if(type== CardTableType.MOB){
 
-            value_one = cursor.getInt(
+            mValueOne = cursor.getInt(
                     cursor.getColumnIndexOrThrow(DB_Open_Helper.VALUEONE)
             );
             value_one_text.setText(
-                    String.format(" %s", value_one)
+                    String.format(" %s", mValueOne)
             );
             value_two = cursor.getInt(
                     cursor.getColumnIndexOrThrow(DB_Open_Helper.VALUETWO)
@@ -144,7 +144,7 @@ class Card_Table extends Card {
         this.value_two_text.setVisibility(View.INVISIBLE);
     }
     boolean isClose(){
-        return ((id_drawable == card_back) || (id_drawable==cardCenterBack));
+        return ((mIdDrawable == card_back) || (mIdDrawable ==cardCenterBack));
     }
 
     public AnimatorSet getTargetAnimation() {

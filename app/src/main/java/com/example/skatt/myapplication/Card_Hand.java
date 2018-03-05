@@ -21,15 +21,15 @@ public class Card_Hand extends Card_Inventory {
     TextView durability_text;
     ImageView durability_image;
 
-    void Copy(Card_Inventory card){
+    void copy(Card_Inventory card){
 
-        super.Copy(card);
-        Set_Durability_Text(durability);
+        super.copy(card);
+        Set_Durability_Text(mDurability);
     }
-    void Copy(Card_Inventory_Temp card){
+    void copy(Card_Inventory_Temp card){
 
-        super.Copy(card);
-        Set_Durability_Text(durability);
+        super.copy(card);
+        Set_Durability_Text(mDurability);
     }
 
     void Set_Durability_Text(int durability){

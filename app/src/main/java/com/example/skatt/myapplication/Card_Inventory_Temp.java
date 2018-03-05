@@ -14,10 +14,10 @@ public class Card_Inventory_Temp {
 
         this.value_one = card.getValueOne();
         this.id_drawable = card.getIdDrawable();
-        this.name_text = card.name_text.getText();
+        this.name_text = card.mNameText.getText();
         this.type = card.getType();
-        this.durability = card.Get_Durability();
-        this.cost = card.Get_Cost();
+        this.durability = card.getDurability();
+        this.cost = card.getCost();
         this.mGearScore = card.getGearScore();
         this.TEST_MOB_GEARSCORE = card.TEST_MOB_GEARSCORE;
     }

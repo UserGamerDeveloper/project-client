@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
     AnimatorListenerAdapter target_on_animation_end = new AnimatorListenerAdapter() {
         @Override
         public void onAnimationStart(Animator animation) {
-            Delete_OnClickListener_Before_Anomation_Target_Reset();
+            deleteOnClickListenerBeforeAnomationTargetReset();
         }
 
         @Override
@@ -118,14 +118,14 @@ public class MainActivity extends AppCompatActivity {
             mHandOne.setOnClickListener(mInventoryOnClickSwap);
             mHandTwo.setOnClickListener(mInventoryOnClickSwap);
 
-            target_swap.setOnLongClickListener(on_long_click);
-            target_swap.setOnTouchListener(card_move);
+            target_swap.setOnLongClickListener(mOnLongClickListener);
+            target_swap.setOnTouchListener(mCardMoveListener);
         }
     };
     AnimatorListenerAdapter on_target_off_animation = new AnimatorListenerAdapter() {
         @Override
         public void onAnimationStart(Animator animation) {
-            Delete_OnClickListener_Before_Anomation_Target_Reset();
+            deleteOnClickListenerBeforeAnomationTargetReset();
             target_swap.setOnLongClickListener(null);
             target_swap.setOnTouchListener(null);
         }
@@ -142,9 +142,9 @@ public class MainActivity extends AppCompatActivity {
     Animator target_on_animation;
     Animator target_off_animation;
     Card_Inventory trade_target;
-    TextView[] trade_cost = new TextView[3];
-    ImageView[] trade_cost_image = new ImageView[3];
-    Card_Inventory[] trade_item = new Card_Inventory[3];
+    TextView[] mTradeCost = new TextView[3];
+    ImageView[] mTradeCostImage = new ImageView[3];
+    Card_Inventory[] mTradeItem = new Card_Inventory[3];
     ConstraintLayout trade_skill;
     ImageView mTradeSkillImage;
     DialogWindow mDialogWindow = new DialogWindow();
@@ -161,9 +161,9 @@ public class MainActivity extends AppCompatActivity {
     AnimatorSet card_animation_get_bottom = new AnimatorSet();
     AnimatorSet openCardTable = new AnimatorSet();
 
-    View.OnLongClickListener on_long_click = on_long_click();
+    View.OnLongClickListener mOnLongClickListener = mOnLongClickListener();
 
-    View.OnLongClickListener on_long_click() {
+    View.OnLongClickListener mOnLongClickListener() {
         return new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -175,21 +175,21 @@ public class MainActivity extends AppCompatActivity {
                     useSpell();
                     return true;
                 }
-                if(target_swap.slot_type == Slot_Type.HAND){
+                if(target_swap.mSlotType == Slot_Type.HAND){
                     Card_Hand card_hand = (Card_Hand) target_swap;
                     if (card_hand.getIdDrawable()!=card_hand.hand_drawable){
                         if (mInventoryItemCount < INVENTORYMAXCOUNT){
-                            mInventory[mInventoryItemCount].Copy(card_hand);
+                            mInventory[mInventoryItemCount].copy(card_hand);
                             mInventory[mInventoryItemCount].setVisibility(View.VISIBLE);
                             mInventoryItemCount++;
-                            ChangeGearScore(getChangeGearScoreAfterReplace(null,0));
+                            changeGearScore(getChangeGearScoreAfterReplace(null,0));
                             setHand(card_hand);
                         }
                         else{
                             mDialogWindow.openInfo("Нет места в инвентаре.");
                         }
-                        Log.d("Target_Reset", "hand take off");
-                        Target_Reset();
+                        Log.d("targetReset", "hand take off");
+                        targetReset();
                     }
                     return true;
                 }
@@ -199,30 +199,30 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void useFood() {
-        Change_HP(target_swap.getValueOne());
+        changeHP(target_swap.getValueOne());
         mInventoryItemCount--;
-        ChangeGearScore(-target_swap.getGearScore());
-        Inventory_Sort();
-        Loot_Get();
-        Log.d("Target_Reset", "use food");
-        Target_Reset();
+        changeGearScore(-target_swap.getGearScore());
+        inventorySort();
+        lootGet();
+        Log.d("targetReset", "use food");
+        targetReset();
     }
 
     private void useSpell() {
         mobHPChange(-target_swap.getValueOne());
-        ChangeGearScore(-target_swap.getGearScore());
+        changeGearScore(-target_swap.getGearScore());
         mInventoryItemCount--;
-        Inventory_Sort();
-        Loot_Get();
-        Log.d("Target_Reset", "use spell");
-        Target_Reset();
+        inventorySort();
+        lootGet();
+        Log.d("targetReset", "use spell");
+        targetReset();
         if (mCardTableTarget.getValueTwo() < 1) {
             mobDead();
         }
     }
 
-    View.OnTouchListener card_move = card_move();
-    View.OnTouchListener card_move() {
+    View.OnTouchListener mCardMoveListener = mCardMoveListener();
+    View.OnTouchListener mCardMoveListener() {
         return new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -242,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
-    void Change_HP(int hp_delta) {
+    void changeHP(int hp_delta) {
 
         hp += hp_delta;
         if (hp < mHpMax) {
@@ -256,12 +256,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    void Inventory_Sort() {
+    void inventorySort() {
 
         target_swap.setVisibility(View.VISIBLE);
-        byte id = target_swap.slot_id;
+        byte id = target_swap.mSlotId;
         for (; id < mInventoryItemCount; id++) {
-            mInventory[id].Copy(mInventory[id + 1]);
+            mInventory[id].copy(mInventory[id + 1]);
         }
         mInventory[id].setVisibility(View.GONE);
     }
@@ -286,26 +286,26 @@ public class MainActivity extends AppCompatActivity {
                 }
                 if (event.getAction() == DragEvent.ACTION_DROP) {
                     Card_Hand target_swap_two = ((Card_Hand) v);
-                    if (target_swap_two.slot_type!=target_swap.slot_type) {
+                    if (target_swap_two.mSlotType !=target_swap.mSlotType) {
                         if (target_swap.getType() == Inventory_Type.SHIELD || target_swap.getType() ==
                                 Inventory_Type.WEAPON) {
                             if(target_swap_two.durability_text.getVisibility()==View.VISIBLE){
                                 inventory_temp.Copy(target_swap_two);
-                                target_swap_two.Copy(target_swap);
-                                target_swap.Copy(inventory_temp);
+                                target_swap_two.copy(target_swap);
+                                target_swap.copy(inventory_temp);
                                 target_swap.setVisibility(View.VISIBLE);
                             }
                             else{
-                                ChangeGearScore(getChangeGearScoreAfterReplace(0,null));
-                                target_swap_two.Copy(target_swap);
+                                changeGearScore(getChangeGearScoreAfterReplace(0,null));
+                                target_swap_two.copy(target_swap);
                                 target_swap_two.durability_text.setVisibility(View.VISIBLE);
                                 target_swap_two.durability_image.setVisibility(View.VISIBLE);
                                 mInventoryItemCount--;
-                                Inventory_Sort();
-                                Loot_Get();
+                                inventorySort();
+                                lootGet();
                             }
-                            Log.d("Target_Reset", "hand swap");
-                            Target_Reset();
+                            Log.d("targetReset", "hand swap");
+                            targetReset();
                             return true;
                         }
                     }
@@ -335,39 +335,39 @@ public class MainActivity extends AppCompatActivity {
                 }
                 if (event.getAction() == DragEvent.ACTION_DROP) {
                     Card_Inventory target_swap_two = ((Card_Inventory) v);
-                    if (target_swap.slot_type == Slot_Type.INVENTORY) {
+                    if (target_swap.mSlotType == Slot_Type.INVENTORY) {
                         if ((target_swap_two.getType() == Inventory_Type.WEAPON ||
                                 target_swap_two.getType() == Inventory_Type.SHIELD) &&
                                 (target_swap.getType() == Inventory_Type.WEAPON ||
                                         target_swap.getType() == Inventory_Type.SHIELD))
                         {
-                            ChangeGearScore(getChangeGearScoreAfterReplace(target_swap.getGearScore(),target_swap_two.getGearScore()));
+                            changeGearScore(getChangeGearScoreAfterReplace(target_swap.getGearScore(),target_swap_two.getGearScore()));
                         }
                         else{
                             if (target_swap.getType() == Inventory_Type.WEAPON ||
                                     target_swap.getType() == Inventory_Type.SHIELD)
                             {
-                                ChangeGearScore(getChangeGearScoreAfterReplace(target_swap.getGearScore(),null));
-                                ChangeGearScore(target_swap_two.getGearScore());
+                                changeGearScore(getChangeGearScoreAfterReplace(target_swap.getGearScore(),null));
+                                changeGearScore(target_swap_two.getGearScore());
                             }
                             else{
                                 if (target_swap_two.getType() == Inventory_Type.WEAPON ||
                                         target_swap_two.getType() == Inventory_Type.SHIELD)
                                 {
-                                    ChangeGearScore(getChangeGearScoreAfterReplace(null,target_swap_two.getGearScore()));
-                                    ChangeGearScore(-target_swap.getGearScore());
+                                    changeGearScore(getChangeGearScoreAfterReplace(null,target_swap_two.getGearScore()));
+                                    changeGearScore(-target_swap.getGearScore());
                                 }
                                 else{
-                                    ChangeGearScore(target_swap_two.getGearScore()-target_swap.getGearScore());
+                                    changeGearScore(target_swap_two.getGearScore()-target_swap.getGearScore());
                                 }
                             }
                         }
                         inventory_temp.Copy(target_swap_two);
-                        target_swap_two.Copy(target_swap);
-                        target_swap.Copy(inventory_temp);
+                        target_swap_two.copy(target_swap);
+                        target_swap.copy(inventory_temp);
                         target_swap.setVisibility(View.VISIBLE);
-                        Log.d("Target_Reset", "loot swap");
-                        Target_Reset();
+                        Log.d("targetReset", "loot swap");
+                        targetReset();
                         return true;
                     }
                     else {
@@ -375,23 +375,23 @@ public class MainActivity extends AppCompatActivity {
                                         target_swap_two.getType() == Inventory_Type.SHIELD)
                         {
                             if(((Card_Hand)target_swap).durability_text.getVisibility()==View.VISIBLE){
-                                        ChangeGearScore(getChangeGearScoreAfterReplace(target_swap.getGearScore(),target_swap_two.getGearScore()));
+                                        changeGearScore(getChangeGearScoreAfterReplace(target_swap.getGearScore(),target_swap_two.getGearScore()));
                                         inventory_temp.Copy(target_swap_two);
-                                        target_swap_two.Copy(target_swap);
-                                        target_swap.Copy(inventory_temp);
+                                        target_swap_two.copy(target_swap);
+                                        target_swap.copy(inventory_temp);
                             }
                             else{
-                                        ChangeGearScore(getChangeGearScoreAfterReplace(target_swap.getGearScore(),target_swap_two.getGearScore()));
-                                        target_swap.Copy(target_swap_two);
+                                        changeGearScore(getChangeGearScoreAfterReplace(target_swap.getGearScore(),target_swap_two.getGearScore()));
+                                        target_swap.copy(target_swap_two);
                                         ((Card_Hand)target_swap).durability_text.setVisibility(View.VISIBLE);
                                         ((Card_Hand)target_swap).durability_image.setVisibility(View.VISIBLE);
                                         target_swap_two.setVisibility(View.GONE);
                                         loot_count--;
-                                        Try_Continue();
+                                        tryContinue();
                             }
                             target_swap.setVisibility(View.VISIBLE);
-                            Log.d("Target_Reset", "loot swap");
-                            Target_Reset();
+                            Log.d("targetReset", "loot swap");
+                            targetReset();
                             return true;
                         }
                     }
@@ -468,7 +468,7 @@ public class MainActivity extends AppCompatActivity {
                     if(mCardTableTarget.getType()== CardTableType.MOB){
                         mCardTableTarget.bringToFront();
                         mCardTableTarget.getTargetAnimation().start();
-                        mCardTableTarget.setOnClickListener(damag_listener);
+                        mCardTableTarget.setOnClickListener(mDamagListener);
                     }
                     if (mCardTableTarget.getType()==CardTableType.VENDOR){
                         if(mCardTableTarget.getSubType()== CardTableSubType.TRADER){
@@ -478,14 +478,14 @@ public class MainActivity extends AppCompatActivity {
                         card_6_animation_click_vendor.start();
 */
                             Picasso.with(getBaseContext()).load(R.drawable.navik_torgovca).into(mTradeSkillImage);
-                            mTradeSkillImage.setOnClickListener(on_click_vendor_skill);
+                            mTradeSkillImage.setOnClickListener(mOnClickVendorSkill);
                             for (byte i = 0; i<loot_max_count;i++){
-                                trade_item[i].Change(mStats, db_open_helper,random, mGearScore);
-                                trade_item[i].open();
-                                trade_item[i].setVisibility(View.VISIBLE);
-                                trade_cost[i].setText(String.format("%d", trade_item[i].Get_Cost()));
-                                trade_cost[i].setVisibility(View.VISIBLE);
-                                trade_cost_image[i].setVisibility(View.VISIBLE);
+                                mTradeItem[i].change(mStats, db_open_helper,random, mGearScore);
+                                mTradeItem[i].open();
+                                mTradeItem[i].setVisibility(View.VISIBLE);
+                                mTradeCost[i].setText(String.format("%d", mTradeItem[i].getCost()));
+                                mTradeCost[i].setVisibility(View.VISIBLE);
+                                mTradeCostImage[i].setVisibility(View.VISIBLE);
                             }
                             trade_skill.setVisibility(View.VISIBLE);
                             trade_zone.setVisibility(View.VISIBLE);
@@ -500,13 +500,13 @@ public class MainActivity extends AppCompatActivity {
                             Picasso.with(getBaseContext()).load(R.drawable.navik_kuznecaa).into(mTradeSkillImage);
                             mTradeSkillImage.setOnClickListener(null);
                             for (byte i = 0; i<loot_max_count;i++){
-                                trade_item[i].Change(mStats, db_open_helper,random, mGearScore, random.nextInt(2));
-                                trade_item[i].open();
-                                trade_item[i].setVisibility(View.VISIBLE);
-                                trade_item[i].Set_Durability(10);
-                                trade_cost[i].setText(String.format("%d", trade_item[i].Get_Cost()));
-                                trade_cost[i].setVisibility(View.VISIBLE);
-                                trade_cost_image[i].setVisibility(View.VISIBLE);
+                                mTradeItem[i].change(mStats, db_open_helper,random, mGearScore, random.nextInt(2));
+                                mTradeItem[i].open();
+                                mTradeItem[i].setVisibility(View.VISIBLE);
+                                mTradeItem[i].setDurability(mTradeItem[i].getDurabilityMax());
+                                mTradeCost[i].setText(String.format("%d", mTradeItem[i].getCost()));
+                                mTradeCost[i].setVisibility(View.VISIBLE);
+                                mTradeCostImage[i].setVisibility(View.VISIBLE);
                             }
                             trade_skill.setVisibility(View.VISIBLE);
                             trade_zone.setVisibility(View.VISIBLE);
@@ -519,14 +519,14 @@ public class MainActivity extends AppCompatActivity {
                         card_6_animation_click_vendor.start();
 */
                             Picasso.with(getBaseContext()).load(R.drawable.navik_traktirshika).into(mTradeSkillImage);
-                            mTradeSkillImage.setOnClickListener(on_click_innkeeper_skill);
+                            mTradeSkillImage.setOnClickListener(mOnClickInnkeeperSkill);
                             for (byte i = 0; i<loot_max_count;i++){
-                                trade_item[i].Change(mStats, db_open_helper,random, mGearScore, Inventory_Type.FOOD);
-                                trade_item[i].open();
-                                trade_item[i].setVisibility(View.VISIBLE);
-                                trade_cost[i].setText(String.format("%d", trade_item[i].Get_Cost()));
-                                trade_cost[i].setVisibility(View.VISIBLE);
-                                trade_cost_image[i].setVisibility(View.VISIBLE);
+                                mTradeItem[i].change(mStats, db_open_helper,random, mGearScore, Inventory_Type.FOOD);
+                                mTradeItem[i].open();
+                                mTradeItem[i].setVisibility(View.VISIBLE);
+                                mTradeCost[i].setText(String.format("%d", mTradeItem[i].getCost()));
+                                mTradeCost[i].setVisibility(View.VISIBLE);
+                                mTradeCostImage[i].setVisibility(View.VISIBLE);
                             }
                             trade_skill.setVisibility(View.VISIBLE);
                             trade_zone.setVisibility(View.VISIBLE);
@@ -537,7 +537,7 @@ public class MainActivity extends AppCompatActivity {
                         shadow.bringToFront();
                         mCardTableTarget.bringToFront();
                         mCardTableTarget.getTargetAnimation().start();
-                        Change_HP(mHaltHealth);
+                        changeHP(mHpMax);
                         mCardTableTarget.getChangeAnimation().start();
                     }
                     if (mCardTableTarget.getType()== CardTableType.CHEST){
@@ -554,16 +554,16 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
-    View.OnClickListener card_trade_click = card_trade_click();
-    View.OnClickListener card_trade_click() {
+    View.OnClickListener mOnClickBuyCardListener = mOnClickBuyCardListener();
+    View.OnClickListener mOnClickBuyCardListener() {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (money>=((Card_Inventory)v).Get_Cost()&& mInventoryItemCount < INVENTORYMAXCOUNT){
+                if (money>=((Card_Inventory)v).getCost()&& mInventoryItemCount < INVENTORYMAXCOUNT){
                     trade_target = (Card_Inventory)v;
                     mDialogWindow.openDialog(
-                            String.format("Купить карту за %d золотых?", trade_target.Get_Cost()),
-                            card_trade_buy_click_yes
+                            String.format("Купить карту за %d золотых?", trade_target.getCost()),
+                            mCardTradeBuyClickYes
                     );
                 }
                 else{
@@ -586,21 +586,21 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (is_first_click) {
                     target_swap = (Card_Inventory) v;
-                    if (target_swap.slot_type == Slot_Type.HAND) {
+                    if (target_swap.mSlotType == Slot_Type.HAND) {
                         target_on_animation = ObjectAnimator.ofFloat(target_swap, View.TRANSLATION_Y, 0f, -hand_animation_delta);
                         target_off_animation = ObjectAnimator.ofFloat(target_swap, View.TRANSLATION_Y, -hand_animation_delta, 0f);
                     }
-                    if (target_swap.slot_type == Slot_Type.LOOT) {
+                    if (target_swap.mSlotType == Slot_Type.LOOT) {
                         target_on_animation = ObjectAnimator.ofFloat(target_swap, View.TRANSLATION_Y, 0f, -loot_animation_delta);
                         target_off_animation = ObjectAnimator.ofFloat(target_swap, View.TRANSLATION_Y, -loot_animation_delta, 0f);
 
                     }
-                    if (target_swap.slot_type == Slot_Type.INVENTORY) {
+                    if (target_swap.mSlotType == Slot_Type.INVENTORY) {
                         target_on_animation = ObjectAnimator.ofFloat(target_swap, View.TRANSLATION_Y, 0f, -inventory_animation_delta);
                         target_off_animation = ObjectAnimator.ofFloat(target_swap, View.TRANSLATION_Y, -inventory_animation_delta, 0f);
                     }
 
-                    Log.d("target on", String.valueOf(target_swap.name_text.getText()));
+                    Log.d("target on", String.valueOf(target_swap.mNameText.getText()));
                     is_first_click = false;
 
                     target_off_animation.addListener(on_target_off_animation);
@@ -609,105 +609,105 @@ public class MainActivity extends AppCompatActivity {
 
                     if (trade_skill.getVisibility()==View.VISIBLE && mCardTableTarget.getSubType()== CardTableSubType.BLACKSMITH&&
                             (target_swap.getType()==Inventory_Type.SHIELD||target_swap.getType()==Inventory_Type.WEAPON)){
-                        mTradeSkillImage.setOnClickListener(on_click_blacksmith_skill);
+                        mTradeSkillImage.setOnClickListener(mOnClickBlacksmithSkill);
                     }
                 }
                 else {
                     Card_Inventory target_swap_two = (Card_Inventory) v;
                     if (!target_swap.equals(target_swap_two) ) {
-                        if (target_swap_two.slot_type!=target_swap.slot_type) {
-                            if (target_swap_two.slot_type == Slot_Type.HAND) {
+                        if (target_swap_two.mSlotType !=target_swap.mSlotType) {
+                            if (target_swap_two.mSlotType == Slot_Type.HAND) {
                                 Card_Hand targetSwapTwoHand = (Card_Hand) v;
                                 if (target_swap.getType() == Inventory_Type.SHIELD || target_swap.getType() ==
                                         Inventory_Type.WEAPON) {
                                     if(targetSwapTwoHand.durability_text.getVisibility()==View.VISIBLE){
                                         inventory_temp.Copy(targetSwapTwoHand);
-                                        targetSwapTwoHand.Copy(target_swap);
-                                        target_swap.Copy(inventory_temp);
+                                        targetSwapTwoHand.copy(target_swap);
+                                        target_swap.copy(inventory_temp);
                                     }
                                     else{
-                                        ChangeGearScore(getChangeGearScoreAfterReplace(0,null));
-                                        targetSwapTwoHand.Copy(target_swap);
+                                        changeGearScore(getChangeGearScoreAfterReplace(0,null));
+                                        targetSwapTwoHand.copy(target_swap);
                                         targetSwapTwoHand.durability_text.setVisibility(View.VISIBLE);
                                         targetSwapTwoHand.durability_image.setVisibility(View.VISIBLE);
                                         mInventoryItemCount--;
-                                        Inventory_Sort();
-                                        Loot_Get();
+                                        inventorySort();
+                                        lootGet();
                                     }
-                                    Log.d("Target_Reset", "hand swap click");
-                                    Target_Reset();
+                                    Log.d("targetReset", "hand swap click");
+                                    targetReset();
                                 }
                             }
-                            if (target_swap_two.slot_type == Slot_Type.LOOT) {
-                                if (target_swap.slot_type == Slot_Type.INVENTORY) {
+                            if (target_swap_two.mSlotType == Slot_Type.LOOT) {
+                                if (target_swap.mSlotType == Slot_Type.INVENTORY) {
                                     if ((target_swap_two.getType() == Inventory_Type.WEAPON ||
                                             target_swap_two.getType() == Inventory_Type.SHIELD) &&
                                             (target_swap.getType() == Inventory_Type.WEAPON ||
                                                     target_swap.getType() == Inventory_Type.SHIELD))
                                     {
-                                        ChangeGearScore(getChangeGearScoreAfterReplace(target_swap.getGearScore(),target_swap_two.getGearScore()));
+                                        changeGearScore(getChangeGearScoreAfterReplace(target_swap.getGearScore(),target_swap_two.getGearScore()));
                                     }
                                     else{
                                         if (target_swap.getType() == Inventory_Type.WEAPON ||
                                                 target_swap.getType() == Inventory_Type.SHIELD)
                                         {
-                                            ChangeGearScore(getChangeGearScoreAfterReplace(target_swap.getGearScore(),null));
-                                            ChangeGearScore(target_swap_two.getGearScore());
+                                            changeGearScore(getChangeGearScoreAfterReplace(target_swap.getGearScore(),null));
+                                            changeGearScore(target_swap_two.getGearScore());
                                         }
                                         else{
                                             if (target_swap_two.getType() == Inventory_Type.WEAPON ||
                                                     target_swap_two.getType() == Inventory_Type.SHIELD)
                                             {
-                                                ChangeGearScore(getChangeGearScoreAfterReplace(null,target_swap_two.getGearScore()));
-                                                ChangeGearScore(-target_swap.getGearScore());
+                                                changeGearScore(getChangeGearScoreAfterReplace(null,target_swap_two.getGearScore()));
+                                                changeGearScore(-target_swap.getGearScore());
                                             }
                                             else{
-                                                ChangeGearScore(target_swap_two.getGearScore()-target_swap.getGearScore());
+                                                changeGearScore(target_swap_two.getGearScore()-target_swap.getGearScore());
                                             }
                                         }
                                     }
                                     inventory_temp.Copy(target_swap_two);
-                                    target_swap_two.Copy(target_swap);
-                                    target_swap.Copy(inventory_temp);
-                                    Log.d("Target_Reset", "loot swap click");
-                                    Target_Reset();
+                                    target_swap_two.copy(target_swap);
+                                    target_swap.copy(inventory_temp);
+                                    Log.d("targetReset", "loot swap click");
+                                    targetReset();
                                 }
                                 else {
                                     if (target_swap_two.getType() == Inventory_Type.WEAPON ||
                                             target_swap_two.getType() == Inventory_Type.SHIELD)
                                     {
                                         if(((Card_Hand)target_swap).durability_text.getVisibility()==View.VISIBLE){
-                                            ChangeGearScore(getChangeGearScoreAfterReplace(target_swap.getGearScore(),target_swap_two.getGearScore()));
+                                            changeGearScore(getChangeGearScoreAfterReplace(target_swap.getGearScore(),target_swap_two.getGearScore()));
                                             inventory_temp.Copy(target_swap_two);
-                                            target_swap_two.Copy(target_swap);
-                                            target_swap.Copy(inventory_temp);
+                                            target_swap_two.copy(target_swap);
+                                            target_swap.copy(inventory_temp);
                                         }
                                         else{
-                                            ChangeGearScore(getChangeGearScoreAfterReplace(target_swap.getGearScore(),target_swap_two.getGearScore()));
-                                            target_swap.Copy(target_swap_two);
+                                            changeGearScore(getChangeGearScoreAfterReplace(target_swap.getGearScore(),target_swap_two.getGearScore()));
+                                            target_swap.copy(target_swap_two);
                                             ((Card_Hand)target_swap).durability_text.setVisibility(View.VISIBLE);
                                             ((Card_Hand)target_swap).durability_image.setVisibility(View.VISIBLE);
                                             target_swap_two.setVisibility(View.GONE);
                                             loot_count--;
-                                            Try_Continue();
+                                            tryContinue();
                                         }
-                                        Log.d("Target_Reset", "loot swap click");
-                                        Target_Reset();
+                                        Log.d("targetReset", "loot swap click");
+                                        targetReset();
                                     }
                                 }
                             }
                         }
                     }
                     else {
-                        Log.d("Target_Reset", "target off");
-                        Target_Reset();
+                        Log.d("targetReset", "target off");
+                        targetReset();
                     }
                 }
             }
         };
     }
 
-    private void Delete_OnClickListener_Before_Anomation_Target_Reset() {
+    private void deleteOnClickListenerBeforeAnomationTargetReset() {
         for (byte i = 0; i < INVENTORYMAXCOUNT; i++) {
             mInventory[i].setOnClickListener(null);
         }
@@ -718,24 +718,24 @@ public class MainActivity extends AppCompatActivity {
         mHandTwo.setOnClickListener(null);
     }
 
-    private void Target_Reset() {
+    private void targetReset() {
         if (target_swap!=null){
             target_off_animation.start();
-            Log.d("target off", (String) target_swap.name_text.getText());
+            Log.d("target off", (String) target_swap.mNameText.getText());
         }
         mTradeSkillImage.setOnClickListener(null);
         target_swap = null;
         is_first_click = true;
     }
 
-    private void ChangeGearScore(int delta) {
+    private void changeGearScore(int delta) {
         mGearScore += delta;
         mGearScoreText.setText(String.format("%d", mGearScore));
     }
 
-    View.OnClickListener damag_listener = Create_Damag_Listener();
+    View.OnClickListener mDamagListener = mDamagListener();
 
-    View.OnClickListener Create_Damag_Listener() {
+    View.OnClickListener mDamagListener() {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -754,24 +754,24 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if(mHandOne.durability_text.getVisibility()==View.VISIBLE){
-                    mHandOne.Set_Durability(mHandOne.Get_Durability()-1);
-                    if (mHandOne.Get_Durability()<1){
-                        ChangeGearScore(getChangeGearScoreAfterReplace(mHandOne.getGearScore(),0));
+                    mHandOne.setDurability(mHandOne.getDurability()-1);
+                    if (mHandOne.getDurability()<1){
+                        changeGearScore(getChangeGearScoreAfterReplace(mHandOne.getGearScore(),0));
                         setHand(mHandOne);
                     }
                     else{
-                        mHandOne.Set_Durability_Text(mHandOne.Get_Durability());
+                        mHandOne.Set_Durability_Text(mHandOne.getDurability());
                     }
                 }
 
                 if(mHandTwo.durability_text.getVisibility()==View.VISIBLE){
-                    mHandTwo.Set_Durability(mHandTwo.Get_Durability()-1);
-                    if (mHandTwo.Get_Durability()<1){
-                        ChangeGearScore(getChangeGearScoreAfterReplace(mHandTwo.getGearScore(),0));
+                    mHandTwo.setDurability(mHandTwo.getDurability()-1);
+                    if (mHandTwo.getDurability()<1){
+                        changeGearScore(getChangeGearScoreAfterReplace(mHandTwo.getGearScore(),0));
                         setHand(mHandTwo);
                     }
                     else{
-                        mHandTwo.Set_Durability_Text(mHandTwo.Get_Durability());
+                        mHandTwo.Set_Durability_Text(mHandTwo.getDurability());
                     }
                 }
 
@@ -799,7 +799,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 if (mob_damage>0){
-                    Change_HP(-mob_damage);
+                    changeHP(-mob_damage);
                 }
             }
         };
@@ -818,72 +818,72 @@ public class MainActivity extends AppCompatActivity {
         mCardTableTarget.getCloseAnimation().start();
     }
 
-    private void Loot_Get() {
+    private void lootGet() {
 
         while (((loot_count > 0) && (mInventoryItemCount < INVENTORYMAXCOUNT))) {
             if(loot[loot_id].getVisibility()==View.VISIBLE) {
-                mInventory[mInventoryItemCount].Copy(loot[loot_id]);
+                mInventory[mInventoryItemCount].copy(loot[loot_id]);
                 loot[loot_id].setVisibility(View.GONE);
                 mInventory[mInventoryItemCount].setVisibility(View.VISIBLE);
                 mInventoryItemCount++;
                 if (loot[loot_id].getType()==Inventory_Type.WEAPON ||
                         loot[loot_id].getType()==Inventory_Type.SHIELD)
                 {
-                    ChangeGearScore(getChangeGearScoreAfterReplace(null,loot[loot_id].getGearScore()));
+                    changeGearScore(getChangeGearScoreAfterReplace(null,loot[loot_id].getGearScore()));
                 }
                 else{
-                    ChangeGearScore(loot[loot_id].getGearScore());
+                    changeGearScore(loot[loot_id].getGearScore());
                 }
                 loot_count--;
             }
             loot_id++;
         }
 
-        Try_Continue();
+        tryContinue();
     }
 
-    private void Try_Continue() {
+    private void tryContinue() {
         if (loot_count < 1 && is_loot_enable) {
-            on_Click_Button_Continue(null);
+            onClickButtonContinue(null);
         }
     }
 
-    View.OnClickListener card_trade_buy_click_yes = card_trade_buy_click_yes();
-    View.OnClickListener card_trade_buy_click_yes() {
+    View.OnClickListener mCardTradeBuyClickYes = mCardTradeBuyClickYes();
+    View.OnClickListener mCardTradeBuyClickYes() {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mDialogWindow.close();
                 trade_target.setVisibility(View.INVISIBLE);
-                trade_cost[trade_target.slot_id].setVisibility(View.INVISIBLE);
-                trade_cost_image[trade_target.slot_id].setVisibility(View.INVISIBLE);
-                mInventory[mInventoryItemCount].Copy(trade_target);
+                mTradeCost[trade_target.mSlotId].setVisibility(View.INVISIBLE);
+                mTradeCostImage[trade_target.mSlotId].setVisibility(View.INVISIBLE);
+                mInventory[mInventoryItemCount].copy(trade_target);
                 mInventory[mInventoryItemCount].setVisibility(View.VISIBLE);
                 mInventoryItemCount++;
-                ChangeGearScore(trade_target.getGearScore());
-                moneyChange(-trade_target.Get_Cost());
+                changeGearScore(trade_target.getGearScore());
+                moneyChange(-trade_target.getCost());
             }
         };
     }
 
-    View.OnClickListener card_trade_sell_click_yes = card_trade_sell_click_yes();
-    View.OnClickListener card_trade_sell_click_yes() {
+    View.OnClickListener mCardTradeSellClickYes = mCardTradeSellClickYes();
+    View.OnClickListener mCardTradeSellClickYes() {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mDialogWindow.close();
                 target_swap.setVisibility(View.INVISIBLE);
-                ChangeGearScore(-target_swap.getGearScore());
+                changeGearScore(-target_swap.getGearScore());
                 mInventoryItemCount--;
-                Inventory_Sort();
-                moneyChange(target_swap.Get_Cost());
-                Target_Reset();
+                inventorySort();
+                moneyChange(target_swap.getCost());
+                targetReset();
             }
         };
     }
 
-    View.OnDragListener on_sell = On_Sell();
-    View.OnDragListener On_Sell() {
+    View.OnDragListener mOnSell = mOnSell();
+    View.OnDragListener mOnSell() {
         return new View.OnDragListener() {
             @Override
             public boolean onDrag(View v, DragEvent event) {
@@ -899,8 +899,8 @@ public class MainActivity extends AppCompatActivity {
                             target_swap.getIdDrawable()!=R.drawable.kulak_pravo)
                     {
                         mDialogWindow.openDialog(
-                                String.format("Продать карту за %d золотых?", target_swap.Get_Cost()),
-                                card_trade_sell_click_yes
+                                String.format("Продать карту за %d золотых?", target_swap.getCost()),
+                                mCardTradeSellClickYes
                         );
                     }
                 }
@@ -909,107 +909,107 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
-    byte cost_vendor_skill = 1;
-    View.OnClickListener on_click_vendor_skill = on_click_skill();
-    View.OnClickListener on_click_skill() {
+    byte mCostVendorSkill = 1;
+    View.OnClickListener mOnClickVendorSkill = mOnClickVendorSkill();
+    View.OnClickListener mOnClickVendorSkill() {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (money>=cost_vendor_skill){
+                if (money>= mCostVendorSkill){
                     mDialogWindow.openDialog(
-                            String.format("Обновить ассортимент торговца за %d золотых?", cost_vendor_skill),
-                            on_click_vendor_skill_yes
+                            String.format("Обновить ассортимент торговца за %d золотых?", mCostVendorSkill),
+                            mOnClickVendorSkillYes
                     );
                 }
                 else{
                     mDialogWindow.openInfo(
-                            String.format("Недостаточно %d золота.", cost_vendor_skill-money)
+                            String.format("Недостаточно %d золота.", mCostVendorSkill -money)
                     );
                 }
             }
         };
     }
-    View.OnClickListener on_click_vendor_skill_yes = on_click_vendor_skill_yes();
-    View.OnClickListener on_click_vendor_skill_yes() {
+    View.OnClickListener mOnClickVendorSkillYes = mOnClickVendorSkillYes();
+    View.OnClickListener mOnClickVendorSkillYes() {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mDialogWindow.close();
-                moneyChange(-cost_vendor_skill);
+                moneyChange(-mCostVendorSkill);
                 for (byte i = 0; i<loot_max_count;i++){
-                    trade_item[i].Change(mStats, db_open_helper,random, mGearScore);
-                    trade_item[i].open();
-                    trade_item[i].setVisibility(View.VISIBLE);
-                    trade_cost[i].setText(String.format("%d", trade_item[i].Get_Cost()));
-                    trade_cost[i].setVisibility(View.VISIBLE);
-                    trade_cost_image[i].setVisibility(View.VISIBLE);
+                    mTradeItem[i].change(mStats, db_open_helper,random, mGearScore);
+                    mTradeItem[i].open();
+                    mTradeItem[i].setVisibility(View.VISIBLE);
+                    mTradeCost[i].setText(String.format("%d", mTradeItem[i].getCost()));
+                    mTradeCost[i].setVisibility(View.VISIBLE);
+                    mTradeCostImage[i].setVisibility(View.VISIBLE);
                 }
             }
         };
     }
 
-    View.OnClickListener on_click_blacksmith_skill = on_click_blacksmith_skill();
-    View.OnClickListener on_click_blacksmith_skill() {
+    View.OnClickListener mOnClickBlacksmithSkill = mOnClickBlacksmithSkill();
+    View.OnClickListener mOnClickBlacksmithSkill() {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (money>=cost_vendor_skill){
+                if (money>= mCostVendorSkill){
                     mDialogWindow.openDialog(
-                            String.format("Починитm предмет за %d золотых?", cost_vendor_skill),
-                            on_click_blacksmith_skill_yes
+                            String.format("Починитm предмет за %d золотых?", mCostVendorSkill),
+                            mOnClickBlacksmithSkillYes
                     );
                 }
                 else{
                     mDialogWindow.openInfo(
-                            String.format("Недостаточно %d золота.", cost_vendor_skill-money)
+                            String.format("Недостаточно %d золота.", mCostVendorSkill -money)
                     );
                 }
             }
         };
     }
-    View.OnClickListener on_click_blacksmith_skill_yes = on_click_blacksmith_skill_yes();
-    View.OnClickListener on_click_blacksmith_skill_yes() {
+    View.OnClickListener mOnClickBlacksmithSkillYes = mOnClickBlacksmithSkillYes();
+    View.OnClickListener mOnClickBlacksmithSkillYes() {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mDialogWindow.close();
-                moneyChange(-cost_vendor_skill);
-                target_swap.Set_Durability(10);
-                if (target_swap.slot_type==Slot_Type.HAND){
+                moneyChange(-mCostVendorSkill);
+                target_swap.setDurability(10);
+                if (target_swap.mSlotType ==Slot_Type.HAND){
                     ((Card_Hand)target_swap).Set_Durability_Text(10);
                 }
-                Target_Reset();
+                targetReset();
             }
         };
     }
 
-    View.OnClickListener on_click_innkeeper_skill = on_click_innkeeper_skill();
-    View.OnClickListener on_click_innkeeper_skill() {
+    View.OnClickListener mOnClickInnkeeperSkill = mOnClickInnkeeperSkill();
+    View.OnClickListener mOnClickInnkeeperSkill() {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (money>=cost_vendor_skill){
+                if (money>= mCostVendorSkill){
                     mDialogWindow.openDialog(
-                            String.format("Отдохнуть и восстановить здоровье за %d золотых?", cost_vendor_skill),
-                            on_click_innkeeper_skill_yes
+                            String.format("Отдохнуть и восстановить здоровье за %d золотых?", mCostVendorSkill),
+                            mOnClickInnkeeperSkillYes
                     );
                 }
                 else{
                     mDialogWindow.openInfo(
-                            String.format("Недостаточно %d золота.", cost_vendor_skill-money)
+                            String.format("Недостаточно %d золота.", mCostVendorSkill -money)
                     );
                 }
             }
         };
     }
-    View.OnClickListener on_click_innkeeper_skill_yes = on_click_innkeeper_skill_yes();
-    View.OnClickListener on_click_innkeeper_skill_yes() {
+    View.OnClickListener mOnClickInnkeeperSkillYes = mOnClickInnkeeperSkillYes();
+    View.OnClickListener mOnClickInnkeeperSkillYes() {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mDialogWindow.close();
-                moneyChange(-cost_vendor_skill);
-                Change_HP(mHpMax);
+                moneyChange(-mCostVendorSkill);
+                changeHP(mHpMax);
                 mTradeSkillImage.setOnClickListener(null);
             }
         };
@@ -1044,7 +1044,7 @@ public class MainActivity extends AppCompatActivity {
 
         trade_skill = findViewById(R.id.trade_skill);
         trade_zone = findViewById(R.id.trade_zone);
-        trade_zone.setOnDragListener(on_sell);
+        trade_zone.setOnDragListener(mOnSell);
 
         mDialogWindow.setLayout(findViewById(R.id.trade_window));
         mDialogWindow.setText(findViewById(R.id.trade_window_text));
@@ -1053,7 +1053,7 @@ public class MainActivity extends AppCompatActivity {
         mDialogWindow.setButtonNo(findViewById(R.id.trade_window_no));
 
         mTradeSkillImage = findViewById(R.id.trade_skill_image);
-        mTradeSkillImage.setOnClickListener(on_click_vendor_skill);
+        mTradeSkillImage.setOnClickListener(mOnClickVendorSkill);
 
         shadow = findViewById(R.id.shadow);
 
@@ -1090,14 +1090,14 @@ public class MainActivity extends AppCompatActivity {
         mCardsTable[6].imageView = findViewById(R.id.card_view_8);
         mCardsTable[7].imageView = findViewById(R.id.card_view_9);
 
-        mCardsTable[0].name_text = findViewById(R.id.card_name_1);
-        mCardsTable[1].name_text = findViewById(R.id.card_name_2);
-        mCardsTable[2].name_text = findViewById(R.id.card_name_3);
-        mCardsTable[3].name_text = findViewById(R.id.card_name_4);
-        mCardsTable[4].name_text = findViewById(R.id.card_name_6);
-        mCardsTable[5].name_text = findViewById(R.id.card_name_7);
-        mCardsTable[6].name_text = findViewById(R.id.card_name_8);
-        mCardsTable[7].name_text = findViewById(R.id.card_name_9);
+        mCardsTable[0].mNameText = findViewById(R.id.card_name_1);
+        mCardsTable[1].mNameText = findViewById(R.id.card_name_2);
+        mCardsTable[2].mNameText = findViewById(R.id.card_name_3);
+        mCardsTable[3].mNameText = findViewById(R.id.card_name_4);
+        mCardsTable[4].mNameText = findViewById(R.id.card_name_6);
+        mCardsTable[5].mNameText = findViewById(R.id.card_name_7);
+        mCardsTable[6].mNameText = findViewById(R.id.card_name_8);
+        mCardsTable[7].mNameText = findViewById(R.id.card_name_9);
 
         mCardsTable[0].value_one_text = findViewById(R.id.card_hp_1);
         mCardsTable[1].value_one_text = findViewById(R.id.card_hp_2);
@@ -1125,61 +1125,61 @@ public class MainActivity extends AppCompatActivity {
         loot[1].setOnDragListener(mLootOnDropListener);
         loot[2].setOnDragListener(mLootOnDropListener);
 
-        loot[0].slot_type = Slot_Type.LOOT;
-        loot[1].slot_type = Slot_Type.LOOT;
-        loot[2].slot_type = Slot_Type.LOOT;
+        loot[0].mSlotType = Slot_Type.LOOT;
+        loot[1].mSlotType = Slot_Type.LOOT;
+        loot[2].mSlotType = Slot_Type.LOOT;
 
         loot[0].imageView = findViewById(R.id.card_loot_0_view);
         loot[1].imageView = findViewById(R.id.card_loot_1_view);
         loot[2].imageView = findViewById(R.id.card_loot_2_view);
 
-        loot[0].name_text = findViewById(R.id.card_loot_0_name);
-        loot[1].name_text = findViewById(R.id.card_loot_1_name);
-        loot[2].name_text = findViewById(R.id.card_loot_2_name);
+        loot[0].mNameText = findViewById(R.id.card_loot_0_name);
+        loot[1].mNameText = findViewById(R.id.card_loot_1_name);
+        loot[2].mNameText = findViewById(R.id.card_loot_2_name);
 
         loot[0].value_one_text = findViewById(R.id.card_loot_0_value);
         loot[1].value_one_text = findViewById(R.id.card_loot_1_value);
         loot[2].value_one_text = findViewById(R.id.card_loot_2_value);
 
-        trade_item[0] = findViewById(R.id.card_trade_0);
-        trade_item[1] = findViewById(R.id.card_trade_1);
-        trade_item[2] = findViewById(R.id.card_trade_2);
+        mTradeItem[0] = findViewById(R.id.card_trade_0);
+        mTradeItem[1] = findViewById(R.id.card_trade_1);
+        mTradeItem[2] = findViewById(R.id.card_trade_2);
 
-        trade_item[0].imageView = findViewById(R.id.card_trade_0_view);
-        trade_item[1].imageView = findViewById(R.id.card_trade_1_view);
-        trade_item[2].imageView = findViewById(R.id.card_trade_2_view);
+        mTradeItem[0].imageView = findViewById(R.id.card_trade_0_view);
+        mTradeItem[1].imageView = findViewById(R.id.card_trade_1_view);
+        mTradeItem[2].imageView = findViewById(R.id.card_trade_2_view);
 
-        trade_item[0].name_text = findViewById(R.id.card_trade_0_name);
-        trade_item[1].name_text = findViewById(R.id.card_trade_1_name);
-        trade_item[2].name_text = findViewById(R.id.card_trade_2_name);
+        mTradeItem[0].mNameText = findViewById(R.id.card_trade_0_name);
+        mTradeItem[1].mNameText = findViewById(R.id.card_trade_1_name);
+        mTradeItem[2].mNameText = findViewById(R.id.card_trade_2_name);
 
-        trade_item[0].value_one_text = findViewById(R.id.card_trade_0_value);
-        trade_item[1].value_one_text = findViewById(R.id.card_trade_1_value);
-        trade_item[2].value_one_text = findViewById(R.id.card_trade_2_value);
+        mTradeItem[0].value_one_text = findViewById(R.id.card_trade_0_value);
+        mTradeItem[1].value_one_text = findViewById(R.id.card_trade_1_value);
+        mTradeItem[2].value_one_text = findViewById(R.id.card_trade_2_value);
 
-        trade_item[0].slot_id = 0;
-        trade_item[1].slot_id = 1;
-        trade_item[2].slot_id = 2;
+        mTradeItem[0].mSlotId = 0;
+        mTradeItem[1].mSlotId = 1;
+        mTradeItem[2].mSlotId = 2;
 
-        trade_item[0].setOnClickListener(card_trade_click);
-        trade_item[1].setOnClickListener(card_trade_click);
-        trade_item[2].setOnClickListener(card_trade_click);
+        mTradeItem[0].setOnClickListener(mOnClickBuyCardListener);
+        mTradeItem[1].setOnClickListener(mOnClickBuyCardListener);
+        mTradeItem[2].setOnClickListener(mOnClickBuyCardListener);
 
-        trade_cost[0] = findViewById(R.id.cost_0_text);
-        trade_cost[1] = findViewById(R.id.cost_1_text);
-        trade_cost[2] = findViewById(R.id.cost_2_text);
-        trade_cost_image[0] = findViewById(R.id.cost_0_view);
-        trade_cost_image[1] = findViewById(R.id.cost_1_view);
-        trade_cost_image[2] = findViewById(R.id.cost_2_view);
+        mTradeCost[0] = findViewById(R.id.cost_0_text);
+        mTradeCost[1] = findViewById(R.id.cost_1_text);
+        mTradeCost[2] = findViewById(R.id.cost_2_text);
+        mTradeCostImage[0] = findViewById(R.id.cost_0_view);
+        mTradeCostImage[1] = findViewById(R.id.cost_1_view);
+        mTradeCostImage[2] = findViewById(R.id.cost_2_view);
 
         mHandOne = findViewById(R.id.card_hand_left);
         mHandTwo = findViewById(R.id.card_hand_right);
-        mHandOne.slot_type = Slot_Type.HAND;
-        mHandTwo.slot_type = Slot_Type.HAND;
+        mHandOne.mSlotType = Slot_Type.HAND;
+        mHandTwo.mSlotType = Slot_Type.HAND;
         mHandOne.imageView = findViewById(R.id.card_hand_leftview);
         mHandTwo.imageView = findViewById(R.id.card_hand_right_view);
-        mHandOne.name_text = findViewById(R.id.card_hand_left_name);
-        mHandTwo.name_text = findViewById(R.id.card_hand_right_name);
+        mHandOne.mNameText = findViewById(R.id.card_hand_left_name);
+        mHandTwo.mNameText = findViewById(R.id.card_hand_right_name);
         mHandOne.value_one_text = findViewById(R.id.card_hand_left_value);
         mHandTwo.value_one_text = findViewById(R.id.card_hand_right_value);
         mHandOne.setOnDragListener(mHandOnDropListener);
@@ -1194,20 +1194,20 @@ public class MainActivity extends AppCompatActivity {
         mInventory[2] = findViewById(R.id.card_inventory_2);
         mInventory[3] = findViewById(R.id.card_inventory_3);
 
-        mInventory[0].slot_type = Slot_Type.INVENTORY;
-        mInventory[1].slot_type = Slot_Type.INVENTORY;
-        mInventory[2].slot_type = Slot_Type.INVENTORY;
-        mInventory[3].slot_type = Slot_Type.INVENTORY;
+        mInventory[0].mSlotType = Slot_Type.INVENTORY;
+        mInventory[1].mSlotType = Slot_Type.INVENTORY;
+        mInventory[2].mSlotType = Slot_Type.INVENTORY;
+        mInventory[3].mSlotType = Slot_Type.INVENTORY;
 
         mInventory[0].imageView = findViewById(R.id.card_inventory_0_view);
         mInventory[1].imageView = findViewById(R.id.card_inventory_1_view);
         mInventory[2].imageView = findViewById(R.id.card_inventory_2_view);
         mInventory[3].imageView = findViewById(R.id.card_inventory_3_view);
 
-        mInventory[0].name_text = findViewById(R.id.card_inventory_0_name);
-        mInventory[1].name_text = findViewById(R.id.card_inventory_1_name);
-        mInventory[2].name_text = findViewById(R.id.card_inventory_2_name);
-        mInventory[3].name_text = findViewById(R.id.card_inventory_3_name);
+        mInventory[0].mNameText = findViewById(R.id.card_inventory_0_name);
+        mInventory[1].mNameText = findViewById(R.id.card_inventory_1_name);
+        mInventory[2].mNameText = findViewById(R.id.card_inventory_2_name);
+        mInventory[3].mNameText = findViewById(R.id.card_inventory_3_name);
 
         mInventory[0].value_one_text = findViewById(R.id.card_inventory_0_value);
         mInventory[1].value_one_text = findViewById(R.id.card_inventory_1_value);
@@ -1227,9 +1227,9 @@ public class MainActivity extends AppCompatActivity {
         loot[1].TEST_GearScoreText = findViewById(R.id.loot1GearScore);
         loot[2].TEST_GearScoreText = findViewById(R.id.loot2GearScore);
 
-        trade_item[0].TEST_GearScoreText = findViewById(R.id.cardTrade0GearScore);
-        trade_item[1].TEST_GearScoreText = findViewById(R.id.cardTrade1GearScore);
-        trade_item[2].TEST_GearScoreText = findViewById(R.id.cardTrade2GearScore);
+        mTradeItem[0].TEST_GearScoreText = findViewById(R.id.cardTrade0GearScore);
+        mTradeItem[1].TEST_GearScoreText = findViewById(R.id.cardTrade1GearScore);
+        mTradeItem[2].TEST_GearScoreText = findViewById(R.id.cardTrade2GearScore);
 
         mHandOne.TEST_GearScoreText = findViewById(R.id.cardHandLeftGearScore);
         mHandTwo.TEST_GearScoreText = findViewById(R.id.cardHandRightGearScore);
@@ -1243,9 +1243,9 @@ public class MainActivity extends AppCompatActivity {
         loot[1].TEST_MOB_GEARSCORE_TEXT = findViewById(R.id.loot1GearScoreMob);
         loot[2].TEST_MOB_GEARSCORE_TEXT = findViewById(R.id.loot2GearScoreMob);
 
-        trade_item[0].TEST_MOB_GEARSCORE_TEXT = findViewById(R.id.cardTrade0GearScoreMob);
-        trade_item[1].TEST_MOB_GEARSCORE_TEXT = findViewById(R.id.cardTrade1GearScoreMob);
-        trade_item[2].TEST_MOB_GEARSCORE_TEXT = findViewById(R.id.cardTrade2GearScoreMob);
+        mTradeItem[0].TEST_MOB_GEARSCORE_TEXT = findViewById(R.id.cardTrade0GearScoreMob);
+        mTradeItem[1].TEST_MOB_GEARSCORE_TEXT = findViewById(R.id.cardTrade1GearScoreMob);
+        mTradeItem[2].TEST_MOB_GEARSCORE_TEXT = findViewById(R.id.cardTrade2GearScoreMob);
 
         mHandOne.TEST_MOB_GEARSCORE_TEXT = findViewById(R.id.cardHandLeftGearScoreMob);
         mHandTwo.TEST_MOB_GEARSCORE_TEXT = findViewById(R.id.cardHandRightGearScoreMob);
@@ -1263,7 +1263,7 @@ public class MainActivity extends AppCompatActivity {
 
         for (byte i = 0; i < 8; i++) {
             mCardsTable[i].setIdInArray(i);
-            mCardsTable[i].name_text.setVisibility(View.INVISIBLE);
+            mCardsTable[i].mNameText.setVisibility(View.INVISIBLE);
             mCardsTable[i].value_two_text.setVisibility(View.INVISIBLE);
             mCardsTable[i].value_one_text.setVisibility(View.INVISIBLE);
             mCardsTable[i].imageView.setImageResource(card_back);
@@ -1277,7 +1277,7 @@ public class MainActivity extends AppCompatActivity {
 
         mInventoryItemCount = 0;
 
-        mInventory[0].Change(mStats, db_open_helper, 1);
+        mInventory[0].change(mStats, db_open_helper, 1);
         mInventory[0].open();
         mHandOne.hand_drawable = R.drawable.kulak_levo;
         mHandTwo.hand_drawable = R.drawable.kulak_pravo;
@@ -1286,10 +1286,10 @@ public class MainActivity extends AppCompatActivity {
         setHand(mHandOne);
         setHand(mHandTwo);
 
-        mInventory[0].slot_id = 0;
+        mInventory[0].mSlotId = 0;
         for (byte i = 1; i < INVENTORYMAXCOUNT; i++) {
             mInventory[i].setVisibility(View.GONE);
-            mInventory[i].slot_id = i;
+            mInventory[i].mSlotId = i;
         }
 
         mHpMax = mHpMaxDefault + mStats.getHPBonus();
@@ -1315,8 +1315,8 @@ public class MainActivity extends AppCompatActivity {
         hand.setGearScore(0);
         hand.TEST_MOB_GEARSCORE_TEXT.setText(0+"");
         hand.setValueOne(1+mStats.getDamageBonus());
-        hand.name_text.setText("Кулак");
-        hand.id_drawable = hand.hand_drawable;
+        hand.mNameText.setText("Кулак");
+        hand.mIdDrawable = hand.hand_drawable;
         hand.setType(Inventory_Type.WEAPON);
         hand.setValueOneText(hand.getValueOne());
         Picasso.with(getBaseContext()).load(hand.hand_drawable).into(hand.imageView);
@@ -1347,13 +1347,13 @@ public class MainActivity extends AppCompatActivity {
         data_base = db_open_helper.getWritableDatabase();
         data_base.close();
 
-        Set_Text_Size();
+        setTextSize();
 
-        Set_Animators();
+        setAnimators();
 */
     }
 
-    private void Set_Text_Size() {
+    private void setTextSize() {
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         int card_height = mCardsTable[0].imageView.getHeight();
@@ -1367,7 +1367,7 @@ public class MainActivity extends AppCompatActivity {
         card_hp_and_damage_text_size = (float) (Math.sqrt(Math.pow(card_width, 2.0) +
                 Math.pow(card_height, 2.0)) * card_hp_and_damage_text_size_constant);
         for (int i = 0; i < 8; i++) {
-            mCardsTable[i].name_text.setTextSize(COMPLEX_UNIT_PX, card_name_text_size);
+            mCardsTable[i].mNameText.setTextSize(COMPLEX_UNIT_PX, card_name_text_size);
             mCardsTable[i].value_one_text.setTextSize(COMPLEX_UNIT_PX, card_hp_and_damage_text_size);
             mCardsTable[i].value_two_text.setTextSize(COMPLEX_UNIT_PX, card_hp_and_damage_text_size);
         }
@@ -1377,7 +1377,7 @@ public class MainActivity extends AppCompatActivity {
         float card_inventory_name_text_size = (float) (Math.sqrt(Math.pow(mInventory[0].imageView.getWidth(), 2.0) +
                 Math.pow(mInventory[0].imageView.getHeight(), 2.0)) * card_name_text_size_constant);
         for (int i = 0; i < INVENTORYMAXCOUNT; i++) {
-            mInventory[i].name_text.setTextSize(COMPLEX_UNIT_PX, card_inventory_name_text_size);
+            mInventory[i].mNameText.setTextSize(COMPLEX_UNIT_PX, card_inventory_name_text_size);
             mInventory[i].value_one_text.setTextSize(COMPLEX_UNIT_PX, card_inventory_value_one_text_size);
         }
 
@@ -1386,7 +1386,7 @@ public class MainActivity extends AppCompatActivity {
         float card_loot_name_text_size = (float) (Math.sqrt(Math.pow(loot[0].imageView.getWidth(), 2.0) +
                 Math.pow(loot[0].imageView.getHeight(), 2.0)) * card_name_text_size_constant);
         for (int i = 0; i < loot_max_count; i++) {
-            loot[i].name_text.setTextSize(COMPLEX_UNIT_PX, card_loot_name_text_size);
+            loot[i].mNameText.setTextSize(COMPLEX_UNIT_PX, card_loot_name_text_size);
             loot[i].value_one_text.setTextSize(COMPLEX_UNIT_PX, card_loot_value_one_text_size);
         }
         Log.d(""+card_loot_value_one_text_size, ""+card_loot_name_text_size);
@@ -1396,9 +1396,9 @@ public class MainActivity extends AppCompatActivity {
                 Math.pow(mHandOne.imageView.getHeight(), 2.0)) * card_hp_and_damage_text_size_constant);
         float card_hand_name_text_size = (float) (Math.sqrt(Math.pow(mHandOne.imageView.getWidth(), 2.0) +
                 Math.pow(mHandOne.imageView.getHeight(), 2.0)) * card_name_text_size_constant);
-            mHandOne.name_text.setTextSize(COMPLEX_UNIT_PX, card_hand_name_text_size);
+            mHandOne.mNameText.setTextSize(COMPLEX_UNIT_PX, card_hand_name_text_size);
             mHandOne.value_one_text.setTextSize(COMPLEX_UNIT_PX, card_hand_value_one_text_size);
-        mHandTwo.name_text.setTextSize(COMPLEX_UNIT_PX, card_hand_name_text_size);
+        mHandTwo.mNameText.setTextSize(COMPLEX_UNIT_PX, card_hand_name_text_size);
         mHandTwo.value_one_text.setTextSize(COMPLEX_UNIT_PX, card_hand_value_one_text_size);
 
 
@@ -1408,7 +1408,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     AnimatorSet columnCenterCardTableReset = new AnimatorSet();
-    private void Set_Animators() {
+    private void setAnimators() {
 
         float cardTableIncreaseAnimationValue = 3f;
         int duration = 500;
@@ -1669,7 +1669,7 @@ public class MainActivity extends AppCompatActivity {
                 ObjectAnimator.ofFloat(mCardsTable[5], View.TRANSLATION_X, card_coordinates_animation_left_start, 0f)
         );
 
-        Set_Card_Animators_Reset();
+        setCardAnimatorsReset();
 //endregion
         //region Animation Right Card Table
         AnimatorSet rightCardTableIncreaseAnimation = new AnimatorSet();
@@ -2622,7 +2622,7 @@ public class MainActivity extends AppCompatActivity {
         );
         //endregion
     }
-    private void Set_Card_Animators_Reset() {
+    private void setCardAnimatorsReset() {
         card_reset_row_top.playTogether(
                 ObjectAnimator.ofFloat(mCardsTable[5], View.TRANSLATION_Y, 0f, 0f),
                 ObjectAnimator.ofFloat(mCardsTable[6], View.TRANSLATION_Y, 0f, 0f),
@@ -2675,14 +2675,14 @@ public class MainActivity extends AppCompatActivity {
         }
         for (int i = 0; i < loot_count; i++) {
             loot[i].bringToFront();
-            loot[i].Change(mStats, db_open_helper, random, mCardTableTarget.getGearScore(),typeLoot[i]);
+            loot[i].change(mStats, db_open_helper, random, mCardTableTarget.getGearScore(),typeLoot[i]);
             loot[i].setVisibility(View.VISIBLE);
             loot[i].open();
         }
 
         is_loot_enable = true;
         loot_id = 0;
-        Loot_Get();
+        lootGet();
 
         if (loot_count > 0) {
             button_continue.bringToFront();
@@ -2713,13 +2713,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void on_Click_Button_Start(View view) {
-        Set_Text_Size();
-        Set_Animators();
+    public void onClickButtonStart(View view) {
+        setTextSize();
+        setAnimators();
 
-        Button_Start();
+        buttonStart();
     }
-    void Button_Start() {
+    void buttonStart() {
         SQLiteDatabase data_base = db_open_helper.getReadableDatabase();
 
         String[] column_name = {
@@ -2780,18 +2780,18 @@ public class MainActivity extends AppCompatActivity {
         mGearScoreWeaponOrShieldInInventory.add(0);
         mGearScoreWeaponOrShieldInInventory.add(0);
         mGearScore = mStats.getGearScoreBonus();
-        ChangeGearScore(getChangeGearScoreAfterReplace(0, mHandOne.getGearScore()));
-        ChangeGearScore(getChangeGearScoreAfterReplace(0, mHandTwo.getGearScore()));
+        changeGearScore(getChangeGearScoreAfterReplace(0, mHandOne.getGearScore()));
+        changeGearScore(getChangeGearScoreAfterReplace(0, mHandTwo.getGearScore()));
         for (byte i = 0; i < INVENTORYMAXCOUNT; i++) {
             if (mInventory[i].getVisibility()==View.VISIBLE){
                 mInventoryItemCount++;
                 if (mInventory[i].getType()==Inventory_Type.WEAPON ||
                         mInventory[i].getType()==Inventory_Type.SHIELD)
                 {
-                    ChangeGearScore(getChangeGearScoreAfterReplace(null, mInventory[i].getGearScore()));
+                    changeGearScore(getChangeGearScoreAfterReplace(null, mInventory[i].getGearScore()));
                 }
                 else{
-                    ChangeGearScore(mInventory[i].getGearScore());
+                    changeGearScore(mInventory[i].getGearScore());
                 }
             }
         }
@@ -2814,7 +2814,7 @@ public class MainActivity extends AppCompatActivity {
         openCardTable.start();
     }
 
-    public void on_Click_Button_Continue(View view) {
+    public void onClickButtonContinue(View view) {
 
         is_loot_enable = false;
         for (byte i = 0; i < loot_max_count; i++) {
@@ -2823,14 +2823,14 @@ public class MainActivity extends AppCompatActivity {
         }
         loot_count = 0;
         if (target_swap != null) {
-            Target_Reset();
+            targetReset();
         }
         mCardTableTarget.getChangeAnimation().start();
         mCardTableTarget.setOnClickListener(setTargetListener);
         button_continue.setVisibility(View.GONE);
     }
 
-    public void On_Click_Trade_Exit(View view){
+    public void onClickTradeExit(View view){
         mCardTableTarget.getChangeAnimation().start();
         trade_skill.setVisibility(View.GONE);
         trade_zone.setVisibility(View.GONE);
@@ -3005,29 +3005,29 @@ public class MainActivity extends AppCompatActivity {
             byte iditem = Byte.parseByte(iditemText.getText().toString());
 
             if (idslot<4){
-                mInventory[idslot].Change(mStats, db_open_helper,iditem);
+                mInventory[idslot].change(mStats, db_open_helper,iditem);
                 mInventory[idslot].open();
                 mInventory[idslot].setVisibility(View.VISIBLE);
-                mInventory[idslot].Set_Durability(10);
+                mInventory[idslot].setDurability(mInventory[idslot].getDurabilityMax());
             }
             else{
                 if (idslot==4){
-                    mHandOne.Change(mStats, db_open_helper,iditem);
+                    mHandOne.change(mStats, db_open_helper,iditem);
                     mHandOne.open();
                     mHandOne.setVisibility(View.VISIBLE);
                     mHandOne.durability_text.setVisibility(View.VISIBLE);
                     mHandOne.durability_image.setVisibility(View.VISIBLE);
-                    mHandOne.Set_Durability(10);
-                    mHandOne.Set_Durability_Text(10);
+                    mHandOne.setDurability(mHandOne.getDurabilityMax());
+                    mHandOne.Set_Durability_Text(mHandOne.getDurability());
                 }
                 else{
-                    mHandTwo.Change(mStats, db_open_helper,iditem);
+                    mHandTwo.change(mStats, db_open_helper,iditem);
                     mHandTwo.open();
                     mHandTwo.setVisibility(View.VISIBLE);
                     mHandTwo.durability_text.setVisibility(View.VISIBLE);
                     mHandTwo.durability_image.setVisibility(View.VISIBLE);
-                    mHandTwo.Set_Durability(10);
-                    mHandTwo.Set_Durability_Text(10);
+                    mHandTwo.setDurability(mHandTwo.getDurabilityMax());
+                    mHandTwo.Set_Durability_Text(mHandTwo.getDurability());
                 }
             }
             idslotText.setText("");

@@ -13,10 +13,10 @@ public class Card extends ConstraintLayout {
 
     protected static final int card_back = R.drawable.card_back;
     int type;
-    int value_one;
-    int id_drawable;
+    int mValueOne;
+    int mIdDrawable;
     ImageView imageView;
-    TextView name_text;
+    TextView mNameText;
     TextView value_one_text;
     int mGearScore;
     TextView TEST_GearScoreText;
@@ -34,14 +34,14 @@ public class Card extends ConstraintLayout {
 
     void copy(Card card){
 
-        this.value_one = card.getValueOne();
-        this.id_drawable = card.getIdDrawable();
-        Picasso.with(getContext()).load(id_drawable).placeholder(R.color.color_black).into(imageView);
+        this.mValueOne = card.getValueOne();
+        this.mIdDrawable = card.getIdDrawable();
+        Picasso.with(getContext()).load(mIdDrawable).placeholder(R.color.color_black).into(imageView);
 /*
-        this.imageView.setImageResource(id_drawable);
+        this.imageView.setImageResource(mIdDrawable);
 */
-        this.name_text.setText(card.name_text.getText());
-        this.name_text.setVisibility(card.name_text.getVisibility());
+        this.mNameText.setText(card.mNameText.getText());
+        this.mNameText.setVisibility(card.mNameText.getVisibility());
         this.value_one_text.setText(card.value_one_text.getText());
         this.value_one_text.setVisibility(card.value_one_text.getVisibility());
         this.type = card.getType();
@@ -50,26 +50,26 @@ public class Card extends ConstraintLayout {
     }
 
     void open() {
-        this.name_text.setVisibility(View.VISIBLE);
-        Picasso.with(getContext()).load(id_drawable).placeholder(R.color.color_black).into(imageView);
+        this.mNameText.setVisibility(View.VISIBLE);
+        Picasso.with(getContext()).load(mIdDrawable).placeholder(R.color.color_black).into(imageView);
 /*
-        this.imageView.setImageResource(id_drawable);
+        this.imageView.setImageResource(mIdDrawable);
 */
     }
 
     void close(int card_back) {
 
-        this.name_text.setVisibility(View.INVISIBLE);
+        this.mNameText.setVisibility(View.INVISIBLE);
         this.value_one_text.setVisibility(View.INVISIBLE);
         Picasso.with(getContext()).load(card_back).placeholder(R.color.color_black).into(imageView);
 /*
         this.imageView.setImageResource(card_back);
 */
-        this.id_drawable = card_back;
+        this.mIdDrawable = card_back;
     }
 
     boolean isClose(){
-        return id_drawable == card_back;
+        return mIdDrawable == card_back;
     }
 
     int getType(){
@@ -80,10 +80,10 @@ public class Card extends ConstraintLayout {
     }
 
     int getValueOne(){
-        return value_one;
+        return mValueOne;
     }
     void setValueOne(int hp){
-        this.value_one = hp;
+        this.mValueOne = hp;
     }
 
     void setValueOneText(int hp){
@@ -100,10 +100,10 @@ public class Card extends ConstraintLayout {
     }
 
     int getIdDrawable(){
-        return id_drawable;
+        return mIdDrawable;
     }
     void setIdDrawable(int id_drawable){
-        this.id_drawable = id_drawable;
+        this.mIdDrawable = id_drawable;
     }
 
     public int getGearScore() {

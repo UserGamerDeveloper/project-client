@@ -56,6 +56,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
     static final String LVL = "LVL";
     static final String GSPERSTAT = "GSPERSTAT";
     static final String HPBONUS = "HPBONUS";
+    static final String DURABILITY = "DURABILITY";
 
     DB_Open_Helper(Context context) {
         super(context, DB_name, null, DB_version);
@@ -70,7 +71,8 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
                 " INTEGER, " + EXPERIENCE + " INTEGER, " + id_image + " INTEGER)";
         String query_table_inventory_create = "create table " + table_inventory + " ("+ id +" INTEGER, "
                 + name + " TEXT, " + VALUEONE + " INTEGER, " + id_image + " INTEGER, " + cost +
-                " INTEGER, "+ GEARSCORE + " INTEGER, " + MOBGEARSCORE + " INTEGER, " + type + " INTEGER)";
+                " INTEGER, "+ GEARSCORE + " INTEGER, " + DURABILITY + " INTEGER, " + MOBGEARSCORE +
+                " INTEGER, " + type + " INTEGER)";
         String tableTestCreateQuery = "create table " + sTableTest + " ("+ money +" INTEGER, "
                 + CHALT + " INTEGER, " + CWORS + " INTEGER, " + CFood +
                 " INTEGER, " + CSpell + " INTEGER, "+ CVENDOR + " INTEGER, " +
@@ -243,6 +245,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.cost, 6);
         values.put(DB_Open_Helper.GEARSCORE, 6);
         values.put(DB_Open_Helper.MOBGEARSCORE, 0);
+        values.put(DB_Open_Helper.DURABILITY, 10);
 
         sqLiteDatabase.insert(
                 DB_Open_Helper.table_inventory,
@@ -257,6 +260,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.cost, 2);
         values.put(DB_Open_Helper.GEARSCORE, 2);
         values.put(DB_Open_Helper.MOBGEARSCORE, 0);
+        values.put(DB_Open_Helper.DURABILITY, 10);
 
         sqLiteDatabase.insert(
                 DB_Open_Helper.table_inventory,
@@ -271,6 +275,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.cost, 3);
         values.put(DB_Open_Helper.GEARSCORE, 3);
         values.put(DB_Open_Helper.MOBGEARSCORE, 0);
+        values.put(DB_Open_Helper.DURABILITY, 10);
 
         sqLiteDatabase.insert(
                 DB_Open_Helper.table_inventory,
@@ -285,6 +290,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.cost, 4);
         values.put(DB_Open_Helper.GEARSCORE, 4);
         values.put(DB_Open_Helper.MOBGEARSCORE, 0);
+        values.put(DB_Open_Helper.DURABILITY, 10);
 
         sqLiteDatabase.insert(
                 DB_Open_Helper.table_inventory,
@@ -299,6 +305,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.cost, 5);
         values.put(DB_Open_Helper.GEARSCORE, 5);
         values.put(DB_Open_Helper.MOBGEARSCORE, 0);
+        values.put(DB_Open_Helper.DURABILITY, 10);
 
         sqLiteDatabase.insert(
                 DB_Open_Helper.table_inventory,
@@ -318,6 +325,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.cost, 6);
         values.put(DB_Open_Helper.GEARSCORE, 6);
         values.put(DB_Open_Helper.MOBGEARSCORE, 0);
+        values.put(DB_Open_Helper.DURABILITY, 10);
 
         sqLiteDatabase.insert(
                 DB_Open_Helper.table_inventory,
@@ -332,6 +340,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.cost, 2);
         values.put(DB_Open_Helper.GEARSCORE, 2);
         values.put(DB_Open_Helper.MOBGEARSCORE, 0);
+        values.put(DB_Open_Helper.DURABILITY, 10);
 
         sqLiteDatabase.insert(
                 DB_Open_Helper.table_inventory,
@@ -346,6 +355,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.cost, 3);
         values.put(DB_Open_Helper.GEARSCORE, 3);
         values.put(DB_Open_Helper.MOBGEARSCORE, 0);
+        values.put(DB_Open_Helper.DURABILITY, 10);
 
         sqLiteDatabase.insert(
                 DB_Open_Helper.table_inventory,
@@ -360,6 +370,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.cost, 4);
         values.put(DB_Open_Helper.GEARSCORE, 4);
         values.put(DB_Open_Helper.MOBGEARSCORE, 0);
+        values.put(DB_Open_Helper.DURABILITY, 10);
 
         sqLiteDatabase.insert(
                 DB_Open_Helper.table_inventory,
@@ -374,6 +385,7 @@ public class DB_Open_Helper extends SQLiteOpenHelper {
         values.put(DB_Open_Helper.cost, 5);
         values.put(DB_Open_Helper.GEARSCORE, 5);
         values.put(DB_Open_Helper.MOBGEARSCORE, 0);
+        values.put(DB_Open_Helper.DURABILITY, 10);
 
         sqLiteDatabase.insert(
                 DB_Open_Helper.table_inventory,
