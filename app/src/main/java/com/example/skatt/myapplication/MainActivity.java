@@ -2724,7 +2724,8 @@ public class MainActivity extends AppCompatActivity {
                 DB_Open_Helper.CSpell,
                 DB_Open_Helper.CChest,
                 DB_Open_Helper.GSRANGERATE,
-                DB_Open_Helper.HP
+                DB_Open_Helper.HP,
+                DB_Open_Helper.COSTRESET
         };
 
         Cursor cursor = data_base.query(
@@ -2763,6 +2764,9 @@ public class MainActivity extends AppCompatActivity {
         );
         mHpMaxDefault = cursor.getInt(
                 cursor.getColumnIndexOrThrow(DB_Open_Helper.HP)
+        );
+        mStatsResetCost = cursor.getInt(
+                cursor.getColumnIndexOrThrow(DB_Open_Helper.COSTRESET)
         );
         cursor.close();
 
@@ -2887,7 +2891,7 @@ public class MainActivity extends AppCompatActivity {
                 onClickAddHpYesListener
         );
     }
-    int mStatsResetCost = 1;
+    int mStatsResetCost;
     View.OnClickListener onClickStatsResetListener = onClickStatsResetListener();
     View.OnClickListener onClickStatsResetListener() {
         return new View.OnClickListener() {
