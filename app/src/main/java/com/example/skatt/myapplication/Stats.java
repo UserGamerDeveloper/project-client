@@ -111,6 +111,7 @@ class Stats {
     void addExperience(int experience){
         mExperienceValue += experience;
         if (mExperienceValue>=mRequirementExperience[mLevel]){
+            mExperienceValue -= mRequirementExperience[mLevel];
             mLevel++;
             mPoints++;
         }
