@@ -2648,17 +2648,19 @@ public class MainActivity extends AppCompatActivity {
         int[] typeLoot = new int[3];
         if (mCardTableTarget.getType()==CardTableType.MOB){
             loot_count = 0;
-            if (random.nextInt(mChanceWeaponOrShield)==0){
-                typeLoot[loot_count]=random.nextInt(2);
-                loot_count++;
-            }
-            if (random.nextInt(mChanceFood)==0){
-                typeLoot[loot_count]= Inventory_Type.FOOD;
-                loot_count++;
-            }
-            if (random.nextInt(mChanceSpell)==0){
-                typeLoot[loot_count]=Inventory_Type.SPELL;
-                loot_count++;
+            if (mCardTableTarget.getSubType()!=CardTableSubType.FOREST){
+                if (random.nextInt(mChanceWeaponOrShield)==0){
+                    typeLoot[loot_count]=random.nextInt(2);
+                    loot_count++;
+                }
+                if (random.nextInt(mChanceFood)==0){
+                    typeLoot[loot_count]= Inventory_Type.FOOD;
+                    loot_count++;
+                }
+                if (random.nextInt(mChanceSpell)==0){
+                    typeLoot[loot_count]=Inventory_Type.SPELL;
+                    loot_count++;
+                }
             }
         }
         else{
@@ -2840,6 +2842,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     Stats mStats;
+    int mStatsResetCost;
     public void onClickIconStats(View view){
         mStats.setVisibility();
     }
@@ -2891,7 +2894,6 @@ public class MainActivity extends AppCompatActivity {
                 onClickAddHpYesListener
         );
     }
-    int mStatsResetCost;
     View.OnClickListener onClickStatsResetListener = onClickStatsResetListener();
     View.OnClickListener onClickStatsResetListener() {
         return new View.OnClickListener() {
