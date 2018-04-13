@@ -10,49 +10,50 @@ import android.widget.TextView;
 
 import java.util.Random;
 
-class Card_Table extends Card {
+class CardTable extends Card {
 
-    private static final int cardCenterBack = R.drawable.perekrestok;
+    private static final int CARD_CENTER_BACK = R.drawable.perekrestok;
+    private static final String[] COLUMN_NAME = {
+            DBOpenHelper.name,
+            DBOpenHelper.VALUEONE,
+            DBOpenHelper.VALUETWO,
+            DBOpenHelper.id_image,
+            DBOpenHelper.money,
+            DBOpenHelper.type,
+            DBOpenHelper.GEARSCORE,
+            DBOpenHelper.EXPERIENCE,
+            DBOpenHelper.SUBTYPE
+    };
+    protected Byte mIDMob;
     private AnimatorSet mTargetAnimation = new AnimatorSet();
     private AnimatorSet mCloseAnimation = new AnimatorSet();
     private AnimatorSet mChangeAnimation = new AnimatorSet();
     private byte mIdInArray;
-    private int value_two;
-    TextView value_two_text;
-    private int money;
+    private int mValueTwo;
+    TextView mValueTwoText;
+    private int mMoney;
     private int mExperience;
+    private boolean mLogin = false;
     static float sGearScoreRangeRate;
-    static final String[] column_name = {
-            DB_Open_Helper.id,
-            DB_Open_Helper.name,
-            DB_Open_Helper.VALUEONE,
-            DB_Open_Helper.VALUETWO,
-            DB_Open_Helper.id_image,
-            DB_Open_Helper.money,
-            DB_Open_Helper.type,
-            DB_Open_Helper.GEARSCORE,
-            DB_Open_Helper.EXPERIENCE,
-            DB_Open_Helper.SUBTYPE
-    };
 
-    public Card_Table(Context context) {
+    public CardTable(Context context) {
         super(context);
     }
-    public Card_Table(Context context, AttributeSet attrs) {
+    public CardTable(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
-    public Card_Table(Context context, AttributeSet attrs, int defStyleAttr) {
+    public CardTable(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
-    void Change(DB_Open_Helper db_open_helper, Random random, int gearScore){
+    void change(DBOpenHelper db_open_helper, Random random, int gearScore){
         gearScore = 0;
         SQLiteDatabase data_base = db_open_helper.getReadableDatabase();
 
         Cursor cursor = data_base.query(
-                DB_Open_Helper.table_mobs,
-                column_name,
-                DB_Open_Helper.GEARSCORE + ">=? AND "+ DB_Open_Helper.GEARSCORE + "<=?",
+                DBOpenHelper.table_mobs,
+                COLUMN_NAME,
+                DBOpenHelper.GEARSCORE + ">=? AND "+ DBOpenHelper.GEARSCORE + "<=?",
                 new String[]{(gearScore* sGearScoreRangeRate)+"",gearScore+""},
                 null,
                 null,
@@ -62,14 +63,14 @@ class Card_Table extends Card {
 
         setData(cursor);
     }
-    void Change(DB_Open_Helper db_open_helper, int id){
+    void change(DBOpenHelper db_open_helper){
         SQLiteDatabase data_base = db_open_helper.getReadableDatabase();
 
         Cursor cursor = data_base.query(
-                DB_Open_Helper.table_mobs,
-                column_name,
-                DB_Open_Helper.id + "=?",
-                new String[]{id+""},
+                DBOpenHelper.table_mobs,
+                COLUMN_NAME,
+                DBOpenHelper.id + "=?",
+                new String[]{mIDMob.toString()},
                 null,
                 null,
                 null
@@ -81,74 +82,85 @@ class Card_Table extends Card {
     private void setData(Cursor cursor) {
         mNameText.setText(
                 cursor.getString(
-                        cursor.getColumnIndexOrThrow(DB_Open_Helper.name)
+                        cursor.getColumnIndexOrThrow(DBOpenHelper.name)
                 )
         );
 
         mIdDrawable = cursor.getInt(
-                cursor.getColumnIndexOrThrow(DB_Open_Helper.id_image)
+                cursor.getColumnIndexOrThrow(DBOpenHelper.id_image)
         );
 
-        type = cursor.getInt(
-                cursor.getColumnIndexOrThrow(DB_Open_Helper.type)
+        mType = cursor.getInt(
+                cursor.getColumnIndexOrThrow(DBOpenHelper.type)
         );
         mSubType = cursor.getInt(
-                cursor.getColumnIndexOrThrow(DB_Open_Helper.SUBTYPE)
+                cursor.getColumnIndexOrThrow(DBOpenHelper.SUBTYPE)
         );
 
         this.mGearScore = cursor.getInt(
-                cursor.getColumnIndexOrThrow(DB_Open_Helper.GEARSCORE)
+                cursor.getColumnIndexOrThrow(DBOpenHelper.GEARSCORE)
         );
         this.TEST_GearScoreText.setText(String.format("%d", mGearScore));
 
-        if(type== CardTableType.MOB){
+        if(mType == CardTableType.MOB){
 
             mValueOne = cursor.getInt(
-                    cursor.getColumnIndexOrThrow(DB_Open_Helper.VALUEONE)
+                    cursor.getColumnIndexOrThrow(DBOpenHelper.VALUEONE)
             );
-            value_one_text.setText(
+            mValueOneText.setText(
                     String.format(" %s", mValueOne)
             );
-            value_two = cursor.getInt(
-                    cursor.getColumnIndexOrThrow(DB_Open_Helper.VALUETWO)
+            mValueTwo = cursor.getInt(
+                    cursor.getColumnIndexOrThrow(DBOpenHelper.VALUETWO)
             );
-            value_two_text.setText(
-                    String.format("%s ", value_two)
+            mValueTwoText.setText(
+                    String.format("%s ", mValueTwo)
             );
-            money = cursor.getInt(
-                    cursor.getColumnIndexOrThrow(DB_Open_Helper.money)
+            mMoney = cursor.getInt(
+                    cursor.getColumnIndexOrThrow(DBOpenHelper.money)
             );
             mExperience = cursor.getInt(
-                    cursor.getColumnIndexOrThrow(DB_Open_Helper.EXPERIENCE)
+                    cursor.getColumnIndexOrThrow(DBOpenHelper.EXPERIENCE)
             );
         }
 
         cursor.close();
     }
 
-    void Copy(Card_Table card){
+    void Copy(CardTable card){
 
         super.copy(card);
-        this.value_two = card.getValueTwo();
-        this.value_two_text.setText(card.value_two_text.getText());
-        this.value_two_text.setVisibility(card.value_two_text.getVisibility());
+        this.mValueTwo = card.getValueTwo();
+        this.mValueTwoText.setText(card.mValueTwoText.getText());
+        this.mValueTwoText.setVisibility(card.mValueTwoText.getVisibility());
         this.mExperience = card.getExperience();
     }
 
     void open() {
         super.open();
-        if(type== CardTableType.MOB){
-            this.value_one_text.setVisibility(View.VISIBLE);
-            this.value_two_text.setVisibility(View.VISIBLE);
+        if(mType == CardTableType.MOB){
+            this.mValueOneText.setVisibility(View.VISIBLE);
+            this.mValueTwoText.setVisibility(View.VISIBLE);
         }
     }
 
     void close(int card_back) {
         super.close(card_back);
-        this.value_two_text.setVisibility(View.INVISIBLE);
+        this.mValueTwoText.setVisibility(View.INVISIBLE);
     }
     boolean isClose(){
-        return ((mIdDrawable == card_back) || (mIdDrawable ==cardCenterBack));
+        return ((mIdDrawable == CARD_BACK) || (mIdDrawable == CARD_CENTER_BACK));
+    }
+
+    boolean isEmpty(){
+        return mIDMob == null;
+    }
+
+    public Byte getIDMob() {
+        return mIDMob;
+    }
+    public void setIDMob(Byte IDMob) {
+        mIDMob = IDMob;
     }
 
     public AnimatorSet getTargetAnimation() {
@@ -159,30 +171,34 @@ class Card_Table extends Card {
     }
 
     int getValueTwo(){
-        return value_two;
+        return mValueTwo;
     }
     void setValueTwo(int damage){
-        this.value_two = damage;
+        mValueTwo = damage;
+    }
+    void setValueTwoInUIThread(int damage){
+        this.mValueTwo = damage;
+        this.setValueTwoText(damage);
     }
 
     void setValueTwoText(int hp){
         if (hp/10>1){
-            value_two_text.setText(
+            mValueTwoText.setText(
                     String.format("%s", hp)
             );
         }
         else{
-            value_two_text.setText(
+            mValueTwoText.setText(
                     String.format(" %s", hp)
             );
         }
     }
 
-    int Get_Money(){
-        return money;
+    int getMoney(){
+        return mMoney;
     }
-    void Set_Money(int money){
-        this.money = money;
+    void setMoney(int money){
+        this.mMoney = money;
     }
 
     public byte getIdInArray() {
@@ -218,5 +234,12 @@ class Card_Table extends Card {
     }
     public static void setGearScoreRangeRate(float gearScoreRangeRate) {
         sGearScoreRangeRate = gearScoreRangeRate;
+    }
+
+    public boolean isLogin() {
+        return mLogin;
+    }
+    public void setLogin(boolean login) {
+        mLogin = login;
     }
 }

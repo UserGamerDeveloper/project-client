@@ -21,4 +21,5 @@
 #-renamesourcefileattribute SourceFile
 
 -dontwarn com.squareup.picasso.OkHttpDownloader
--dontwarn com.squareup.picasso.OkHttp3Downloader
+-dontwarn okhttp3.**
+-dontwarn okio.**

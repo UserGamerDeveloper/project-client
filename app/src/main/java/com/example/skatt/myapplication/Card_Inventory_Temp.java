@@ -10,7 +10,7 @@ public class Card_Inventory_Temp {
     int mGearScore;
     int TEST_MOB_GEARSCORE;
 
-    void Copy(Card_Inventory card){
+    void Copy(CardInventory card){
 
         this.value_one = card.getValueOne();
         this.id_drawable = card.getIdDrawable();

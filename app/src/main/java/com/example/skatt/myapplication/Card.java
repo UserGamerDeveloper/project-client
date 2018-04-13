@@ -11,13 +11,13 @@ import com.squareup.picasso.Picasso;
 
 public class Card extends ConstraintLayout {
 
-    protected static final int card_back = R.drawable.card_back;
-    int type;
+    protected static final int CARD_BACK = R.drawable.card_back;
+    int mType;
     int mValueOne;
     int mIdDrawable;
-    ImageView imageView;
+    ImageView mImageView;
     TextView mNameText;
-    TextView value_one_text;
+    TextView mValueOneText;
     int mGearScore;
     TextView TEST_GearScoreText;
     int mSubType;
@@ -36,47 +36,47 @@ public class Card extends ConstraintLayout {
 
         this.mValueOne = card.getValueOne();
         this.mIdDrawable = card.getIdDrawable();
-        Picasso.with(getContext()).load(mIdDrawable).placeholder(R.color.color_black).into(imageView);
+        Picasso.with(getContext()).load(mIdDrawable).placeholder(R.color.color_black).into(mImageView);
 /*
-        this.imageView.setImageResource(mIdDrawable);
+        this.mImageView.setImageResource(mIdDrawable);
 */
         this.mNameText.setText(card.mNameText.getText());
         this.mNameText.setVisibility(card.mNameText.getVisibility());
-        this.value_one_text.setText(card.value_one_text.getText());
-        this.value_one_text.setVisibility(card.value_one_text.getVisibility());
-        this.type = card.getType();
+        this.mValueOneText.setText(card.mValueOneText.getText());
+        this.mValueOneText.setVisibility(card.mValueOneText.getVisibility());
+        this.mType = card.getType();
         this.mGearScore = card.getGearScore();
         this.TEST_GearScoreText.setText(String.format("%d", mGearScore));
     }
 
     void open() {
         this.mNameText.setVisibility(View.VISIBLE);
-        Picasso.with(getContext()).load(mIdDrawable).placeholder(R.color.color_black).into(imageView);
+        Picasso.with(getContext()).load(mIdDrawable).placeholder(R.color.color_black).into(mImageView);
 /*
-        this.imageView.setImageResource(mIdDrawable);
+        this.mImageView.setImageResource(mIdDrawable);
 */
     }
 
     void close(int card_back) {
 
         this.mNameText.setVisibility(View.INVISIBLE);
-        this.value_one_text.setVisibility(View.INVISIBLE);
-        Picasso.with(getContext()).load(card_back).placeholder(R.color.color_black).into(imageView);
+        this.mValueOneText.setVisibility(View.INVISIBLE);
+        Picasso.with(getContext()).load(card_back).placeholder(R.color.color_black).into(mImageView);
 /*
-        this.imageView.setImageResource(card_back);
+        this.mImageView.setImageResource(CARD_BACK);
 */
         this.mIdDrawable = card_back;
     }
 
     boolean isClose(){
-        return mIdDrawable == card_back;
+        return mIdDrawable == CARD_BACK;
     }
 
     int getType(){
-        return type;
+        return mType;
     }
     void setType(int type){
-        this.type = type;
+        this.mType = type;
     }
 
     int getValueOne(){
@@ -88,12 +88,12 @@ public class Card extends ConstraintLayout {
 
     void setValueOneText(int hp){
         if (hp/10>1){
-            value_one_text.setText(
+            mValueOneText.setText(
                     String.format("%s", hp)
             );
         }
         else{
-            value_one_text.setText(
+            mValueOneText.setText(
                     String.format(" %s", hp)
             );
         }
