@@ -1042,7 +1042,7 @@ public class MainActivity extends AppCompatActivity {
         );
         Log.d("post", data);
         Request request = new Request.Builder()
-                .url("https://88.80.54.209:4430/"+text)
+                .url("https://88.80.51.97:4430/"+text)
                 .post(body)
                 .build();
         Call call = client.newCall(request);
@@ -1064,9 +1064,8 @@ public class MainActivity extends AppCompatActivity {
         mMoneyText.setText(String.format("%d", mMoneyBank));
     }
 
-    final String SERVER_CLIENT_ID = "925238805882-72kg4srauv9f2ph2cf905r2cjhtbndbo.apps.googleusercontent.com";
     GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestServerAuthCode(SERVER_CLIENT_ID)
+            .requestServerAuthCode("925238805882-72kg4srauv9f2ph2cf905r2cjhtbndbo.apps.googleusercontent.com")
             .requestEmail()
             .build();
 
@@ -1109,6 +1108,32 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("login responseStr", responseStr);
                     MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
                     if (!myResponse.isError()){
+                        SQLiteDatabase data_base = mDBOpenHelper.getReadableDatabase();
+
+                        String[] column_name = {
+                                DBOpenHelper.HP,
+                                DBOpenHelper.COSTRESET
+                        };
+
+                        Cursor cursor = data_base.query(
+                                DBOpenHelper.sTableTest,
+                                column_name,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null
+                        );
+                        cursor.moveToFirst();
+
+                        mHpMaxDefault = cursor.getInt(
+                                cursor.getColumnIndexOrThrow(DBOpenHelper.HP)
+                        );
+                        mStatsResetCost = cursor.getInt(
+                                cursor.getColumnIndexOrThrow(DBOpenHelper.COSTRESET)
+                        );
+                        cursor.close();
+
                         LoginResponce loginResponce = mJackson.readValue(
                                 myResponse.getData(),
                                 LoginResponce.class
@@ -2995,32 +3020,6 @@ public class MainActivity extends AppCompatActivity {
                     mCardsTable[4].setIDMob(startCardTableID[2]);
                     mCardsTable[6].setIDMob(startCardTableID[3]);
 
-                    SQLiteDatabase data_base = mDBOpenHelper.getReadableDatabase();
-
-                    String[] column_name = {
-                            DBOpenHelper.HP,
-                            DBOpenHelper.COSTRESET
-                    };
-
-                    Cursor cursor = data_base.query(
-                            DBOpenHelper.sTableTest,
-                            column_name,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null
-                    );
-                    cursor.moveToFirst();
-
-                    mHpMaxDefault = cursor.getInt(
-                            cursor.getColumnIndexOrThrow(DBOpenHelper.HP)
-                    );
-                    mStatsResetCost = cursor.getInt(
-                            cursor.getColumnIndexOrThrow(DBOpenHelper.COSTRESET)
-                    );
-                    cursor.close();
-
                     mTable.post(new Runnable() {
                         @Override
                         public void run() {
@@ -3140,14 +3139,41 @@ public class MainActivity extends AppCompatActivity {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mStats.reset();
-                moneyChange(-mStatsResetCost);
-                mDialogWindow.close();
+                String requestString = null;
+                try {
+                    requestString = mJackson.writeValueAsString(request);
+                }
+                catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
+                post("stats/reset", requestString, new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        Log.d("stats/reset onFailure", e.toString());
+                    }
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        String responseStr = response.body().string();
+                        Log.d("stats/reset response ", responseStr);
+                        MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
+                        if (!myResponse.isError()){
+                            mTable.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mStats.reset();
+                                    moneyBankChange(-mStatsResetCost);
+                                    mDialogWindow.close();
+                                    Log.d("stats reset", " ok");
+                                }
+                            });
+                        }
+                    }
+                });
             }
         };
     }
     public void onClickStatsReset(View view){
-        if (mMoney >=mStatsResetCost){
+        if (mMoneyBank >= mStatsResetCost){
             mDialogWindow.openDialog(
                     String.format("Сбросить всё за %d золота.", mStatsResetCost),
                     onClickStatsResetListener
@@ -3155,7 +3181,7 @@ public class MainActivity extends AppCompatActivity {
         }
         else{
             mDialogWindow.openInfo(
-                    String.format("Недостаточно %d золота.", mStatsResetCost- mMoney)
+                    String.format("Недостаточно %d золота.", mStatsResetCost - mMoney)
             );
         }
     }

@@ -253,16 +253,18 @@ class Stats {
 
     void reset(){
         setPoints(mLevel);
+        mPointsTemp = mPoints;
         mDamagePoints = 0;
-        mDamageBonusText.setText(String.format("Damage: +%d", mDamagePoints));
+        mDamageBonusText.setText(String.format("%d", mDamagePoints));
         mDefencePoints = 0;
-        mDefenceBonusText.setText(String.format("Defence: +%d", mDefencePoints));
+        mDefenceBonusText.setText(String.format("%d", mDefencePoints));
         mHPPoints = 0;
-        mHPBonusText.setText(String.format("HP: +%d", mHPPoints));
-        mDamageButtonPlus.setClickable(true);
-        mDefenceButtonPlus.setClickable(true);
-        mHPButtonPlus.setClickable(true);
+        mHPBonusText.setText(String.format("%d", mHPPoints));
+        mDamageButtonPlus.setVisibility(View.VISIBLE);
+        mDefenceButtonPlus.setVisibility(View.VISIBLE);
+        mHPButtonPlus.setVisibility(View.VISIBLE);
         mResetButton.setClickable(false);
+        mResetButton.setVisibility(View.INVISIBLE);
     }
 
     void setPointsTemp(int points){
@@ -279,7 +281,7 @@ class Stats {
 
     void setVisibility() {
         if (mLayout.getVisibility()==View.GONE){
-            mPointsTemp = mPoints;
+            setPointsTemp(mPoints);
             mDamageBonusText.setText(String.valueOf(mDamagePoints));
             mDefenceBonusText.setText(String.valueOf(mDefencePoints));
             mHPBonusText.setText(String.valueOf(mHPPoints));
@@ -292,7 +294,6 @@ class Stats {
                 mResetButton.setVisibility(View.INVISIBLE);
                 mResetButton.setClickable(false);
             }
-            mPointsText.setText(String.format("Количество очков: %d", mPoints));
             mLayout.setVisibility(View.VISIBLE);
         }
         else{
