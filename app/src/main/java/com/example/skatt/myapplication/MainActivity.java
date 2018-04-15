@@ -488,82 +488,113 @@ public class MainActivity extends AppCompatActivity {
                     mIsAnimate = true;
                     Log.d("mIsAnimate", String.valueOf(mIsAnimate));
                     mCardTableTarget = (CardTable) v;
-                    if(mCardTableTarget.getType()== CardTableType.MOB){
-                        mCardTableTarget.bringToFront();
-                        mCardTableTarget.getTargetAnimation().start();
-                        mCardTableTarget.setOnClickListener(mDamagListener);
+                    String requestString = null;
+                    try {
+                        request.setData(mJackson.writeValueAsString(mCardTableTarget.getIdInArray()));
+                        requestString = mJackson.writeValueAsString(request);
                     }
-                    if (mCardTableTarget.getType()==CardTableType.VENDOR){
-                        card_6_animation_click_vendor.start();
-                        if(mCardTableTarget.getSubType()== CardTableSubType.TRADER){
-                            mShadow.bringToFront();
-                            mCardTableTarget.bringToFront();
-                            Picasso.with(getBaseContext()).load(R.drawable.navik_torgovca).into(mTradeSkillImage);
-                            mTradeSkillImage.setOnClickListener(mOnClickVendorSkill);
-                            for (byte i = 0; i< LOOT_MAX_COUNT; i++){
-                                mTradeItem[i].change(mStats, mDBOpenHelper,random, mGearScore);
-                                mTradeItem[i].open();
-                                mTradeItem[i].setVisibility(View.VISIBLE);
-                                mTradeCost[i].setText(String.format("%d", mTradeItem[i].getCost()));
-                                mTradeCost[i].setVisibility(View.VISIBLE);
-                                mTradeCostImage[i].setVisibility(View.VISIBLE);
-                            }
-                            mTradeSkill.setVisibility(View.VISIBLE);
-                            mTradeZone.setVisibility(View.VISIBLE);
-                            mTable.setOnDragListener(null);
+                    catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
+                    post("target", requestString, new Callback() {
+                        @Override
+                        public void onFailure(Call call, IOException e) {
+                            Log.d("target onFailure", e.toString());
                         }
-                        if (mCardTableTarget.getSubType()== CardTableSubType.BLACKSMITH){
-                            mShadow.bringToFront();
-                            mCardTableTarget.bringToFront();
-                            Picasso.with(getBaseContext()).load(R.drawable.navik_kuznecaa).into(mTradeSkillImage);
-                            mTradeSkillImage.setOnClickListener(null);
-                            for (byte i = 0; i< LOOT_MAX_COUNT; i++){
-                                mTradeItem[i].change(mStats, mDBOpenHelper,random, mGearScore, random.nextInt(2));
-                                mTradeItem[i].open();
-                                mTradeItem[i].setVisibility(View.VISIBLE);
-                                mTradeItem[i].setDurability(mTradeItem[i].getDurabilityMax());
-                                mTradeCost[i].setText(String.format("%d", mTradeItem[i].getCost()));
-                                mTradeCost[i].setVisibility(View.VISIBLE);
-                                mTradeCostImage[i].setVisibility(View.VISIBLE);
+                        @Override
+                        public void onResponse(Call call, Response response) throws IOException {
+                            String responseStr = response.body().string();
+                            Log.d("target response ", responseStr);
+                            MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
+                            if (!myResponse.isError()){
+                                mTable.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if(mCardTableTarget.getType()== CardTableType.MOB){
+                                            mCardTableTarget.bringToFront();
+                                            mCardTableTarget.getTargetAnimation().start();
+                                            mCardTableTarget.setOnClickListener(mDamagListener);
+                                        }
+                                        if (mCardTableTarget.getType()==CardTableType.VENDOR){
+                                            card_6_animation_click_vendor.start();
+                                            if(mCardTableTarget.getSubType()== CardTableSubType.TRADER){
+                                                mShadow.bringToFront();
+                                                mCardTableTarget.bringToFront();
+                                                Picasso.with(getBaseContext())
+                                                        .load(R.drawable.navik_torgovca)
+                                                        .into(mTradeSkillImage);
+                                                mTradeSkillImage.setOnClickListener(mOnClickVendorSkill);
+                                                for (byte i = 0; i< LOOT_MAX_COUNT; i++){
+                                                    mTradeItem[i].change(mStats, mDBOpenHelper,random, mGearScore);
+                                                    mTradeItem[i].open();
+                                                    mTradeItem[i].setVisibility(View.VISIBLE);
+                                                    mTradeCost[i].setText(String.format("%d", mTradeItem[i].getCost()));
+                                                    mTradeCost[i].setVisibility(View.VISIBLE);
+                                                    mTradeCostImage[i].setVisibility(View.VISIBLE);
+                                                }
+                                                mTradeSkill.setVisibility(View.VISIBLE);
+                                                mTradeZone.setVisibility(View.VISIBLE);
+                                                mTable.setOnDragListener(null);
+                                            }
+                                            if (mCardTableTarget.getSubType()== CardTableSubType.BLACKSMITH){
+                                                mShadow.bringToFront();
+                                                mCardTableTarget.bringToFront();
+                                                Picasso.with(getBaseContext())
+                                                        .load(R.drawable.navik_kuznecaa)
+                                                        .into(mTradeSkillImage);
+                                                mTradeSkillImage.setOnClickListener(null);
+                                                for (byte i = 0; i< LOOT_MAX_COUNT; i++){
+                                                    mTradeItem[i].change(mStats, mDBOpenHelper,random, mGearScore, random.nextInt(2));
+                                                    mTradeItem[i].open();
+                                                    mTradeItem[i].setVisibility(View.VISIBLE);
+                                                    mTradeItem[i].setDurability(mTradeItem[i].getDurabilityMax());
+                                                    mTradeCost[i].setText(String.format("%d", mTradeItem[i].getCost()));
+                                                    mTradeCost[i].setVisibility(View.VISIBLE);
+                                                    mTradeCostImage[i].setVisibility(View.VISIBLE);
+                                                }
+                                                mTradeSkill.setVisibility(View.VISIBLE);
+                                                mTradeZone.setVisibility(View.VISIBLE);
+                                                mTable.setOnDragListener(null);
+                                            }
+                                            if (mCardTableTarget.getSubType()== CardTableSubType.INNKEEPER){
+                                                mShadow.bringToFront();
+                                                mCardTableTarget.bringToFront();
+                                                Picasso.with(getBaseContext())
+                                                        .load(R.drawable.navik_traktirshika)
+                                                        .into(mTradeSkillImage);
+                                                mTradeSkillImage.setOnClickListener(mOnClickInnkeeperSkill);
+                                                for (byte i = 0; i< LOOT_MAX_COUNT; i++){
+                                                    mTradeItem[i].change(mStats, mDBOpenHelper,random, mGearScore, InventoryType.FOOD);
+                                                    mTradeItem[i].open();
+                                                    mTradeItem[i].setVisibility(View.VISIBLE);
+                                                    mTradeCost[i].setText(String.format("%d", mTradeItem[i].getCost()));
+                                                    mTradeCost[i].setVisibility(View.VISIBLE);
+                                                    mTradeCostImage[i].setVisibility(View.VISIBLE);
+                                                }
+                                                mTradeSkill.setVisibility(View.VISIBLE);
+                                                mTradeZone.setVisibility(View.VISIBLE);
+                                                mTable.setOnDragListener(null);
+                                            }
+                                        }
+                                        if (mCardTableTarget.getType()== CardTableType.HALT){
+                                            mShadow.bringToFront();
+                                            mCardTableTarget.bringToFront();
+                                            mCardTableTarget.getTargetAnimation().start();
+                                            changeHP(mHpMax);
+                                            mCardTableTarget.getChangeAnimation().start();
+                                        }
+                                        if (mCardTableTarget.getType()== CardTableType.CHEST){
+                                            mShadow.bringToFront();
+                                            mCardTableTarget.bringToFront();
+                                            mCardTableTarget.getTargetAnimation().start();
+                                            mCardTableTarget.getCloseAnimation().start();
+                                            //moneyChange(mCardTableTarget.getMoney());
+                                        }
+                                    }
+                                });
                             }
-                            mTradeSkill.setVisibility(View.VISIBLE);
-                            mTradeZone.setVisibility(View.VISIBLE);
-                            mTable.setOnDragListener(null);
                         }
-                        if (mCardTableTarget.getSubType()== CardTableSubType.INNKEEPER){
-                            mShadow.bringToFront();
-                            mCardTableTarget.bringToFront();
-                            Picasso.with(getBaseContext()).load(R.drawable.navik_traktirshika).into(mTradeSkillImage);
-                            mTradeSkillImage.setOnClickListener(mOnClickInnkeeperSkill);
-                            for (byte i = 0; i< LOOT_MAX_COUNT; i++){
-                                mTradeItem[i].change(mStats, mDBOpenHelper,random, mGearScore, InventoryType.FOOD);
-                                mTradeItem[i].open();
-                                mTradeItem[i].setVisibility(View.VISIBLE);
-                                mTradeCost[i].setText(String.format("%d", mTradeItem[i].getCost()));
-                                mTradeCost[i].setVisibility(View.VISIBLE);
-                                mTradeCostImage[i].setVisibility(View.VISIBLE);
-                            }
-                            mTradeSkill.setVisibility(View.VISIBLE);
-                            mTradeZone.setVisibility(View.VISIBLE);
-                            mTable.setOnDragListener(null);
-                        }
-                    }
-                    if (mCardTableTarget.getType()== CardTableType.HALT){
-                        mShadow.bringToFront();
-                        mCardTableTarget.bringToFront();
-                        mCardTableTarget.getTargetAnimation().start();
-                        changeHP(mHpMax);
-                        mCardTableTarget.getChangeAnimation().start();
-                    }
-                    if (mCardTableTarget.getType()== CardTableType.CHEST){
-                        mShadow.bringToFront();
-                        mCardTableTarget.bringToFront();
-                        mCardTableTarget.getTargetAnimation().start();
-                        mCardTableTarget.getCloseAnimation().start();
-/*
-                        moneyChange(mCardTableTarget.getMoney());
-*/
-                    }
+                    });
                 }
             }
         };
@@ -1042,7 +1073,7 @@ public class MainActivity extends AppCompatActivity {
         );
         Log.d("post", data);
         Request request = new Request.Builder()
-                .url("https://88.80.51.97:4430/"+text)
+                .url("https://85.140.87.135:4430/"+text)
                 .post(body)
                 .build();
         Call call = client.newCall(request);
