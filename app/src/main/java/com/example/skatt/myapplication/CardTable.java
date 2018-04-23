@@ -8,8 +8,6 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.TextView;
 
-import java.util.Random;
-
 class CardTable extends Card {
 
     private static final int CARD_CENTER_BACK = R.drawable.perekrestok;
@@ -46,26 +44,8 @@ class CardTable extends Card {
         super(context, attrs, defStyleAttr);
     }
 
-    void change(DBOpenHelper db_open_helper, Random random, int gearScore){
-        gearScore = 0;
+    void load(DBOpenHelper db_open_helper){
         SQLiteDatabase data_base = db_open_helper.getReadableDatabase();
-
-        Cursor cursor = data_base.query(
-                DBOpenHelper.table_mobs,
-                COLUMN_NAME,
-                DBOpenHelper.GEARSCORE + ">=? AND "+ DBOpenHelper.GEARSCORE + "<=?",
-                new String[]{(gearScore* sGearScoreRangeRate)+"",gearScore+""},
-                null,
-                null,
-                null
-        );
-        cursor.moveToPosition(random.nextInt(cursor.getCount()));
-
-        setData(cursor);
-    }
-    void change(DBOpenHelper db_open_helper){
-        SQLiteDatabase data_base = db_open_helper.getReadableDatabase();
-
         Cursor cursor = data_base.query(
                 DBOpenHelper.table_mobs,
                 COLUMN_NAME,
@@ -76,10 +56,7 @@ class CardTable extends Card {
                 null
         );
         cursor.moveToFirst();
-
-        setData(cursor);
-    }
-    private void setData(Cursor cursor) {
+        //region set data
         mNameText.setText(
                 cursor.getString(
                         cursor.getColumnIndexOrThrow(DBOpenHelper.name)
@@ -123,13 +100,13 @@ class CardTable extends Card {
                     cursor.getColumnIndexOrThrow(DBOpenHelper.EXPERIENCE)
             );
         }
-
+        //endregion
         cursor.close();
     }
 
-    void Copy(CardTable card){
-
+    void copy(CardTable card){
         super.copy(card);
+        mIDMob = card.getIDMob();
         this.mValueTwo = card.getValueTwo();
         this.mValueTwoText.setText(card.mValueTwoText.getText());
         this.mValueTwoText.setVisibility(card.mValueTwoText.getVisibility());
@@ -146,6 +123,7 @@ class CardTable extends Card {
 
     void close(int card_back) {
         super.close(card_back);
+        this.mIDMob = null;
         this.mValueTwoText.setVisibility(View.INVISIBLE);
     }
     boolean isClose(){
@@ -173,12 +151,19 @@ class CardTable extends Card {
     int getValueTwo(){
         return mValueTwo;
     }
-    void setValueTwo(int damage){
-        mValueTwo = damage;
+    void setValueTwo(int valueTwo){
+        mValueTwo = valueTwo;
     }
     void setValueTwoInUIThread(int damage){
         this.mValueTwo = damage;
-        this.setValueTwoText(damage);
+        this.updateValueTwoText();
+    }
+    void changeValueTwo(int delta){
+        this.mValueTwo += delta;
+    }
+    void changeValueTwoInUIThread(int delta){
+        this.mValueTwo += delta;
+        this.updateValueTwoText();
     }
 
     void setValueTwoText(int hp){
@@ -190,6 +175,18 @@ class CardTable extends Card {
         else{
             mValueTwoText.setText(
                     String.format(" %s", hp)
+            );
+        }
+    }
+    void updateValueTwoText(){
+        if (mValueTwo/10>1){
+            mValueTwoText.setText(
+                    String.format("%s", mValueTwo)
+            );
+        }
+        else{
+            mValueTwoText.setText(
+                    String.format(" %s", mValueTwo)
             );
         }
     }

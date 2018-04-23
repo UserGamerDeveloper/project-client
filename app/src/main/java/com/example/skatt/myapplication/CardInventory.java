@@ -77,10 +77,10 @@ class CardInventory extends Card {
 
         setData(stats, random, cursor);
     }
-    void change(Stats stats, DBOpenHelper db_open_helper){
+    void load(Stats stats, DBOpenHelper db_open_helper){
         SQLiteDatabase data_base = db_open_helper.getReadableDatabase();
 
-        Log.d("mIDMob.toString()", mIDItem.toString());
+        Log.d("mIDItem.toString()", mIDItem.toString());
         Cursor cursor = data_base.query(
                 DBOpenHelper.table_inventory,
                 COLUMN_NAME,
@@ -93,7 +93,7 @@ class CardInventory extends Card {
 
         setData(stats, new Random(), cursor);
     }
-    private void setData(Stats stats, Random random, Cursor cursor) {
+    protected void setData(Stats stats, Random random, Cursor cursor) {
         cursor.moveToPosition(random.nextInt(cursor.getCount()));
 
         this.mGearScore = cursor.getInt(
@@ -142,7 +142,6 @@ class CardInventory extends Card {
                 cursor.getColumnIndexOrThrow(DBOpenHelper.id_image)
         );
 
-
         this.mCost = cursor.getInt(
                 cursor.getColumnIndexOrThrow(DBOpenHelper.cost)
         );
@@ -154,9 +153,14 @@ class CardInventory extends Card {
         super.open();
         this.mValueOneText.setVisibility(View.VISIBLE);
     }
+    void close(int card_back) {
+        super.close(card_back);
+        this.mIDItem = null;
+    }
 
     void copy(CardInventory card){
         super.copy(card);
+        mIDItem = card.getIDItem();
         this.mValueOneText.setVisibility(View.VISIBLE);
         this.mDurability = card.getDurability();
         this.mCost = card.getCost();

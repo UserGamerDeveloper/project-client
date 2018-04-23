@@ -1,13 +1,16 @@
 package com.example.skatt.myapplication;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class CardHand extends CardInventory {
+import java.util.Random;
 
-    byte mIDDefault;
+public class CardHand extends CardInventory {
+    int mIDDrawableDefault;
+    byte mIDDefault = 0;
     TextView mDurabilityText;
     ImageView mDurabilityImage;
 
@@ -19,6 +22,14 @@ public class CardHand extends CardInventory {
     }
     public CardHand(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+    }
+
+    @Override
+    protected void setData(Stats stats, Random random, Cursor cursor) {
+        super.setData(stats,random,cursor);
+        if (mIDItem==mIDDefault){
+            mIdDrawable = mIDDrawableDefault;
+        }
     }
 
     @Override
@@ -35,9 +46,15 @@ public class CardHand extends CardInventory {
         setDurabilityText(mDurability);
     }
     void copy(Card_Inventory_Temp card){
-
         super.copy(card);
         setDurabilityText(mDurability);
+    }
+
+    public int getIDDrawableDefault() {
+        return mIDDrawableDefault;
+    }
+    public void setIDDrawableDefault(int IDDrawableDefault) {
+        mIDDrawableDefault = IDDrawableDefault;
     }
 
     public byte getIDDefault() {

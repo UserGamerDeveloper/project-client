@@ -166,7 +166,7 @@ public class DBOpenHelper extends SQLiteOpenHelper {
 
         ContentValues values = new ContentValues();
 
-        values.put(DBOpenHelper.id, 17);
+        values.put(DBOpenHelper.id, 1);
         values.put(DBOpenHelper.name, "Яблоко");
         values.put(DBOpenHelper.VALUEONE, 1);
         values.put(DBOpenHelper.id_image, R.drawable.yablachko);
@@ -333,18 +333,6 @@ public class DBOpenHelper extends SQLiteOpenHelper {
 
         sqLiteDatabase.insert(DBOpenHelper.table_inventory, null, values);
 
-        values.put(DBOpenHelper.id, 1);
-        values.put(DBOpenHelper.name, "Кулак");
-        values.put(DBOpenHelper.VALUEONE, 1);
-        values.put(DBOpenHelper.id_image, R.drawable.kulak_pravo);
-        values.put(DBOpenHelper.type, InventoryType.WEAPON);
-        values.put(DBOpenHelper.cost, 0);
-        values.put(DBOpenHelper.GEARSCORE, 0);
-        values.put(DBOpenHelper.MOBGEARSCORE, 99999);
-        values.put(DBOpenHelper.DURABILITY, 0);
-
-        sqLiteDatabase.insert(DBOpenHelper.table_inventory, null, values);
-
         values.put(DBOpenHelper.id, 11);
         values.put(DBOpenHelper.name, "Вилы");
         values.put(DBOpenHelper.VALUEONE, 6);
@@ -405,7 +393,7 @@ public class DBOpenHelper extends SQLiteOpenHelper {
 
         sqLiteDatabase.insert(DBOpenHelper.table_inventory, null, values);
     }
-    //17
+    //16
     private void Set_Mobs(SQLiteDatabase sqLiteDatabase) {
 
         ContentValues values = new ContentValues();

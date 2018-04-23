@@ -55,8 +55,11 @@ public class LoginResponce {
     public StatsResponse getStats() {
         return mStats;
     }
-    public Byte getCardTableTargetID() {
-        return mCardTableTargetID;
+    public Byte getCardTableTargetIDInArray() {
+        return mCardTableTargetIDInArray;
+    }
+    public void setCardTableTargetIDInArray(Byte cardTableTargetIDInArray) {
+        mCardTableTargetIDInArray = cardTableTargetIDInArray;
     }
 
     public void setHP(byte HP) {
@@ -95,9 +98,6 @@ public class LoginResponce {
     public void setCardTable7(Byte cardTable7) {
         mCardTable7 = cardTable7;
     }
-    public void setCardTableTargetID(Byte cardTableTargetID) {
-        mCardTableTargetID = cardTableTargetID;
-    }
     public void setCardTableTargetHP(Byte cardTableTargetHP) {
         mCardTableTargetHP = cardTableTargetHP;
     }
@@ -126,7 +126,7 @@ public class LoginResponce {
     private Byte mCardTable5;
     private Byte mCardTable6;
     private Byte mCardTable7;
-    private Byte mCardTableTargetID;
+    private Byte mCardTableTargetIDInArray;
     private Byte mCardTableTargetHP;
     private List<CardPlayerResponse> mInventory =new ArrayList<>();
     private List<CardPlayerResponse> mLoot =new ArrayList<>();
