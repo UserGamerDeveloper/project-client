@@ -240,16 +240,16 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("use/food responseStr", responseStr);
                 MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
                 if (!myResponse.isError()){
-                    changeHP(mTargetSwap.getValueOne());
-                    mInventoryItemCount--;
-                    changeGearScore(-mTargetSwap.getGearScore());
-                    inventorySort();
-                    if (mState == State.SELECT_LOOT){
-                        tryPickingLoot();
-                    }
-                    targetReset();
-                    Log.d("targetReset", "use food");
                     mTable.post(() -> {
+                        changeHP(mTargetSwap.getValueOne());
+                        mInventoryItemCount--;
+                        changeGearScore(-mTargetSwap.getGearScore());
+                        inventorySort();
+                        if (mState == State.SELECT_LOOT){
+                            tryPickingLoot();
+                        }
+                        targetReset();
+                        Log.d("targetReset", "use food");
                         updateHPText();
                     });
                 }
@@ -278,31 +278,41 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("use/spell responseStr", responseStr);
                 MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
                 if (!myResponse.isError()){
-                    mCardTableTarget.changeValueTwo(-mTargetSwap.getValueOne());
-                    changeGearScore(-mTargetSwap.getGearScore());
-                    mInventoryItemCount--;
-                    inventorySort();
-                    tryPickingLoot();
-                    targetReset();
-                    Log.d("targetReset", "use spell");
-                    if (mCardTableTarget.getValueTwo() < 1) {
-                        DamageResponse damageResponse = mJackson.readValue(
-                                myResponse.getData(),
-                                DamageResponse.class
-                        );
-                        mNextCardTable = damageResponse.getCardTableID();
-                        CardPlayerResponse[] loot = mJackson.readValue(
-                                damageResponse.getLoot(),
-                                CardPlayerResponse[].class
-                        );
-                        mLootCount = loot.length;
-                        for (int i = 0; i < mLootCount; i++) {
-                            mLoot[i].bringToFront();
-                            mLoot[i].setIDItem(loot[i].getIdItem());
-                            mLoot[i].setDurability(loot[i].getDurability());
-                        }
-                    }
                     mTable.post(() -> {
+                        mCardTableTarget.changeValueTwo(-mTargetSwap.getValueOne());
+                        changeGearScore(-mTargetSwap.getGearScore());
+                        mInventoryItemCount--;
+                        inventorySort();
+                        tryPickingLoot();
+                        targetReset();
+                        Log.d("targetReset", "use spell");
+                        if (mCardTableTarget.getValueTwo() < 1) {
+                            DamageResponse damageResponse = null;
+                            try {
+                                damageResponse = mJackson.readValue(
+                                        myResponse.getData(),
+                                        DamageResponse.class
+                                );
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            mNextCardTable = damageResponse.getCardTableID();
+                            CardPlayerResponse[] loot = new CardPlayerResponse[0];
+                            try {
+                                loot = mJackson.readValue(
+                                        damageResponse.getLoot(),
+                                        CardPlayerResponse[].class
+                                );
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            mLootCount = loot.length;
+                            for (int i = 0; i < mLootCount; i++) {
+                                mLoot[i].bringToFront();
+                                mLoot[i].setIDItem(loot[i].getIdItem());
+                                mLoot[i].setDurability(loot[i].getDurability());
+                            }
+                        }
                         if (mCardTableTarget.getValueTwo() < 1) {
                             mobDead();
                         }
@@ -1330,7 +1340,6 @@ public class MainActivity extends AppCompatActivity {
                             setTextSize();
                             setAnimators();
                             updateMoneyBankText();
-                            updateHPText();
                             mStats.updateLevelAndExperienceTextInThreadUI();
                             mIsAnimate = false;
                             Log.d("mIsAnimate", String.valueOf(mIsAnimate));
@@ -1464,6 +1473,7 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                 }
                             }
+                            updateHPText();
                             findViewById(R.id.signLayout).setVisibility(View.GONE);
                         });
                     }
