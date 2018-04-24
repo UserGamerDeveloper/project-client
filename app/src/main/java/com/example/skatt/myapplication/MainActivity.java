@@ -1044,7 +1044,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void tryContinue() {
         if (mLootCount < 1 && mState == State.SELECT_LOOT) {
-            onClickButtonContinue(null);
+            if (mNextCardTable==null){
+                onClickButtonContinue(null);
+            }
+            else{
+                setSelectTarget();
+            }
         }
     }
 
@@ -1224,7 +1229,7 @@ public class MainActivity extends AppCompatActivity {
         );
         Log.d("post", data);
         Request request = new Request.Builder()
-                .url("https://88.80.48.232:4430/"+text)
+                .url("https://88.80.40.243:4430/"+text)
                 .post(body)
                 .build();
         Call call = client.newCall(request);
@@ -1341,8 +1346,7 @@ public class MainActivity extends AppCompatActivity {
                             setAnimators();
                             updateMoneyBankText();
                             mStats.updateLevelAndExperienceTextInThreadUI();
-                            mIsAnimate = false;
-                            Log.d("mIsAnimate", String.valueOf(mIsAnimate));
+                            mIsAnimate = true;
                             if (mState!=State.NONE){
                                 mHp = loginResponce.getHP();
                                 mMoney = loginResponce.getMoney();
@@ -1440,6 +1444,7 @@ public class MainActivity extends AppCompatActivity {
                                         }
                                     }
                                 }
+                                mIsAnimate = false;
                                 if (mState!=State.SELECT_TARGET){
                                     mCardTableTarget = mCardsTable[loginResponce.getCardTableTargetIDInArray()];
                                     mCardTableTarget.bringToFront();
@@ -1452,6 +1457,7 @@ public class MainActivity extends AppCompatActivity {
                                         mCardTableTarget.setOnClickListener(mDamagListener);
                                     }
                                     if (mState==State.SELECT_LOOT) {
+                                        mIsAnimate = true;
                                         List<CardPlayerResponse> loot = loginResponce.getLoot();
                                         for (mLootCount = 0; mLootCount<loot.size();mLootCount++){
                                             CardPlayerResponse cardPlayerResponse = loot.get(mLootCount);
@@ -1473,6 +1479,7 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                 }
                             }
+                            Log.d("mIsAnimate", String.valueOf(mIsAnimate));
                             updateHPText();
                             findViewById(R.id.signLayout).setVisibility(View.GONE);
                         });
@@ -3141,28 +3148,25 @@ public class MainActivity extends AppCompatActivity {
                 MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
                 if (!myResponse.isError()){
                     mNextCardTable = mJackson.readValue(myResponse.getData(), byte[].class);
-                    mTable.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            collectionButton.setVisibility(View.GONE);
-                            statsButton.setVisibility(View.GONE);
-                            setHPInUIThread(mHpMaxDefault+mStats.getHPBonus());
-                            mHandOne.load(mStats, mDBOpenHelper);
-                            mGearScoreWeaponOrShieldInInventory.add(mHandOne.getGearScore());
-                            mHandTwo.load(mStats, mDBOpenHelper);
-                            mGearScoreWeaponOrShieldInInventory.add(mHandTwo.getGearScore());
-                            for (int i = 0; i < 8; i++) {
-                                mCardsTable[i].setVisibility(View.VISIBLE);
-                            }
-                            mCardCenter.setVisibility(View.VISIBLE);
-                            for (byte i = 0; i < INVENTORY_MAX_COUNT; i++) {
-                                mInventory[i].setOnClickListener(mInventoryOnClickSwap);
-                            }
-                            mHandOne.setOnClickListener(mInventoryOnClickSwap);
-                            mHandTwo.setOnClickListener(mInventoryOnClickSwap);
-                            setMoneyInUIThread(0);
-                            openCardTable.start();
+                    mTable.post(() -> {
+                        collectionButton.setVisibility(View.GONE);
+                        statsButton.setVisibility(View.GONE);
+                        setHPInUIThread(mHpMaxDefault+mStats.getHPBonus());
+                        mHandOne.load(mStats, mDBOpenHelper);
+                        mGearScoreWeaponOrShieldInInventory.add(mHandOne.getGearScore());
+                        mHandTwo.load(mStats, mDBOpenHelper);
+                        mGearScoreWeaponOrShieldInInventory.add(mHandTwo.getGearScore());
+                        for (int i = 0; i < 8; i++) {
+                            mCardsTable[i].setVisibility(View.VISIBLE);
                         }
+                        mCardCenter.setVisibility(View.VISIBLE);
+                        for (byte i = 0; i < INVENTORY_MAX_COUNT; i++) {
+                            mInventory[i].setOnClickListener(mInventoryOnClickSwap);
+                        }
+                        mHandOne.setOnClickListener(mInventoryOnClickSwap);
+                        mHandTwo.setOnClickListener(mInventoryOnClickSwap);
+                        setMoneyInUIThread(0);
+                        openCardTable.start();
                     });
                 }
             }
@@ -3170,6 +3174,45 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClickButtonContinue(View view) {
+        String requestString = null;
+        ArrayList<CardPlayerResponse> requestData = new ArrayList<>();
+        for (byte i = 0; i < INVENTORY_MAX_COUNT;i++) {
+            if (!mInventory[i].isEmpty()){
+                requestData.add(new CardPlayerResponse(mInventory[i].getIDItem(), i, (byte) mInventory[i].getDurability()));
+            }
+            else{
+                break;
+            }
+        }
+        requestData.add(new CardPlayerResponse(mHandOne.getIDItem(), (byte) 4, (byte) mHandOne.getDurability()));
+        requestData.add(new CardPlayerResponse(mHandTwo.getIDItem(), (byte) 5, (byte) mHandTwo.getDurability()));
+        try {
+            request.setData(mJackson.writeValueAsString(requestData));
+            requestString = mJackson.writeValueAsString(request);
+        }
+        catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        post("continue", requestString, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.d("continue onFailure", e.toString());
+            }
+            @Override
+            public void onResponse(final Call call, Response response) throws IOException {
+                String responseStr = response.body().string();
+                Log.d("continue responseStr", responseStr);
+                MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
+                if (!myResponse.isError()){
+                    mNextCardTable = mJackson.readValue(myResponse.getData(), byte[].class);
+                    mTable.post(() -> {
+                        setSelectTarget();
+                    });
+                }
+            }
+        });
+    }
+    private void setSelectTarget() {
         mState = State.SELECT_TARGET;
         for (byte i = 0; i < LOOT_MAX_COUNT; i++) {
             mLoot[i].close(mIdDrawableCardBack);

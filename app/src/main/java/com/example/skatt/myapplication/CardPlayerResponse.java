@@ -5,10 +5,14 @@ class CardPlayerResponse {
     private byte mIdItem;
     private byte mDurability;
 
-    public CardPlayerResponse() {
+    public CardPlayerResponse() {}
+    public CardPlayerResponse(byte idItem, byte slotId, byte durability) {
+        mIdItem = idItem;
+        mSlotId = slotId;
+        mDurability = durability;
     }
 
-    byte getDurability(){
+    public byte getDurability(){
         return mDurability;
     }
     public byte getSlotId() {
