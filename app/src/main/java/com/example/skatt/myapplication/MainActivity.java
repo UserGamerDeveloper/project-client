@@ -2495,10 +2495,10 @@ public class MainActivity extends AppCompatActivity {
         return v -> {
             String requestString = null;
             try {
-                Byte[] idHands = new Byte[2];
-                idHands[0] = mHandOne.getIDItem();
-                idHands[1] = mHandTwo.getIDItem();
-                request.setData(mJackson.writeValueAsString(idHands));
+                CardPlayerResponse[] cardPlayer = new CardPlayerResponse[2];
+                cardPlayer[0] = new CardPlayerResponse(mHandOne.getIDItem(),(byte)4, (byte)mHandOne.getDurability());
+                cardPlayer[1] = new CardPlayerResponse(mHandTwo.getIDItem(),(byte)5, (byte)mHandTwo.getDurability());
+                request.setData(mJackson.writeValueAsString(cardPlayer));
                 requestString = mJackson.writeValueAsString(request);
             }
             catch (JsonProcessingException e) {
