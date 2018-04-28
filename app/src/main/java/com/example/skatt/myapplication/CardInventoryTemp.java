@@ -1,6 +1,7 @@
 package com.example.skatt.myapplication;
 
-public class Card_Inventory_Temp {
+public class CardInventoryTemp {
+    private Byte mIDItem;
     int value_one;
     int id_drawable;
     private int type;
@@ -11,7 +12,7 @@ public class Card_Inventory_Temp {
     int TEST_MOB_GEARSCORE;
 
     void Copy(CardInventory card){
-
+        this.mIDItem = card.getIDItem();
         this.value_one = card.getValueOne();
         this.id_drawable = card.getIdDrawable();
         this.name_text = card.mNameText.getText();
@@ -20,6 +21,10 @@ public class Card_Inventory_Temp {
         this.cost = card.getCost();
         this.mGearScore = card.getGearScore();
         this.TEST_MOB_GEARSCORE = card.TEST_MOB_GEARSCORE;
+    }
+
+    public Byte getIDItem() {
+        return mIDItem;
     }
 
     boolean Is_Close(int card_back){

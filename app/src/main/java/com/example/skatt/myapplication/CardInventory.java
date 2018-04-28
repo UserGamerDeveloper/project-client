@@ -167,8 +167,8 @@ class CardInventory extends Card {
         this.TEST_MOB_GEARSCORE = card.TEST_MOB_GEARSCORE;
         TEST_MOB_GEARSCORE_TEXT.setText(this.TEST_MOB_GEARSCORE+"");
     }
-    void copy(Card_Inventory_Temp card){
-
+    void copy(CardInventoryTemp card){
+        this.mIDItem = card.getIDItem();
         this.mValueOne = card.Get_Hp();
         this.mIdDrawable = card.Get_Id_Drawable();
         Picasso.with(getContext()).load(mIdDrawable).placeholder(R.color.color_black).into(mImageView);

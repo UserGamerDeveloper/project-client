@@ -43,11 +43,11 @@ public class CardHand extends CardInventory {
 
     void copy(CardInventory card){
         super.copy(card);
-        setDurabilityText(mDurability);
+        updateDurabilityText();
     }
-    void copy(Card_Inventory_Temp card){
+    void copy(CardInventoryTemp card){
         super.copy(card);
-        setDurabilityText(mDurability);
+        updateDurabilityText();
     }
 
     public int getIDDrawableDefault() {
@@ -66,18 +66,18 @@ public class CardHand extends CardInventory {
 
     void setDurabilityInUIThread(int durability){
         super.setDurability(durability);
-        setDurabilityText(durability);
+        updateDurabilityText();
     }
 
-    void setDurabilityText(int durability){
-        if (durability/10>1){
+    void updateDurabilityText(){
+        if (mDurability/10>1){
             mDurabilityText.setText(
-                    String.format("%s", durability)
+                    String.format("%s", mDurability)
             );
         }
         else{
             mDurabilityText.setText(
-                    String.format(" %s", durability)
+                    String.format(" %s", mDurability)
             );
         }
     }

@@ -39,7 +39,6 @@ import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -61,14 +60,12 @@ import static android.util.TypedValue.COMPLEX_UNIT_PX;
 
 public class MainActivity extends AppCompatActivity {
 
-    int mTopGearScoreWeaponOrShieldInInventory;
-    ArrayList<Integer> mGearScoreWeaponOrShieldInInventory = new ArrayList<>(6);
     int mGearScore;
     int mMoney;
     int mMoneyBank = 0;
     int mHpMaxDefault;
     int mHpMax;
-    int mHp = mHpMax;
+    int mHp;
     CardTable mCardTableTarget;
     CardTable[] mCardsTable = new CardTable[8];
     final byte LOOT_MAX_COUNT = 3;
@@ -119,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
     float loot_animation_delta;
     AnimatorSet card_6_animation_click_vendor = new AnimatorSet();
     CardInventory mTargetSwap;
-    Card_Inventory_Temp inventory_temp = new Card_Inventory_Temp();
+    CardInventoryTemp inventory_temp = new CardInventoryTemp();
     AnimatorListenerAdapter target_on_animation_end = new AnimatorListenerAdapter() {
         @Override
         public void onAnimationStart(Animator animation) {
@@ -180,1362 +177,17 @@ public class MainActivity extends AppCompatActivity {
     AnimatorSet card_animation_up = new AnimatorSet();
     AnimatorSet card_animation_get_bottom = new AnimatorSet();
     AnimatorSet openCardTable = new AnimatorSet();
-
-    View.OnLongClickListener mOnLongClickListener = mOnLongClickListener();
-
-    View.OnLongClickListener mOnLongClickListener() {
-        return new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                if (mTargetSwap.getType() == InventoryType.FOOD) {
-                    useFood();
-                    return true;
-                }
-                if (mTargetSwap.getType() == InventoryType.SPELL) {
-                    useSpell();
-                    return true;
-                }
-                if(mTargetSwap.mSlotType == SlotType.HAND){
-                    CardHand card_hand = (CardHand) mTargetSwap;
-                    if (card_hand.getIDItem()!=card_hand.getIDDefault()){
-                        if (mInventoryItemCount < INVENTORY_MAX_COUNT){
-                            mInventory[mInventoryItemCount].copy(card_hand);
-                            mInventory[mInventoryItemCount].setVisibility(View.VISIBLE);
-                            mInventoryItemCount++;
-                            changeGearScore(getChangeGearScoreAfterReplace(null,0));
-                            card_hand.setIDItem(card_hand.getIDDefault());
-                            card_hand.load(mStats, mDBOpenHelper);
-                        }
-                        else{
-                            mDialogWindow.openInfo("Нет места в инвентаре.");
-                        }
-                        Log.d("targetReset", "hand take off");
-                        targetReset();
-                    }
-                    return true;
-                }
-                return true;
-            }
-        };
-    }
-
-    private void useFood() {
-        request.setData(mTargetSwap.getIDItem().toString());
-        String requestString = null;
-        try {
-            requestString = mJackson.writeValueAsString(request);
-        }
-        catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-        post("use/food", requestString, new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                Log.d("use/food onFailure", e.toString());
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String responseStr = response.body().string();
-                Log.d("use/food responseStr", responseStr);
-                MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
-                if (!myResponse.isError()){
-                    mTable.post(() -> {
-                        changeHP(mTargetSwap.getValueOne());
-                        mInventoryItemCount--;
-                        changeGearScore(-mTargetSwap.getGearScore());
-                        inventorySort();
-                        if (mState == State.SELECT_LOOT){
-                            tryPickingLoot();
-                        }
-                        targetReset();
-                        Log.d("targetReset", "use food");
-                        updateHPText();
-                    });
-                }
-            }
-        });
-    }
-
-    private void useSpell() {
-        request.setData(mTargetSwap.getIDItem().toString());
-        String requestString = null;
-        try {
-            requestString = mJackson.writeValueAsString(request);
-        }
-        catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-        post("use/spell", requestString, new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                Log.d("use/spell onFailure", e.toString());
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String responseStr = response.body().string();
-                Log.d("use/spell responseStr", responseStr);
-                MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
-                if (!myResponse.isError()){
-                    mTable.post(() -> {
-                        mCardTableTarget.changeValueTwo(-mTargetSwap.getValueOne());
-                        changeGearScore(-mTargetSwap.getGearScore());
-                        mInventoryItemCount--;
-                        inventorySort();
-                        tryPickingLoot();
-                        targetReset();
-                        Log.d("targetReset", "use spell");
-                        if (mCardTableTarget.getValueTwo() < 1) {
-                            DamageResponse damageResponse = null;
-                            try {
-                                damageResponse = mJackson.readValue(
-                                        myResponse.getData(),
-                                        DamageResponse.class
-                                );
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            mNextCardTable = damageResponse.getCardTableID();
-                            CardPlayerResponse[] loot = new CardPlayerResponse[0];
-                            try {
-                                loot = mJackson.readValue(
-                                        damageResponse.getLoot(),
-                                        CardPlayerResponse[].class
-                                );
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            mLootCount = loot.length;
-                            for (int i = 0; i < mLootCount; i++) {
-                                mLoot[i].bringToFront();
-                                mLoot[i].setIDItem(loot[i].getIdItem());
-                                mLoot[i].setDurability(loot[i].getDurability());
-                            }
-                        }
-                        if (mCardTableTarget.getValueTwo() < 1) {
-                            mobDead();
-                        }
-                        else{
-                            mCardTableTarget.updateValueTwoText();
-                        }
-                    });
-                }
-            }
-        });
-    }
-
-    View.OnTouchListener mCardMoveListener = mCardMoveListener();
-    View.OnTouchListener mCardMoveListener() {
-        return new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if(MotionEvent.ACTION_MOVE==event.getAction()){
-                    if (event.getHistorySize()==1){
-                        if (event.getY()<event.getHistoricalY(0)) {
-                            ClipData data = ClipData.newPlainText("", "");
-                            View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(mTargetSwap);
-                            mTargetSwap.startDrag(data, shadowBuilder, mTargetSwap, 0);
-                            mTargetSwap.setVisibility(View.INVISIBLE);
-                            Log.d("INVISIBLE", "onTouch: ");
-                        }
-                    }
-                }
-                return false;
-            }
-        };
-    }
-
-    void changeHPInUIThread(int delta) {
-        if (mHp + delta < mHpMax) {
-            mHp = mHp + delta;
-        }
-        else {
-            mHp = mHpMax;
-        }
-        updateHPText();
-    }
-    void changeHP(int delta) {
-        if (mHp + delta < mHpMax) {
-            mHp = mHp + delta;
-        }
-        else {
-            mHp = mHpMax;
-        }
-    }
-    void setHPInUIThread(int hp) {
-        mHp = hp;
-        updateHPText();
-    }
-    void updateHPText(){
-        mHpText.setText(String.valueOf(mHp));
-        mHpBarDrawable.setLevel(10000*mHp/mHpMax);
-    }
-
-    void inventorySort() {
-
-        mTargetSwap.setVisibility(View.VISIBLE);
-        byte id = mTargetSwap.getSlotId();
-        for (; id < mInventoryItemCount; id++) {
-            mInventory[id].copy(mInventory[id + 1]);
-        }
-        mInventory[id].setVisibility(View.GONE);
-    }
-
-    View.OnDragListener mHandOnDropListener = mHandOnDropListener();
-
-    View.OnDragListener mHandOnDropListener() {
-        return new View.OnDragListener() {
-            @Override
-            public boolean onDrag(View v, DragEvent event) {
-                if (!event.getResult() && event.getAction() == DragEvent.ACTION_DRAG_STARTED) {
-                    return true;
-                }
-                if (!event.getResult() && event.getAction() == DragEvent.ACTION_DRAG_ENDED) {
-                    mTargetSwap.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            mTargetSwap.setVisibility(View.VISIBLE);
-                        }
-                    });
-                    return false;
-                }
-                if (event.getAction() == DragEvent.ACTION_DROP) {
-                    CardHand target_swap_two = ((CardHand) v);
-                    if (target_swap_two.mSlotType != mTargetSwap.mSlotType) {
-                        if (mTargetSwap.getType() == InventoryType.SHIELD || mTargetSwap.getType() ==
-                                InventoryType.WEAPON) {
-                            if(target_swap_two.mDurabilityText.getVisibility()==View.VISIBLE){
-                                inventory_temp.Copy(target_swap_two);
-                                target_swap_two.copy(mTargetSwap);
-                                mTargetSwap.copy(inventory_temp);
-                                mTargetSwap.setVisibility(View.VISIBLE);
-                            }
-                            else{
-                                changeGearScore(getChangeGearScoreAfterReplace(0,null));
-                                target_swap_two.copy(mTargetSwap);
-                                target_swap_two.mDurabilityText.setVisibility(View.VISIBLE);
-                                target_swap_two.mDurabilityImage.setVisibility(View.VISIBLE);
-                                mInventoryItemCount--;
-                                inventorySort();
-                                tryPickingLoot();
-                            }
-                            Log.d("targetReset", "hand swap");
-                            targetReset();
-                            return true;
-                        }
-                    }
-                }
-                return false;
-            }
-        };
-    }
-
-    View.OnDragListener mLootOnDropListener = mLootOnDropListener();
-
-    View.OnDragListener mLootOnDropListener() {
-        return new View.OnDragListener() {
-            @Override
-            public boolean onDrag(View v, DragEvent event) {
-                if (!event.getResult() && event.getAction() == DragEvent.ACTION_DRAG_STARTED) {
-                    return true;
-                }
-                if (!event.getResult() && event.getAction() == DragEvent.ACTION_DRAG_ENDED) {
-                    mTargetSwap.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            mTargetSwap.setVisibility(View.VISIBLE);
-                        }
-                    });
-                    return false;
-                }
-                if (event.getAction() == DragEvent.ACTION_DROP) {
-                    CardInventory target_swap_two = ((CardInventory) v);
-                    if (mTargetSwap.mSlotType == SlotType.INVENTORY) {
-                        if ((target_swap_two.getType() == InventoryType.WEAPON ||
-                                target_swap_two.getType() == InventoryType.SHIELD) &&
-                                (mTargetSwap.getType() == InventoryType.WEAPON ||
-                                        mTargetSwap.getType() == InventoryType.SHIELD))
-                        {
-                            changeGearScore(getChangeGearScoreAfterReplace(mTargetSwap.getGearScore(),target_swap_two.getGearScore()));
-                        }
-                        else{
-                            if (mTargetSwap.getType() == InventoryType.WEAPON ||
-                                    mTargetSwap.getType() == InventoryType.SHIELD)
-                            {
-                                changeGearScore(getChangeGearScoreAfterReplace(mTargetSwap.getGearScore(),null));
-                                changeGearScore(target_swap_two.getGearScore());
-                            }
-                            else{
-                                if (target_swap_two.getType() == InventoryType.WEAPON ||
-                                        target_swap_two.getType() == InventoryType.SHIELD)
-                                {
-                                    changeGearScore(getChangeGearScoreAfterReplace(null,target_swap_two.getGearScore()));
-                                    changeGearScore(-mTargetSwap.getGearScore());
-                                }
-                                else{
-                                    changeGearScore(target_swap_two.getGearScore()- mTargetSwap.getGearScore());
-                                }
-                            }
-                        }
-                        inventory_temp.Copy(target_swap_two);
-                        target_swap_two.copy(mTargetSwap);
-                        mTargetSwap.copy(inventory_temp);
-                        mTargetSwap.setVisibility(View.VISIBLE);
-                        Log.d("targetReset", "loot swap");
-                        targetReset();
-                        return true;
-                    }
-                    else {
-                        if (target_swap_two.getType() == InventoryType.WEAPON ||
-                                        target_swap_two.getType() == InventoryType.SHIELD)
-                        {
-                            if(((CardHand) mTargetSwap).mDurabilityText.getVisibility()==View.VISIBLE){
-                                        changeGearScore(getChangeGearScoreAfterReplace(mTargetSwap.getGearScore(),target_swap_two.getGearScore()));
-                                        inventory_temp.Copy(target_swap_two);
-                                        target_swap_two.copy(mTargetSwap);
-                                        mTargetSwap.copy(inventory_temp);
-                            }
-                            else{
-                                        changeGearScore(getChangeGearScoreAfterReplace(mTargetSwap.getGearScore(),target_swap_two.getGearScore()));
-                                        mTargetSwap.copy(target_swap_two);
-                                        ((CardHand) mTargetSwap).mDurabilityText.setVisibility(View.VISIBLE);
-                                        ((CardHand) mTargetSwap).mDurabilityImage.setVisibility(View.VISIBLE);
-                                        target_swap_two.setVisibility(View.GONE);
-                                        mLootCount--;
-                                        tryContinue();
-                            }
-                            mTargetSwap.setVisibility(View.VISIBLE);
-                            Log.d("targetReset", "loot swap");
-                            targetReset();
-                            return true;
-                        }
-                    }
-                }
-                return false;
-            }
-        };
-    }
-
-    View.OnDragListener mTableOnDropListener = mTableOnDropListener();
-
-    View.OnDragListener mTableOnDropListener() {
-        return new View.OnDragListener() {
-            @Override
-            public boolean onDrag(View v, DragEvent event) {
-
-                if (!event.getResult() && event.getAction() == DragEvent.ACTION_DRAG_STARTED) {
-                    return true;
-                }
-                if (!event.getResult() && event.getAction() == DragEvent.ACTION_DRAG_ENDED) {
-                    mTargetSwap.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            mTargetSwap.setVisibility(View.VISIBLE);
-                        }
-                    });
-                    return false;
-                }
-                if (event.getAction() == DragEvent.ACTION_DROP) {
-                    if (mTargetSwap.getType() == InventoryType.FOOD) {
-                        useFood();
-                        return true;
-                    }
-                    if (mTargetSwap.getType() == InventoryType.SPELL) {
-                        useSpell();
-                        return true;
-                    }
-                }
-
-                return false;
-            }
-        };
-    }
-
-    private int getChangeGearScoreAfterReplace(Integer remove, Integer add) {
-        if (remove!=null){
-            mGearScoreWeaponOrShieldInInventory.remove(remove);
-        }
-        if (add!=null){
-            mGearScoreWeaponOrShieldInInventory.add(add);
-        }
-        int listSize = mGearScoreWeaponOrShieldInInventory.size();
-        Integer[] a = new Integer[listSize];
-        mGearScoreWeaponOrShieldInInventory.toArray(a);
-        Arrays.sort(a);
-        for (Integer b:a) {
-            Log.d("mGearScorelist ", String.valueOf(b));
-        }
-        int b = a[listSize-1]+a[listSize-2]-mTopGearScoreWeaponOrShieldInInventory;
-        mTopGearScoreWeaponOrShieldInInventory = a[listSize-1]+a[listSize-2];
-        return b;
-    }
-
-    View.OnClickListener setTargetListener = setTarget();
-    View.OnClickListener setTarget() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!mIsAnimate) {
-                    mIsAnimate = true;
-                    Log.d("mIsAnimate", String.valueOf(mIsAnimate));
-                    mCardTableTarget = (CardTable) v;
-                    String requestString = null;
-                    try {
-                        request.setData(mJackson.writeValueAsString(mCardTableTarget.getIdInArray()));
-                        requestString = mJackson.writeValueAsString(request);
-                    }
-                    catch (JsonProcessingException e) {
-                        e.printStackTrace();
-                    }
-                    post("target", requestString, new Callback() {
-                        @Override
-                        public void onFailure(Call call, IOException e) {
-                            Log.d("target onFailure", e.toString());
-                        }
-                        @Override
-                        public void onResponse(Call call, Response response) throws IOException {
-                            String responseStr = response.body().string();
-                            Log.d("target response ", responseStr);
-                            MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
-                            if (!myResponse.isError()){
-                                mTable.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if(mCardTableTarget.getType()== CardTableType.MOB){
-                                            mCardTableTarget.bringToFront();
-                                            mCardTableTarget.getTargetAnimation().start();
-                                            mCardTableTarget.setOnClickListener(mDamagListener);
-                                        }
-                                        if (mCardTableTarget.getType()==CardTableType.VENDOR){
-                                            card_6_animation_click_vendor.start();
-                                            if(mCardTableTarget.getSubType()== CardTableSubType.TRADER){
-                                                mShadow.bringToFront();
-                                                mCardTableTarget.bringToFront();
-                                                Picasso.with(getBaseContext())
-                                                        .load(R.drawable.navik_torgovca)
-                                                        .into(mTradeSkillImage);
-                                                mTradeSkillImage.setOnClickListener(mOnClickVendorSkill);
-                                                for (byte i = 0; i< LOOT_MAX_COUNT; i++){
-                                                    mTradeItem[i].change(mStats, mDBOpenHelper,random, mGearScore);
-                                                    mTradeItem[i].open();
-                                                    mTradeItem[i].setVisibility(View.VISIBLE);
-                                                    mTradeCost[i].setText(String.format("%d", mTradeItem[i].getCost()));
-                                                    mTradeCost[i].setVisibility(View.VISIBLE);
-                                                    mTradeCostImage[i].setVisibility(View.VISIBLE);
-                                                }
-                                                mTradeSkill.setVisibility(View.VISIBLE);
-                                                mTradeZone.setVisibility(View.VISIBLE);
-                                                mTable.setOnDragListener(null);
-                                            }
-                                            if (mCardTableTarget.getSubType()== CardTableSubType.BLACKSMITH){
-                                                mShadow.bringToFront();
-                                                mCardTableTarget.bringToFront();
-                                                Picasso.with(getBaseContext())
-                                                        .load(R.drawable.navik_kuznecaa)
-                                                        .into(mTradeSkillImage);
-                                                mTradeSkillImage.setOnClickListener(null);
-                                                for (byte i = 0; i< LOOT_MAX_COUNT; i++){
-                                                    mTradeItem[i].change(mStats, mDBOpenHelper,random, mGearScore, random.nextInt(2));
-                                                    mTradeItem[i].open();
-                                                    mTradeItem[i].setVisibility(View.VISIBLE);
-                                                    mTradeItem[i].setDurability(mTradeItem[i].getDurabilityMax());
-                                                    mTradeCost[i].setText(String.format("%d", mTradeItem[i].getCost()));
-                                                    mTradeCost[i].setVisibility(View.VISIBLE);
-                                                    mTradeCostImage[i].setVisibility(View.VISIBLE);
-                                                }
-                                                mTradeSkill.setVisibility(View.VISIBLE);
-                                                mTradeZone.setVisibility(View.VISIBLE);
-                                                mTable.setOnDragListener(null);
-                                            }
-                                            if (mCardTableTarget.getSubType()== CardTableSubType.INNKEEPER){
-                                                mShadow.bringToFront();
-                                                mCardTableTarget.bringToFront();
-                                                Picasso.with(getBaseContext())
-                                                        .load(R.drawable.navik_traktirshika)
-                                                        .into(mTradeSkillImage);
-                                                mTradeSkillImage.setOnClickListener(mOnClickInnkeeperSkill);
-                                                for (byte i = 0; i< LOOT_MAX_COUNT; i++){
-                                                    mTradeItem[i].change(mStats, mDBOpenHelper,random, mGearScore, InventoryType.FOOD);
-                                                    mTradeItem[i].open();
-                                                    mTradeItem[i].setVisibility(View.VISIBLE);
-                                                    mTradeCost[i].setText(String.format("%d", mTradeItem[i].getCost()));
-                                                    mTradeCost[i].setVisibility(View.VISIBLE);
-                                                    mTradeCostImage[i].setVisibility(View.VISIBLE);
-                                                }
-                                                mTradeSkill.setVisibility(View.VISIBLE);
-                                                mTradeZone.setVisibility(View.VISIBLE);
-                                                mTable.setOnDragListener(null);
-                                            }
-                                        }
-                                        if (mCardTableTarget.getType()== CardTableType.HALT){
-                                            mShadow.bringToFront();
-                                            mCardTableTarget.bringToFront();
-                                            mCardTableTarget.getTargetAnimation().start();
-                                            changeHPInUIThread(mHpMax);
-                                            mCardTableTarget.getChangeAnimation().start();
-                                        }
-                                        if (mCardTableTarget.getType()== CardTableType.CHEST){
-                                            mShadow.bringToFront();
-                                            mCardTableTarget.bringToFront();
-                                            mCardTableTarget.getTargetAnimation().start();
-                                            mCardTableTarget.getCloseAnimation().start();
-                                            //changeMoneyInUIThread(mCardTableTarget.getMoney());
-                                        }
-                                    }
-                                });
-                            }
-                        }
-                    });
-                }
-            }
-        };
-    }
-
-    View.OnClickListener mOnClickBuyCardListener = mOnClickBuyCardListener();
-    View.OnClickListener mOnClickBuyCardListener() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mMoney >=((CardInventory)v).getCost()&& mInventoryItemCount < INVENTORY_MAX_COUNT){
-                    trade_target = (CardInventory)v;
-                    mDialogWindow.openDialog(
-                            String.format("Купить карту за %d золотых?", trade_target.getCost()),
-                            mCardTradeBuyClickYes
-                    );
-                }
-                else{
-                    if (!(mInventoryItemCount < INVENTORY_MAX_COUNT)){
-                        mDialogWindow.openInfo("Нет места в инвентаре.");
-                    }
-                    else{
-                        mDialogWindow.openInfo("Недостаточно золота.");
-                    }
-                }
-            }
-        };
-    }
-
-    View.OnClickListener mInventoryOnClickSwap = mInventoryOnClickSwap();
-
-    View.OnClickListener mInventoryOnClickSwap() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (is_first_click) {
-                    mTargetSwap = (CardInventory) v;
-                    if (mTargetSwap.mSlotType == SlotType.HAND) {
-                        target_on_animation = ObjectAnimator.ofFloat(mTargetSwap, View.TRANSLATION_Y, 0f, -hand_animation_delta);
-                        target_off_animation = ObjectAnimator.ofFloat(mTargetSwap, View.TRANSLATION_Y, -hand_animation_delta, 0f);
-                    }
-                    if (mTargetSwap.mSlotType == SlotType.LOOT) {
-                        target_on_animation = ObjectAnimator.ofFloat(mTargetSwap, View.TRANSLATION_Y, 0f, -loot_animation_delta);
-                        target_off_animation = ObjectAnimator.ofFloat(mTargetSwap, View.TRANSLATION_Y, -loot_animation_delta, 0f);
-
-                    }
-                    if (mTargetSwap.mSlotType == SlotType.INVENTORY) {
-                        target_on_animation = ObjectAnimator.ofFloat(mTargetSwap, View.TRANSLATION_Y, 0f, -inventory_animation_delta);
-                        target_off_animation = ObjectAnimator.ofFloat(mTargetSwap, View.TRANSLATION_Y, -inventory_animation_delta, 0f);
-                    }
-
-                    Log.d("target on", String.valueOf(mTargetSwap.mNameText.getText()));
-                    is_first_click = false;
-
-                    target_off_animation.addListener(on_target_off_animation);
-                    target_on_animation.addListener(target_on_animation_end);
-                    target_on_animation.start();
-
-                    if (mTradeSkill.getVisibility()==View.VISIBLE && mCardTableTarget.getSubType()== CardTableSubType.BLACKSMITH&&
-                            (mTargetSwap.getType()== InventoryType.SHIELD|| mTargetSwap.getType()== InventoryType.WEAPON)){
-                        mTradeSkillImage.setOnClickListener(mOnClickBlacksmithSkill);
-                    }
-                }
-                else {
-                    CardInventory target_swap_two = (CardInventory) v;
-                    if (!mTargetSwap.equals(target_swap_two) ) {
-                        if (target_swap_two.mSlotType != mTargetSwap.mSlotType) {
-                            if (target_swap_two.mSlotType == SlotType.HAND) {
-                                CardHand targetSwapTwoHand = (CardHand) v;
-                                if (mTargetSwap.getType() == InventoryType.SHIELD || mTargetSwap.getType() ==
-                                        InventoryType.WEAPON) {
-                                    if(targetSwapTwoHand.mDurabilityText.getVisibility()==View.VISIBLE){
-                                        inventory_temp.Copy(targetSwapTwoHand);
-                                        targetSwapTwoHand.copy(mTargetSwap);
-                                        mTargetSwap.copy(inventory_temp);
-                                    }
-                                    else{
-                                        changeGearScore(getChangeGearScoreAfterReplace(0,null));
-                                        targetSwapTwoHand.copy(mTargetSwap);
-                                        targetSwapTwoHand.mDurabilityText.setVisibility(View.VISIBLE);
-                                        targetSwapTwoHand.mDurabilityImage.setVisibility(View.VISIBLE);
-                                        mInventoryItemCount--;
-                                        inventorySort();
-                                        tryPickingLoot();
-                                    }
-                                    Log.d("targetReset", "hand swap click");
-                                    targetReset();
-                                }
-                            }
-                            if (target_swap_two.mSlotType == SlotType.LOOT) {
-                                if (mTargetSwap.mSlotType == SlotType.INVENTORY) {
-                                    if ((target_swap_two.getType() == InventoryType.WEAPON ||
-                                            target_swap_two.getType() == InventoryType.SHIELD) &&
-                                            (mTargetSwap.getType() == InventoryType.WEAPON ||
-                                                    mTargetSwap.getType() == InventoryType.SHIELD))
-                                    {
-                                        changeGearScore(getChangeGearScoreAfterReplace(mTargetSwap.getGearScore(),target_swap_two.getGearScore()));
-                                    }
-                                    else{
-                                        if (mTargetSwap.getType() == InventoryType.WEAPON ||
-                                                mTargetSwap.getType() == InventoryType.SHIELD)
-                                        {
-                                            changeGearScore(getChangeGearScoreAfterReplace(mTargetSwap.getGearScore(),null));
-                                            changeGearScore(target_swap_two.getGearScore());
-                                        }
-                                        else{
-                                            if (target_swap_two.getType() == InventoryType.WEAPON ||
-                                                    target_swap_two.getType() == InventoryType.SHIELD)
-                                            {
-                                                changeGearScore(getChangeGearScoreAfterReplace(null,target_swap_two.getGearScore()));
-                                                changeGearScore(-mTargetSwap.getGearScore());
-                                            }
-                                            else{
-                                                changeGearScore(target_swap_two.getGearScore()- mTargetSwap.getGearScore());
-                                            }
-                                        }
-                                    }
-                                    inventory_temp.Copy(target_swap_two);
-                                    target_swap_two.copy(mTargetSwap);
-                                    mTargetSwap.copy(inventory_temp);
-                                    Log.d("targetReset", "loot swap click");
-                                    targetReset();
-                                }
-                                else {
-                                    if (target_swap_two.getType() == InventoryType.WEAPON ||
-                                            target_swap_two.getType() == InventoryType.SHIELD)
-                                    {
-                                        if(((CardHand) mTargetSwap).mDurabilityText.getVisibility()==View.VISIBLE){
-                                            changeGearScore(getChangeGearScoreAfterReplace(mTargetSwap.getGearScore(),target_swap_two.getGearScore()));
-                                            inventory_temp.Copy(target_swap_two);
-                                            target_swap_two.copy(mTargetSwap);
-                                            mTargetSwap.copy(inventory_temp);
-                                        }
-                                        else{
-                                            changeGearScore(getChangeGearScoreAfterReplace(mTargetSwap.getGearScore(),target_swap_two.getGearScore()));
-                                            mTargetSwap.copy(target_swap_two);
-                                            ((CardHand) mTargetSwap).mDurabilityText.setVisibility(View.VISIBLE);
-                                            ((CardHand) mTargetSwap).mDurabilityImage.setVisibility(View.VISIBLE);
-                                            target_swap_two.setVisibility(View.GONE);
-                                            mLootCount--;
-                                            tryContinue();
-                                        }
-                                        Log.d("targetReset", "loot swap click");
-                                        targetReset();
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    else {
-                        Log.d("targetReset", "target off");
-                        targetReset();
-                    }
-                }
-            }
-        };
-    }
-
-    private void deleteOnClickListenerBeforeAnomationTargetReset() {
-        for (byte i = 0; i < INVENTORY_MAX_COUNT; i++) {
-            mInventory[i].setOnClickListener(null);
-        }
-        for (int i = 0; i < LOOT_MAX_COUNT; i++) {
-            mLoot[i].setOnClickListener(null);
-        }
-        mHandOne.setOnClickListener(null);
-        mHandTwo.setOnClickListener(null);
-    }
-
-    private void targetReset() {
-        if (mTargetSwap !=null){
-            target_off_animation.start();
-            Log.d("target off", (String) mTargetSwap.mNameText.getText());
-        }
-        mTradeSkillImage.setOnClickListener(null);
-        mTargetSwap = null;
-        is_first_click = true;
-    }
-
-    private void changeGearScore(int delta) {
-        mGearScore += delta;
-        mGearScoreText.setText(String.format("%d", mGearScore));
-    }
-
-    byte[] mNextCardTable;
-    View.OnClickListener mDamagListener = mDamagListener();
-    View.OnClickListener mDamagListener() {
-        return v -> {
-            String requestString = null;
-            try {
-                Byte[] idHands = new Byte[2];
-                idHands[0] = mHandOne.getIDItem();
-                idHands[1] = mHandOne.getIDItem();
-                request.setData(mJackson.writeValueAsString(idHands));
-                requestString = mJackson.writeValueAsString(request);
-            }
-            catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-            post("damage", requestString, new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    Log.d("damage onFailure", e.toString());
-                }
-                @Override
-                public void onResponse(final Call call, Response response) throws IOException {
-                    String responseStr = response.body().string();
-                    Log.d("damage responseStr", responseStr);
-                    MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
-                    if (!myResponse.isError()){
-                        mTable.post(() -> {
-                            int mobDamage = mCardTableTarget.getValueOne();
-                            if(mobDamage>0&& mHandOne.getType() == InventoryType.SHIELD){
-                                if (mHandOne.getValueOne() < mobDamage){
-                                    mobDamage -= mHandOne.getValueOne();
-                                }
-                                else{
-                                    mobDamage = 0;
-                                }
-                            }
-                            if(mobDamage>0&& mHandTwo.getType() == InventoryType.SHIELD){
-                                if (mHandTwo.getValueOne() < mobDamage){
-                                    mobDamage -= mHandTwo.getValueOne();
-                                }
-                                else{
-                                    mobDamage = 0;
-                                }
-                            }
-                            if (mobDamage>0){
-                                changeHP(-mobDamage);
-                            }
-                            if (mHp < 1) {
-                                mMoneyBank += mMoney;
-                                mMoney = 0;
-                                resetGame();
-                                mTable.post(() -> {
-                                    changeHPInUIThread(mHpMax);
-                                    mCardTableTarget.getChangeAnimation().start();
-                                    mCardTableTarget.getChangeAnimation().end();
-                                    collectionButton.setVisibility(View.VISIBLE);
-                                    statsButton.setVisibility(View.VISIBLE);
-                                    mButtonStart.setVisibility(View.VISIBLE);
-                                });
-                                return;
-                            }
-                            updateHPText();
-                            if(mHandOne.mDurabilityText.getVisibility()==View.VISIBLE){
-                                mHandOne.setDurabilityInUIThread(mHandOne.getDurability()-1);
-                                if (mHandOne.getDurability()<1){
-                                    changeGearScore(getChangeGearScoreAfterReplace(mHandOne.getGearScore(),0));
-                                    mHandOne.setIDItem(mHandOne.getIDDefault());
-                                    mHandOne.load(mStats, mDBOpenHelper);
-                                }
-                                else{
-                                    mHandOne.setDurabilityText(mHandOne.getDurability());
-                                }
-                            }
-                            if(mHandTwo.mDurabilityText.getVisibility()==View.VISIBLE){
-                                mHandTwo.setDurabilityInUIThread(mHandTwo.getDurability()-1);
-                                if (mHandTwo.getDurability()<1){
-                                    changeGearScore(getChangeGearScoreAfterReplace(mHandTwo.getGearScore(),0));
-                                    mHandTwo.setIDItem(mHandTwo.getIDDefault());
-                                    mHandTwo.load(mStats, mDBOpenHelper);
-                                }
-                                else{
-                                    mHandTwo.setDurabilityText(mHandTwo.getDurability());
-                                }
-                            }
-
-                            int damage = ((mHandOne.getType() == InventoryType.WEAPON) ?
-                                    mHandOne.getValueOne() : 0) + ((mHandTwo.getType() == InventoryType.WEAPON) ?
-                                    mHandTwo.getValueOne() : 0);
-                            mCardTableTarget.changeValueTwo(-damage);
-
-                            if (mCardTableTarget.getValueTwo() < 1){
-                                try {
-                                    DamageResponse damageResponse = mJackson.readValue(
-                                            myResponse.getData(),
-                                            DamageResponse.class
-                                    );
-                                    mNextCardTable = damageResponse.getCardTableID();
-                                    CardPlayerResponse[] loot = mJackson.readValue(
-                                            damageResponse.getLoot(),
-                                            CardPlayerResponse[].class
-                                    );
-                                    mLootCount = loot.length;
-                                    for (int i = 0; i < mLootCount; i++) {
-                                        mLoot[i].bringToFront();
-                                        mLoot[i].setIDItem(loot[i].getIdItem());
-                                        mLoot[i].setDurability(loot[i].getDurability());
-                                    }
-                                    mobDead();
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                            else {
-                                mCardTableTarget.updateValueTwoText();
-                            }
-                        });
-                    }
-                }
-            });
-        };
-    }
-    private void mobDead() {
-        mCardTableTarget.setValueTwoText(0);
-        mCardTableTarget.setOnClickListener(null);
-        changeMoneyInUIThread(mCardTableTarget.getMoney());
-        mStats.addExperience(mCardTableTarget.getExperience());
-        mCardTableTarget.getCloseAnimation().start();
-    }
-
-    private void loadLoot() {
-        mState = State.SELECT_LOOT;
-        mShadow.bringToFront();
-
-        for (int i = 0; i < mLootCount; i++) {
-            mLoot[i].load(mStats,mDBOpenHelper);
-            mLoot[i].setVisibility(View.VISIBLE);
-            mLoot[i].open();
-            mLoot[i].bringToFront();
-        }
-
-        tryPickingLoot();
-
-        if (mLootCount > 0) {
-            mButtonContinue.bringToFront();
-            mButtonContinue.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void tryPickingLoot() {
-        byte i = 0;
-        while (((mLootCount > 0) && (mInventoryItemCount < INVENTORY_MAX_COUNT))) {
-            if(mLoot[i].getVisibility()==View.VISIBLE) {
-                mInventory[mInventoryItemCount].copy(mLoot[i]);
-                mLoot[i].setVisibility(View.GONE);
-                mInventory[mInventoryItemCount].setVisibility(View.VISIBLE);
-                mInventoryItemCount++;
-                if (mLoot[i].getType()== InventoryType.WEAPON ||
-                        mLoot[i].getType()== InventoryType.SHIELD)
-                {
-                    changeGearScore(getChangeGearScoreAfterReplace(null, mLoot[i].getGearScore()));
-                }
-                else{
-                    changeGearScore(mLoot[i].getGearScore());
-                }
-                mLootCount--;
-            }
-            i++;
-        }
-        tryContinue();
-    }
-
-    private void tryContinue() {
-        if (mLootCount < 1 && mState == State.SELECT_LOOT) {
-            if (mNextCardTable==null){
-                onClickButtonContinue(null);
-            }
-            else{
-                setSelectTarget();
-            }
-        }
-    }
-
-    View.OnClickListener mCardTradeBuyClickYes = mCardTradeBuyClickYes();
-    View.OnClickListener mCardTradeBuyClickYes() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mDialogWindow.close();
-                trade_target.setVisibility(View.INVISIBLE);
-                mTradeCost[trade_target.getSlotId()].setVisibility(View.INVISIBLE);
-                mTradeCostImage[trade_target.getSlotId()].setVisibility(View.INVISIBLE);
-                mInventory[mInventoryItemCount].copy(trade_target);
-                mInventory[mInventoryItemCount].setVisibility(View.VISIBLE);
-                mInventoryItemCount++;
-                changeGearScore(trade_target.getGearScore());
-                changeMoneyInUIThread(-trade_target.getCost());
-            }
-        };
-    }
-
-    View.OnClickListener mCardTradeSellClickYes = mCardTradeSellClickYes();
-    View.OnClickListener mCardTradeSellClickYes() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mDialogWindow.close();
-                mTargetSwap.setVisibility(View.INVISIBLE);
-                changeGearScore(-mTargetSwap.getGearScore());
-                mInventoryItemCount--;
-                inventorySort();
-                changeMoneyInUIThread(mTargetSwap.getCost());
-                targetReset();
-            }
-        };
-    }
-
-    View.OnDragListener mOnSell = mOnSell();
-    View.OnDragListener mOnSell() {
-        return new View.OnDragListener() {
-            @Override
-            public boolean onDrag(View v, DragEvent event) {
-
-/*
-                if (!event.getResult() && event.getAction() == DragEvent.ACTION_DRAG_STARTED) {
-                    return true;
-                }
-*/
-                if (event.getAction() == DragEvent.ACTION_DROP) {
-                    mTargetSwap.setVisibility(View.VISIBLE);
-                    if (mTargetSwap.getIdDrawable()!=R.drawable.kulak_levo||
-                            mTargetSwap.getIdDrawable()!=R.drawable.kulak_pravo)
-                    {
-                        mDialogWindow.openDialog(
-                                String.format("Продать карту за %d золотых?", mTargetSwap.getCost()),
-                                mCardTradeSellClickYes
-                        );
-                    }
-                }
-                return true;
-            }
-        };
-    }
-
-    byte mCostVendorSkill = 1;
-    View.OnClickListener mOnClickVendorSkill = mOnClickVendorSkill();
-    View.OnClickListener mOnClickVendorSkill() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mMoney >= mCostVendorSkill){
-                    mDialogWindow.openDialog(
-                            String.format("Обновить ассортимент торговца за %d золотых?", mCostVendorSkill),
-                            mOnClickVendorSkillYes
-                    );
-                }
-                else{
-                    mDialogWindow.openInfo(
-                            String.format("Недостаточно %d золота.", mCostVendorSkill - mMoney)
-                    );
-                }
-            }
-        };
-    }
-    View.OnClickListener mOnClickVendorSkillYes = mOnClickVendorSkillYes();
-    View.OnClickListener mOnClickVendorSkillYes() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mDialogWindow.close();
-                changeMoneyInUIThread(-mCostVendorSkill);
-                for (byte i = 0; i< LOOT_MAX_COUNT; i++){
-                    mTradeItem[i].change(mStats, mDBOpenHelper,random, mGearScore);
-                    mTradeItem[i].open();
-                    mTradeItem[i].setVisibility(View.VISIBLE);
-                    mTradeCost[i].setText(String.format("%d", mTradeItem[i].getCost()));
-                    mTradeCost[i].setVisibility(View.VISIBLE);
-                    mTradeCostImage[i].setVisibility(View.VISIBLE);
-                }
-            }
-        };
-    }
-
-    View.OnClickListener mOnClickBlacksmithSkill = mOnClickBlacksmithSkill();
-    View.OnClickListener mOnClickBlacksmithSkill() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mMoney >= mCostVendorSkill){
-                    mDialogWindow.openDialog(
-                            String.format("Починитm предмет за %d золотых?", mCostVendorSkill),
-                            mOnClickBlacksmithSkillYes
-                    );
-                }
-                else{
-                    mDialogWindow.openInfo(
-                            String.format("Недостаточно %d золота.", mCostVendorSkill - mMoney)
-                    );
-                }
-            }
-        };
-    }
-    View.OnClickListener mOnClickBlacksmithSkillYes = mOnClickBlacksmithSkillYes();
-    View.OnClickListener mOnClickBlacksmithSkillYes() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mDialogWindow.close();
-                changeMoneyInUIThread(-mCostVendorSkill);
-                mTargetSwap.setDurability(10);
-                if (mTargetSwap.mSlotType == SlotType.HAND){
-                    ((CardHand) mTargetSwap).setDurabilityText(10);
-                }
-                targetReset();
-            }
-        };
-    }
-
-    View.OnClickListener mOnClickInnkeeperSkill = mOnClickInnkeeperSkill();
-    View.OnClickListener mOnClickInnkeeperSkill() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mMoney >= mCostVendorSkill){
-                    mDialogWindow.openDialog(
-                            String.format("Отдохнуть и восстановить здоровье за %d золотых?", mCostVendorSkill),
-                            mOnClickInnkeeperSkillYes
-                    );
-                }
-                else{
-                    mDialogWindow.openInfo(
-                            String.format("Недостаточно %d золота.", mCostVendorSkill - mMoney)
-                    );
-                }
-            }
-        };
-    }
-    View.OnClickListener mOnClickInnkeeperSkillYes = mOnClickInnkeeperSkillYes();
-    View.OnClickListener mOnClickInnkeeperSkillYes() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mDialogWindow.close();
-                changeMoneyInUIThread(-mCostVendorSkill);
-                changeHPInUIThread(mHpMax);
-                mTradeSkillImage.setOnClickListener(null);
-            }
-        };
-    }
-    OkHttpClient client;
-
-    void post(String text, String data, Callback callback) {
-
-        RequestBody body = RequestBody.create(
-                MediaType.parse("application/json; charset=utf-8"),
-                data
-        );
-        Log.d("post", data);
-        Request request = new Request.Builder()
-                .url("https://88.80.40.243:4430/"+text)
-                .post(body)
-                .build();
-        Call call = client.newCall(request);
-        call.enqueue(callback);
-    }
-
-    void changeMoneyInUIThread(int delta){
-        mMoney += delta;
-        updateMoneyText();
-    }
-    void setMoneyInUIThread(int money){
-        mMoney = money;
-        updateMoneyText();
-    }
-    void updateMoneyText(){
-        mMoneyText.setText(String.format("%d", mMoney));
-    }
-    void changeMoneyBankInUIThread(int delta){
-        mMoneyBank += delta;
-        updateMoneyText();
-    }
-    void setMoneyBankInUIThread(int money){
-        mMoneyBank = money;
-        updateMoneyText();
-    }
-    void updateMoneyBankText(){
-        mMoneyText.setText(String.format("%d", mMoneyBank));
-    }
-
     GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestServerAuthCode("925238805882-72kg4srauv9f2ph2cf905r2cjhtbndbo.apps.googleusercontent.com")
             .requestEmail()
             .build();
-
-    GoogleSignInClient mGoogleSignInClient;
-    View.OnClickListener onSign = onSign();
-    View.OnClickListener onSign() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-                startActivityForResult(signInIntent, 0);
-            }
-        };
-    }
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 0) {
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            login(task);
-        }
-    }
-
+    View mMenuButton;
+    View mStatsButton;
     ObjectMapper mJackson = new ObjectMapper();
     byte mState;
     MyRequest request;
-    private void login(Task<GoogleSignInAccount> completedTask) {
-        try {
-            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-            request = new MyRequest(account.getServerAuthCode());
-            post("login", mJackson.writeValueAsString(request), new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    Log.d("onFailure", e.toString());
-                }
+    OkHttpClient client;
 
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    String responseStr = response.body().string();
-                    Log.d("login responseStr", responseStr);
-                    MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
-                    if (!myResponse.isError()){
-                        SQLiteDatabase data_base = mDBOpenHelper.getReadableDatabase();
-
-                        String[] column_name = {
-                                DBOpenHelper.HP,
-                                DBOpenHelper.COSTRESET
-                        };
-
-                        Cursor cursor = data_base.query(
-                                DBOpenHelper.sTableTest,
-                                column_name,
-                                null,
-                                null,
-                                null,
-                                null,
-                                null
-                        );
-                        cursor.moveToFirst();
-
-                        mHpMaxDefault = cursor.getInt(
-                                cursor.getColumnIndexOrThrow(DBOpenHelper.HP)
-                        );
-                        mStatsResetCost = cursor.getInt(
-                                cursor.getColumnIndexOrThrow(DBOpenHelper.COSTRESET)
-                        );
-                        cursor.close();
-
-                        LoginResponce loginResponce = mJackson.readValue(
-                                myResponse.getData(),
-                                LoginResponce.class
-                        );
-                        mTable.post(() -> {
-                            mMoneyBank = loginResponce.getMoneyBank();
-                            mStats.login(loginResponce.getStats());
-                            mHpMax = mHpMaxDefault + mStats.getHPBonus();
-                            mHp = mHpMax;
-                            mState = loginResponce.getState();
-                            resetGame();
-                            mInventory[0].setVisibility(View.VISIBLE);
-                            mLoot[0].setVisibility(View.VISIBLE);
-                            setTextSize();
-                            setAnimators();
-                            updateMoneyBankText();
-                            mStats.updateLevelAndExperienceTextInThreadUI();
-                            mIsAnimate = true;
-                            if (mState!=State.NONE){
-                                mHp = loginResponce.getHP();
-                                mMoney = loginResponce.getMoney();
-                                if (loginResponce.getCardTable0()!=null){
-                                    mCardsTable[0].setIDMob(loginResponce.getCardTable0());
-                                }
-                                if (loginResponce.getCardTable1()!=null){
-                                    mCardsTable[1].setIDMob(loginResponce.getCardTable1());
-                                }
-                                if (loginResponce.getCardTable2()!=null){
-                                    mCardsTable[2].setIDMob(loginResponce.getCardTable2());
-                                }
-                                if (loginResponce.getCardTable3()!=null){
-                                    mCardsTable[3].setIDMob(loginResponce.getCardTable3());
-                                }
-                                if (loginResponce.getCardTable4()!=null){
-                                    mCardsTable[4].setIDMob(loginResponce.getCardTable4());
-                                }
-                                if (loginResponce.getCardTable5()!=null){
-                                    mCardsTable[5].setIDMob(loginResponce.getCardTable5());
-                                }
-                                if (loginResponce.getCardTable6()!=null){
-                                    mCardsTable[6].setIDMob(loginResponce.getCardTable6());
-                                }
-                                if (loginResponce.getCardTable7()!=null){
-                                    mCardsTable[7].setIDMob(loginResponce.getCardTable7());
-                                }
-                                List<CardPlayerResponse> inventory = loginResponce.getInventory();
-                                Iterator<CardPlayerResponse> iterator = inventory.iterator();
-                                while (iterator.hasNext()) {
-                                    CardPlayerResponse item = iterator.next();
-                                    if (item.getSlotId()==4){
-                                        mHandOne.setIDItem(item.getIdItem());
-                                        iterator.remove();
-                                        continue;
-                                    }
-                                    if (item.getSlotId()==5){
-                                        mHandTwo.setIDItem(item.getIdItem());
-                                        iterator.remove();
-                                    }
-                                }
-                                if (!inventory.isEmpty()){
-                                    for (mInventoryItemCount = 0;
-                                         mInventoryItemCount<inventory.size();
-                                         mInventoryItemCount++)
-                                    {
-                                        CardPlayerResponse cardPlayerResponse = inventory.get(mInventoryItemCount);
-                                        mInventory[mInventoryItemCount].setDurability(
-                                                cardPlayerResponse.getDurability()
-                                        );
-                                        mInventory[mInventoryItemCount].setIDItem(cardPlayerResponse.getIdItem());
-                                    }
-                                }
-                                mButtonStart.setVisibility(View.GONE);
-                                collectionButton.setVisibility(View.GONE);
-                                statsButton.setVisibility(View.GONE);
-                                updateMoneyText();
-                                mCardCenter.setVisibility(View.VISIBLE);
-                                for (CardTable cardTable : mCardsTable) {
-                                    cardTable.setVisibility(View.VISIBLE);
-                                    if (!cardTable.isEmpty()){
-                                        cardTable.load(mDBOpenHelper);
-                                        cardTable.open();
-                                    }
-                                }
-
-                                mHandOne.load(mStats,mDBOpenHelper);
-                                mHandOne.setDurabilityText(mHandOne.getDurability());
-                                mHandOne.open();
-                                mHandOne.setOnClickListener(mInventoryOnClickSwap);
-                                mGearScoreWeaponOrShieldInInventory.add(mHandOne.getGearScore());
-                                mHandTwo.load(mStats,mDBOpenHelper);
-                                mHandTwo.setDurabilityText(mHandTwo.getDurability());
-                                mHandTwo.open();
-                                mHandTwo.setOnClickListener(mInventoryOnClickSwap);
-                                mGearScoreWeaponOrShieldInInventory.add(mHandTwo.getGearScore());
-                                for (byte i = 0;i<INVENTORY_MAX_COUNT;i++){
-                                    mInventory[i].setOnClickListener(mInventoryOnClickSwap);
-                                    if (i<mInventoryItemCount){
-                                        mInventory[i].load(mStats, mDBOpenHelper);
-                                        mInventory[i].open();
-                                        mInventory[i].setVisibility(View.VISIBLE);
-                                        if (mInventory[i].getType()== InventoryType.WEAPON ||
-                                                mInventory[i].getType()== InventoryType.SHIELD)
-                                        {
-                                            changeGearScore(
-                                                    getChangeGearScoreAfterReplace(
-                                                            null,
-                                                            mInventory[i].getGearScore()
-                                                    )
-                                            );
-                                        }
-                                        else{
-                                            changeGearScore(mInventory[i].getGearScore());
-                                        }
-                                    }
-                                }
-                                mIsAnimate = false;
-                                if (mState!=State.SELECT_TARGET){
-                                    mCardTableTarget = mCardsTable[loginResponce.getCardTableTargetIDInArray()];
-                                    mCardTableTarget.bringToFront();
-                                    mShadow.bringToFront();
-                                    mCardTableTarget.getTargetAnimation().start();
-                                    mCardTableTarget.getTargetAnimation().end();
-                                    if (mState==State.COMBAT){
-                                        mCardTableTarget.bringToFront();
-                                        mCardTableTarget.setValueTwoInUIThread(loginResponce.getCardTableTargetHP());
-                                        mCardTableTarget.setOnClickListener(mDamagListener);
-                                    }
-                                    if (mState==State.SELECT_LOOT) {
-                                        mIsAnimate = true;
-                                        List<CardPlayerResponse> loot = loginResponce.getLoot();
-                                        for (mLootCount = 0; mLootCount<loot.size();mLootCount++){
-                                            CardPlayerResponse cardPlayerResponse = loot.get(mLootCount);
-                                            mLoot[mLootCount].setIDItem(cardPlayerResponse.getIdItem());
-                                            mLoot[mLootCount].setDurability(
-                                                    cardPlayerResponse.getDurability()
-                                            );
-                                        }
-                                        for (byte i = 0;i<mLootCount;i++){
-                                            mLoot[i].load(mStats, mDBOpenHelper);
-                                            mLoot[i].open();
-                                            mLoot[i].setVisibility(View.VISIBLE);
-                                            mLoot[i].bringToFront();
-                                        }
-                                        mCardTableTarget.getCloseAnimation().start();
-                                        mCardTableTarget.getCloseAnimation().end();
-                                        mButtonContinue.bringToFront();
-                                        mButtonContinue.setVisibility(View.VISIBLE);
-                                    }
-                                }
-                            }
-                            Log.d("mIsAnimate", String.valueOf(mIsAnimate));
-                            updateHPText();
-                            findViewById(R.id.signLayout).setVisibility(View.GONE);
-                        });
-                    }
-                }
-            });
-        }
-        catch (ApiException e) {
-            Log.w("login", "signInResult:failed code=" + e.getStatusCode());
-            e.printStackTrace();
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-    }
-    private void resetGame() {
-        for (byte i = 0; i < 8; i++) {
-            mCardsTable[i].setIdInArray(i);
-            mCardsTable[i].close(mIdDrawableCardBack);
-            mCardsTable[i].setVisibility(View.INVISIBLE);
-        }
-        mCardCenter.setVisibility(View.INVISIBLE);
-
-        mLoot[0].setVisibility(View.GONE);;
-        mLoot[1].setVisibility(View.GONE);
-        mLoot[2].setVisibility(View.GONE);
-
-        mInventoryItemCount = 0;
-
-        mHandOne.setOnClickListener(null);
-        mHandTwo.setOnClickListener(null);
-        mHandOne.setIDItem(mHandOne.getIDDefault());
-        mHandOne.load(mStats, mDBOpenHelper);
-        mHandOne.open();
-        mHandTwo.setIDItem(mHandTwo.getIDDefault());
-        mHandTwo.load(mStats, mDBOpenHelper);
-        mHandTwo.open();
-
-        for (byte i = 0; i < INVENTORY_MAX_COUNT; i++) {
-            mInventory[i].setVisibility(View.GONE);
-            mInventory[i].setSlotId(i);
-            mInventory[i].close(mIdDrawableCardBack);
-        }
-
-        mIsAnimate = true;
-        Log.d("mIsAnimate", String.valueOf(mIsAnimate));
-
-        mCardsTable[1].setOnClickListener(setTargetListener);
-        mCardsTable[3].setOnClickListener(setTargetListener);
-        mCardsTable[4].setOnClickListener(setTargetListener);
-        mCardsTable[6].setOnClickListener(setTargetListener);
-
-        mShadow.setVisibility(View.VISIBLE);
-        mShadow.setAlpha(0f);
-    }
-    View menuButton;
-    View statsButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -1573,9 +225,9 @@ public class MainActivity extends AppCompatActivity {
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
         findViewById(R.id.signInButton).setOnClickListener(onSign);
 
-        menuButton = findViewById(R.id.menu);
+        mMenuButton = findViewById(R.id.menu);
         collectionButton = findViewById(R.id.collection);
-        statsButton = findViewById(R.id.statsIcon);
+        mStatsButton = findViewById(R.id.statsIcon);
 
         mStats = new Stats(mDBOpenHelper);
         mStats.setLayout(findViewById(R.id.stats));
@@ -1811,7 +463,7 @@ public class MainActivity extends AppCompatActivity {
         mInventory[2].TEST_MOB_GEARSCORE_TEXT = findViewById(R.id.cardInventory2GearScoreMob);
         mInventory[3].TEST_MOB_GEARSCORE_TEXT = findViewById(R.id.cardInventory3GearScoreMob);
     }
-
+    @Override
     protected void onStart() {
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
         if (account!=null){
@@ -1825,6 +477,219 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
     }
 
+    GoogleSignInClient mGoogleSignInClient;
+    View.OnClickListener onSign = onSign();
+    View.OnClickListener onSign() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+                startActivityForResult(signInIntent, 0);
+            }
+        };
+    }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 0) {
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            login(task);
+        }
+    }
+    private void login(Task<GoogleSignInAccount> completedTask) {
+        try {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            request = new MyRequest(account.getServerAuthCode());
+            post("login", mJackson.writeValueAsString(request), new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    Log.d("onFailure", e.toString());
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    String responseStr = response.body().string();
+                    Log.d("login responseStr", responseStr);
+                    MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
+                    if (!myResponse.isError()){
+                        SQLiteDatabase data_base = mDBOpenHelper.getReadableDatabase();
+
+                        String[] column_name = {
+                                DBOpenHelper.HP,
+                                DBOpenHelper.COSTRESET
+                        };
+
+                        Cursor cursor = data_base.query(
+                                DBOpenHelper.sTableTest,
+                                column_name,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null
+                        );
+                        cursor.moveToFirst();
+
+                        mHpMaxDefault = cursor.getInt(
+                                cursor.getColumnIndexOrThrow(DBOpenHelper.HP)
+                        );
+                        mStatsResetCost = cursor.getInt(
+                                cursor.getColumnIndexOrThrow(DBOpenHelper.COSTRESET)
+                        );
+                        cursor.close();
+
+                        LoginResponce loginResponce = mJackson.readValue(
+                                myResponse.getData(),
+                                LoginResponce.class
+                        );
+                        mTable.post(() -> {
+                            mMoneyBank = loginResponce.getMoneyBank();
+                            mStats.login(loginResponce.getStats());
+                            mHpMax = mHpMaxDefault + mStats.getHPBonus();
+                            mHp = mHpMax;
+                            mState = loginResponce.getState();
+                            resetGame();
+                            mInventory[0].setVisibility(View.VISIBLE);
+                            mLoot[0].setVisibility(View.VISIBLE);
+                            setTextSize();
+                            setAnimators();
+                            updateMoneyBankText();
+                            mStats.updateLevelAndExperienceTextInThreadUI();
+                            mIsAnimate = true;
+                            if (mState!=State.NONE){
+                                mHp = loginResponce.getHP();
+                                mMoney = loginResponce.getMoney();
+                                if (loginResponce.getCardTable0()!=null){
+                                    mCardsTable[0].setIDMob(loginResponce.getCardTable0());
+                                }
+                                if (loginResponce.getCardTable1()!=null){
+                                    mCardsTable[1].setIDMob(loginResponce.getCardTable1());
+                                }
+                                if (loginResponce.getCardTable2()!=null){
+                                    mCardsTable[2].setIDMob(loginResponce.getCardTable2());
+                                }
+                                if (loginResponce.getCardTable3()!=null){
+                                    mCardsTable[3].setIDMob(loginResponce.getCardTable3());
+                                }
+                                if (loginResponce.getCardTable4()!=null){
+                                    mCardsTable[4].setIDMob(loginResponce.getCardTable4());
+                                }
+                                if (loginResponce.getCardTable5()!=null){
+                                    mCardsTable[5].setIDMob(loginResponce.getCardTable5());
+                                }
+                                if (loginResponce.getCardTable6()!=null){
+                                    mCardsTable[6].setIDMob(loginResponce.getCardTable6());
+                                }
+                                if (loginResponce.getCardTable7()!=null){
+                                    mCardsTable[7].setIDMob(loginResponce.getCardTable7());
+                                }
+                                List<CardPlayerResponse> inventory = loginResponce.getInventory();
+                                Iterator<CardPlayerResponse> iterator = inventory.iterator();
+                                while (iterator.hasNext()) {
+                                    CardPlayerResponse item = iterator.next();
+                                    if (item.getSlotId()==4){
+                                        mHandOne.setIDItem(item.getIdItem());
+                                        mHandOne.setDurability(item.getDurability());
+                                        iterator.remove();
+                                        continue;
+                                    }
+                                    if (item.getSlotId()==5){
+                                        mHandTwo.setIDItem(item.getIdItem());
+                                        mHandTwo.setDurability(item.getDurability());
+                                        iterator.remove();
+                                    }
+                                }
+                                if (!inventory.isEmpty()){
+                                    for (mInventoryItemCount = 0;
+                                         mInventoryItemCount<inventory.size();
+                                         mInventoryItemCount++)
+                                    {
+                                        CardPlayerResponse cardPlayerResponse = inventory.get(mInventoryItemCount);
+                                        mInventory[mInventoryItemCount].setDurability(
+                                                cardPlayerResponse.getDurability()
+                                        );
+                                        mInventory[mInventoryItemCount].setIDItem(cardPlayerResponse.getIdItem());
+                                    }
+                                }
+                                mButtonStart.setVisibility(View.GONE);
+                                collectionButton.setVisibility(View.GONE);
+                                mStatsButton.setVisibility(View.GONE);
+                                updateMoneyText();
+                                mCardCenter.setVisibility(View.VISIBLE);
+                                for (CardTable cardTable : mCardsTable) {
+                                    cardTable.setVisibility(View.VISIBLE);
+                                    if (!cardTable.isEmpty()){
+                                        cardTable.load(mDBOpenHelper);
+                                        cardTable.open();
+                                    }
+                                }
+
+                                mHandOne.load(mStats,mDBOpenHelper);
+                                mHandOne.updateDurabilityText();
+                                mHandOne.open();
+                                mHandOne.setOnClickListener(mInventoryOnClickSwap);
+                                mHandTwo.load(mStats,mDBOpenHelper);
+                                mHandTwo.updateDurabilityText();
+                                mHandTwo.open();
+                                mHandTwo.setOnClickListener(mInventoryOnClickSwap);
+                                for (byte i = 0;i<INVENTORY_MAX_COUNT;i++){
+                                    mInventory[i].setOnClickListener(mInventoryOnClickSwap);
+                                    if (i<mInventoryItemCount){
+                                        mInventory[i].load(mStats, mDBOpenHelper);
+                                        mInventory[i].open();
+                                        mInventory[i].setVisibility(View.VISIBLE);
+                                    }
+                                }
+                                mIsAnimate = false;
+                                if (mState!=State.SELECT_TARGET){
+                                    mCardTableTarget = mCardsTable[loginResponce.getCardTableTargetIDInArray()];
+                                    mCardTableTarget.bringToFront();
+                                    mShadow.bringToFront();
+                                    mCardTableTarget.getTargetAnimation().start();
+                                    mCardTableTarget.getTargetAnimation().end();
+                                    if (mState==State.COMBAT){
+                                        mCardTableTarget.bringToFront();
+                                        mCardTableTarget.setValueTwoInUIThread(loginResponce.getCardTableTargetHP());
+                                        mCardTableTarget.setOnClickListener(mDamageListener);
+                                    }
+                                    if (mState==State.SELECT_LOOT) {
+                                        mIsAnimate = true;
+                                        List<CardPlayerResponse> loot = loginResponce.getLoot();
+                                        for (mLootCount = 0; mLootCount<loot.size();mLootCount++){
+                                            CardPlayerResponse cardPlayerResponse = loot.get(mLootCount);
+                                            mLoot[mLootCount].setIDItem(cardPlayerResponse.getIdItem());
+                                            mLoot[mLootCount].setDurability(
+                                                    cardPlayerResponse.getDurability()
+                                            );
+                                        }
+                                        for (byte i = 0;i<mLootCount;i++){
+                                            mLoot[i].load(mStats, mDBOpenHelper);
+                                            mLoot[i].open();
+                                            mLoot[i].setVisibility(View.VISIBLE);
+                                            mLoot[i].bringToFront();
+                                        }
+                                        mCardTableTarget.getCloseAnimation().start();
+                                        mCardTableTarget.getCloseAnimation().end();
+                                        mButtonContinue.bringToFront();
+                                        mButtonContinue.setVisibility(View.VISIBLE);
+                                    }
+                                }
+                            }
+                            Log.d("mIsAnimate", String.valueOf(mIsAnimate));
+                            updateHPText();
+                            findViewById(R.id.signLayout).setVisibility(View.GONE);
+                        });
+                    }
+                }
+            });
+        }
+        catch (ApiException e) {
+            Log.w("login", "signInResult:failed code=" + e.getStatusCode());
+            e.printStackTrace();
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
     private void setTextSize() {
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
@@ -1869,8 +734,8 @@ public class MainActivity extends AppCompatActivity {
                 Math.pow(mHandOne.mImageView.getHeight(), 2.0)) * card_hp_and_damage_text_size_constant);
         float card_hand_name_text_size = (float) (Math.sqrt(Math.pow(mHandOne.mImageView.getWidth(), 2.0) +
                 Math.pow(mHandOne.mImageView.getHeight(), 2.0)) * card_name_text_size_constant);
-            mHandOne.mNameText.setTextSize(COMPLEX_UNIT_PX, card_hand_name_text_size);
-            mHandOne.mValueOneText.setTextSize(COMPLEX_UNIT_PX, card_hand_value_one_text_size);
+        mHandOne.mNameText.setTextSize(COMPLEX_UNIT_PX, card_hand_name_text_size);
+        mHandOne.mValueOneText.setTextSize(COMPLEX_UNIT_PX, card_hand_value_one_text_size);
         mHandTwo.mNameText.setTextSize(COMPLEX_UNIT_PX, card_hand_name_text_size);
         mHandTwo.mValueOneText.setTextSize(COMPLEX_UNIT_PX, card_hand_value_one_text_size);
 
@@ -1879,10 +744,8 @@ public class MainActivity extends AppCompatActivity {
                 Math.pow(hp_view.getHeight(), 2.0)) * hp_text_size_constant);
         mHpText.setTextSize(COMPLEX_UNIT_PX, hp_text_size);
     }
-
     AnimatorSet columnCenterCardTableReset = new AnimatorSet();
     private void setAnimators() {
-
         float cardTableIncreaseAnimationValue = 3f;
         int duration = 500;
         int card_animation_duration = 500;
@@ -2308,9 +1171,9 @@ public class MainActivity extends AppCompatActivity {
             }
             @Override
             public void onAnimationEnd(Animator animation) {
-                    mCardsTable[0].copy(mCardsTable[1]);
-                    mCardsTable[3].close(cardCenterBack);
-                    mCardsTable[5].copy(mCardsTable[6]);
+                mCardsTable[0].copy(mCardsTable[1]);
+                mCardsTable[3].close(cardCenterBack);
+                mCardsTable[5].copy(mCardsTable[6]);
             }
         };
         cardTableMoveToLeft.addListener(cardTableMoveToLeftListener);
@@ -2373,9 +1236,9 @@ public class MainActivity extends AppCompatActivity {
         AnimatorListenerAdapter getColumnRightAnimationListener = new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
-                    mCardsTable[2].close(mIdDrawableCardBack);
-                    mCardsTable[4].close(mIdDrawableCardBack);
-                    mCardsTable[7].close(mIdDrawableCardBack);
+                mCardsTable[2].close(mIdDrawableCardBack);
+                mCardsTable[4].close(mIdDrawableCardBack);
+                mCardsTable[7].close(mIdDrawableCardBack);
             }
             @Override
             public void onAnimationEnd(Animator animation) {}
@@ -3150,12 +2013,10 @@ public class MainActivity extends AppCompatActivity {
                     mNextCardTable = mJackson.readValue(myResponse.getData(), byte[].class);
                     mTable.post(() -> {
                         collectionButton.setVisibility(View.GONE);
-                        statsButton.setVisibility(View.GONE);
+                        mStatsButton.setVisibility(View.GONE);
                         setHPInUIThread(mHpMaxDefault+mStats.getHPBonus());
                         mHandOne.load(mStats, mDBOpenHelper);
-                        mGearScoreWeaponOrShieldInInventory.add(mHandOne.getGearScore());
                         mHandTwo.load(mStats, mDBOpenHelper);
-                        mGearScoreWeaponOrShieldInInventory.add(mHandTwo.getGearScore());
                         for (int i = 0; i < 8; i++) {
                             mCardsTable[i].setVisibility(View.VISIBLE);
                         }
@@ -3212,28 +2073,543 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-    private void setSelectTarget() {
-        mState = State.SELECT_TARGET;
-        for (byte i = 0; i < LOOT_MAX_COUNT; i++) {
-            mLoot[i].close(mIdDrawableCardBack);
-            mLoot[i].setVisibility(View.GONE);
-        }
-        mLootCount = 0;
-        if (mTargetSwap != null) {
-            targetReset();
-        }
-        mCardTableTarget.getChangeAnimation().start();
-        mCardTableTarget.setOnClickListener(setTargetListener);
-        mButtonContinue.setVisibility(View.GONE);
+
+    View.OnLongClickListener mOnLongClickListener = mOnLongClickListener();
+    View.OnLongClickListener mOnLongClickListener() {
+        return new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (mTargetSwap.getType() == InventoryType.FOOD) {
+                    useFood();
+                    return true;
+                }
+                if (mTargetSwap.getType() == InventoryType.SPELL) {
+                    useSpell();
+                    return true;
+                }
+                if(mTargetSwap.mSlotType == SlotType.HAND){
+                    CardHand card_hand = (CardHand) mTargetSwap;
+                    if (card_hand.getIDItem()!=card_hand.getIDDefault()){
+                        if (mInventoryItemCount < INVENTORY_MAX_COUNT){
+                            mInventory[mInventoryItemCount].copy(card_hand);
+                            mInventory[mInventoryItemCount].setVisibility(View.VISIBLE);
+                            mInventoryItemCount++;
+                            card_hand.setIDItem(card_hand.getIDDefault());
+                            card_hand.load(mStats, mDBOpenHelper);
+                        }
+                        else{
+                            mDialogWindow.openInfo("Нет места в инвентаре.");
+                        }
+                        Log.d("targetReset", "hand take off");
+                        targetReset();
+                    }
+                    return true;
+                }
+                return true;
+            }
+        };
     }
 
-    public void onClickTradeExit(View view){
-        mCardTableTarget.getChangeAnimation().start();
-        mTradeSkill.setVisibility(View.GONE);
-        mTradeZone.setVisibility(View.GONE);
-        mTable.setOnDragListener(mTableOnDropListener);
+    View.OnTouchListener mCardMoveListener = mCardMoveListener();
+    View.OnTouchListener mCardMoveListener() {
+        return new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(MotionEvent.ACTION_MOVE==event.getAction()){
+                    if (event.getHistorySize()==1){
+                        if (event.getY()<event.getHistoricalY(0)) {
+                            ClipData data = ClipData.newPlainText("", "");
+                            View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(mTargetSwap);
+                            mTargetSwap.startDrag(data, shadowBuilder, mTargetSwap, 0);
+                            mTargetSwap.setVisibility(View.INVISIBLE);
+                            Log.d("INVISIBLE", "onTouch: ");
+                        }
+                    }
+                }
+                return false;
+            }
+        };
     }
 
+    View.OnDragListener mHandOnDropListener = mHandOnDropListener();
+    View.OnDragListener mHandOnDropListener() {
+        return new View.OnDragListener() {
+            @Override
+            public boolean onDrag(View v, DragEvent event) {
+                if (!event.getResult() && event.getAction() == DragEvent.ACTION_DRAG_STARTED) {
+                    return true;
+                }
+                if (!event.getResult() && event.getAction() == DragEvent.ACTION_DRAG_ENDED) {
+                    mTargetSwap.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mTargetSwap.setVisibility(View.VISIBLE);
+                        }
+                    });
+                    return false;
+                }
+                if (event.getAction() == DragEvent.ACTION_DROP) {
+                    CardHand target_swap_two = ((CardHand) v);
+                    if (target_swap_two.mSlotType != mTargetSwap.mSlotType) {
+                        if (mTargetSwap.getType() == InventoryType.SHIELD || mTargetSwap.getType() ==
+                                InventoryType.WEAPON) {
+                            if(target_swap_two.mDurabilityText.getVisibility()==View.VISIBLE){
+                                inventory_temp.Copy(target_swap_two);
+                                target_swap_two.copy(mTargetSwap);
+                                mTargetSwap.copy(inventory_temp);
+                                mTargetSwap.setVisibility(View.VISIBLE);
+                            }
+                            else{
+                                target_swap_two.copy(mTargetSwap);
+                                target_swap_two.mDurabilityText.setVisibility(View.VISIBLE);
+                                target_swap_two.mDurabilityImage.setVisibility(View.VISIBLE);
+                                mInventoryItemCount--;
+                                inventorySort();
+                                tryPickingLoot();
+                            }
+                            Log.d("targetReset", "hand swap");
+                            targetReset();
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+        };
+    }
+
+    View.OnDragListener mLootOnDropListener = mLootOnDropListener();
+    View.OnDragListener mLootOnDropListener() {
+        return new View.OnDragListener() {
+            @Override
+            public boolean onDrag(View v, DragEvent event) {
+                if (!event.getResult() && event.getAction() == DragEvent.ACTION_DRAG_STARTED) {
+                    return true;
+                }
+                if (!event.getResult() && event.getAction() == DragEvent.ACTION_DRAG_ENDED) {
+                    mTargetSwap.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mTargetSwap.setVisibility(View.VISIBLE);
+                        }
+                    });
+                    return false;
+                }
+                if (event.getAction() == DragEvent.ACTION_DROP) {
+                    CardInventory target_swap_two = ((CardInventory) v);
+                    if (mTargetSwap.mSlotType == SlotType.INVENTORY) {
+                        inventory_temp.Copy(target_swap_two);
+                        target_swap_two.copy(mTargetSwap);
+                        mTargetSwap.copy(inventory_temp);
+                        mTargetSwap.setVisibility(View.VISIBLE);
+                        Log.d("targetReset", "loot swap");
+                        targetReset();
+                        return true;
+                    }
+                    else {
+                        if (target_swap_two.getType() == InventoryType.WEAPON ||
+                                        target_swap_two.getType() == InventoryType.SHIELD)
+                        {
+                            if(((CardHand) mTargetSwap).mDurabilityText.getVisibility()==View.VISIBLE){
+                                        inventory_temp.Copy(target_swap_two);
+                                        target_swap_two.copy(mTargetSwap);
+                                        mTargetSwap.copy(inventory_temp);
+                            }
+                            else{
+                                        mTargetSwap.copy(target_swap_two);
+                                        ((CardHand) mTargetSwap).mDurabilityText.setVisibility(View.VISIBLE);
+                                        ((CardHand) mTargetSwap).mDurabilityImage.setVisibility(View.VISIBLE);
+                                        target_swap_two.setVisibility(View.GONE);
+                                        mLootCount--;
+                                        tryContinue();
+                            }
+                            mTargetSwap.setVisibility(View.VISIBLE);
+                            Log.d("targetReset", "loot swap");
+                            targetReset();
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+        };
+    }
+
+    View.OnDragListener mTableOnDropListener = mTableOnDropListener();
+    View.OnDragListener mTableOnDropListener() {
+        return new View.OnDragListener() {
+            @Override
+            public boolean onDrag(View v, DragEvent event) {
+
+                if (!event.getResult() && event.getAction() == DragEvent.ACTION_DRAG_STARTED) {
+                    return true;
+                }
+                if (!event.getResult() && event.getAction() == DragEvent.ACTION_DRAG_ENDED) {
+                    mTargetSwap.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mTargetSwap.setVisibility(View.VISIBLE);
+                        }
+                    });
+                    return false;
+                }
+                if (event.getAction() == DragEvent.ACTION_DROP) {
+                    if (mTargetSwap.getType() == InventoryType.FOOD) {
+                        useFood();
+                        return true;
+                    }
+                    if (mTargetSwap.getType() == InventoryType.SPELL) {
+                        useSpell();
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        };
+    }
+
+    View.OnClickListener setTargetListener = setTarget();
+    View.OnClickListener setTarget() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!mIsAnimate) {
+                    mIsAnimate = true;
+                    Log.d("mIsAnimate", String.valueOf(mIsAnimate));
+                    mCardTableTarget = (CardTable) v;
+                    String requestString = null;
+                    try {
+                        request.setData(mJackson.writeValueAsString(mCardTableTarget.getIdInArray()));
+                        requestString = mJackson.writeValueAsString(request);
+                    }
+                    catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
+                    post("target", requestString, new Callback() {
+                        @Override
+                        public void onFailure(Call call, IOException e) {
+                            Log.d("target onFailure", e.toString());
+                        }
+                        @Override
+                        public void onResponse(Call call, Response response) throws IOException {
+                            String responseStr = response.body().string();
+                            Log.d("target response ", responseStr);
+                            MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
+                            if (!myResponse.isError()){
+                                mTable.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if(mCardTableTarget.getType()== CardTableType.MOB){
+                                            mCardTableTarget.bringToFront();
+                                            mCardTableTarget.getTargetAnimation().start();
+                                            mCardTableTarget.setOnClickListener(mDamageListener);
+                                        }
+                                        if (mCardTableTarget.getType()==CardTableType.VENDOR){
+                                            card_6_animation_click_vendor.start();
+                                            if(mCardTableTarget.getSubType()== CardTableSubType.TRADER){
+                                                mShadow.bringToFront();
+                                                mCardTableTarget.bringToFront();
+                                                Picasso.with(getBaseContext())
+                                                        .load(R.drawable.navik_torgovca)
+                                                        .into(mTradeSkillImage);
+                                                mTradeSkillImage.setOnClickListener(mOnClickVendorSkill);
+                                                for (byte i = 0; i< LOOT_MAX_COUNT; i++){
+                                                    mTradeItem[i].change(mStats, mDBOpenHelper,random, mGearScore);
+                                                    mTradeItem[i].open();
+                                                    mTradeItem[i].setVisibility(View.VISIBLE);
+                                                    mTradeCost[i].setText(String.format("%d", mTradeItem[i].getCost()));
+                                                    mTradeCost[i].setVisibility(View.VISIBLE);
+                                                    mTradeCostImage[i].setVisibility(View.VISIBLE);
+                                                }
+                                                mTradeSkill.setVisibility(View.VISIBLE);
+                                                mTradeZone.setVisibility(View.VISIBLE);
+                                                mTable.setOnDragListener(null);
+                                            }
+                                            if (mCardTableTarget.getSubType()== CardTableSubType.BLACKSMITH){
+                                                mShadow.bringToFront();
+                                                mCardTableTarget.bringToFront();
+                                                Picasso.with(getBaseContext())
+                                                        .load(R.drawable.navik_kuznecaa)
+                                                        .into(mTradeSkillImage);
+                                                mTradeSkillImage.setOnClickListener(null);
+                                                for (byte i = 0; i< LOOT_MAX_COUNT; i++){
+                                                    mTradeItem[i].change(mStats, mDBOpenHelper,random, mGearScore, random.nextInt(2));
+                                                    mTradeItem[i].open();
+                                                    mTradeItem[i].setVisibility(View.VISIBLE);
+                                                    mTradeItem[i].setDurability(mTradeItem[i].getDurabilityMax());
+                                                    mTradeCost[i].setText(String.format("%d", mTradeItem[i].getCost()));
+                                                    mTradeCost[i].setVisibility(View.VISIBLE);
+                                                    mTradeCostImage[i].setVisibility(View.VISIBLE);
+                                                }
+                                                mTradeSkill.setVisibility(View.VISIBLE);
+                                                mTradeZone.setVisibility(View.VISIBLE);
+                                                mTable.setOnDragListener(null);
+                                            }
+                                            if (mCardTableTarget.getSubType()== CardTableSubType.INNKEEPER){
+                                                mShadow.bringToFront();
+                                                mCardTableTarget.bringToFront();
+                                                Picasso.with(getBaseContext())
+                                                        .load(R.drawable.navik_traktirshika)
+                                                        .into(mTradeSkillImage);
+                                                mTradeSkillImage.setOnClickListener(mOnClickInnkeeperSkill);
+                                                for (byte i = 0; i< LOOT_MAX_COUNT; i++){
+                                                    mTradeItem[i].change(mStats, mDBOpenHelper,random, mGearScore, InventoryType.FOOD);
+                                                    mTradeItem[i].open();
+                                                    mTradeItem[i].setVisibility(View.VISIBLE);
+                                                    mTradeCost[i].setText(String.format("%d", mTradeItem[i].getCost()));
+                                                    mTradeCost[i].setVisibility(View.VISIBLE);
+                                                    mTradeCostImage[i].setVisibility(View.VISIBLE);
+                                                }
+                                                mTradeSkill.setVisibility(View.VISIBLE);
+                                                mTradeZone.setVisibility(View.VISIBLE);
+                                                mTable.setOnDragListener(null);
+                                            }
+                                        }
+                                        if (mCardTableTarget.getType()== CardTableType.HALT){
+                                            mShadow.bringToFront();
+                                            mCardTableTarget.bringToFront();
+                                            mCardTableTarget.getTargetAnimation().start();
+                                            changeHPInUIThread(mHpMax);
+                                            mCardTableTarget.getChangeAnimation().start();
+                                        }
+                                        if (mCardTableTarget.getType()== CardTableType.CHEST){
+                                            mShadow.bringToFront();
+                                            mCardTableTarget.bringToFront();
+                                            mCardTableTarget.getTargetAnimation().start();
+                                            mCardTableTarget.getCloseAnimation().start();
+                                            //changeMoneyInUIThread(mCardTableTarget.getMoney());
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+            }
+        };
+    }
+
+    View.OnClickListener mInventoryOnClickSwap = mInventoryOnClickSwap();
+    View.OnClickListener mInventoryOnClickSwap() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (is_first_click) {
+                    mTargetSwap = (CardInventory) v;
+                    if (mTargetSwap.mSlotType == SlotType.HAND) {
+                        target_on_animation = ObjectAnimator.ofFloat(mTargetSwap, View.TRANSLATION_Y, 0f, -hand_animation_delta);
+                        target_off_animation = ObjectAnimator.ofFloat(mTargetSwap, View.TRANSLATION_Y, -hand_animation_delta, 0f);
+                    }
+                    if (mTargetSwap.mSlotType == SlotType.LOOT) {
+                        target_on_animation = ObjectAnimator.ofFloat(mTargetSwap, View.TRANSLATION_Y, 0f, -loot_animation_delta);
+                        target_off_animation = ObjectAnimator.ofFloat(mTargetSwap, View.TRANSLATION_Y, -loot_animation_delta, 0f);
+
+                    }
+                    if (mTargetSwap.mSlotType == SlotType.INVENTORY) {
+                        target_on_animation = ObjectAnimator.ofFloat(mTargetSwap, View.TRANSLATION_Y, 0f, -inventory_animation_delta);
+                        target_off_animation = ObjectAnimator.ofFloat(mTargetSwap, View.TRANSLATION_Y, -inventory_animation_delta, 0f);
+                    }
+
+                    Log.d("target on", String.valueOf(mTargetSwap.mNameText.getText()));
+                    is_first_click = false;
+
+                    target_off_animation.addListener(on_target_off_animation);
+                    target_on_animation.addListener(target_on_animation_end);
+                    target_on_animation.start();
+
+                    if (mTradeSkill.getVisibility()==View.VISIBLE && mCardTableTarget.getSubType()== CardTableSubType.BLACKSMITH&&
+                            (mTargetSwap.getType()== InventoryType.SHIELD|| mTargetSwap.getType()== InventoryType.WEAPON)){
+                        mTradeSkillImage.setOnClickListener(mOnClickBlacksmithSkill);
+                    }
+                }
+                else {
+                    CardInventory targetSwapTwo = (CardInventory) v;
+                    if (!mTargetSwap.equals(targetSwapTwo) ) {
+                        if (targetSwapTwo.mSlotType != mTargetSwap.mSlotType) {
+                            if (targetSwapTwo.mSlotType == SlotType.HAND) {
+                                CardHand targetSwapTwoHand = (CardHand) v;
+                                if (mTargetSwap.getType() == InventoryType.SHIELD || mTargetSwap.getType() ==
+                                        InventoryType.WEAPON) {
+                                    if(targetSwapTwoHand.mDurabilityText.getVisibility()==View.VISIBLE){
+                                        inventory_temp.Copy(targetSwapTwoHand);
+                                        targetSwapTwoHand.copy(mTargetSwap);
+                                        mTargetSwap.copy(inventory_temp);
+                                    }
+                                    else{
+                                        targetSwapTwoHand.copy(mTargetSwap);
+                                        targetSwapTwoHand.mDurabilityText.setVisibility(View.VISIBLE);
+                                        targetSwapTwoHand.mDurabilityImage.setVisibility(View.VISIBLE);
+                                        mInventoryItemCount--;
+                                        inventorySort();
+                                        tryPickingLoot();
+                                    }
+                                    Log.d("targetReset", "hand swap click");
+                                    targetReset();
+                                }
+                            }
+                            if (targetSwapTwo.mSlotType == SlotType.LOOT) {
+                                if (mTargetSwap.mSlotType == SlotType.INVENTORY) {
+                                    inventory_temp.Copy(targetSwapTwo);
+                                    targetSwapTwo.copy(mTargetSwap);
+                                    mTargetSwap.copy(inventory_temp);
+                                    Log.d("targetReset", "loot swap click");
+                                    targetReset();
+                                }
+                                else {
+                                    if (targetSwapTwo.getType() == InventoryType.WEAPON ||
+                                            targetSwapTwo.getType() == InventoryType.SHIELD)
+                                    {
+                                        if(((CardHand) mTargetSwap).mDurabilityText.getVisibility()==View.VISIBLE){
+                                            inventory_temp.Copy(targetSwapTwo);
+                                            targetSwapTwo.copy(mTargetSwap);
+                                            mTargetSwap.copy(inventory_temp);
+                                        }
+                                        else{
+                                            mTargetSwap.copy(targetSwapTwo);
+                                            ((CardHand) mTargetSwap).mDurabilityText.setVisibility(View.VISIBLE);
+                                            ((CardHand) mTargetSwap).mDurabilityImage.setVisibility(View.VISIBLE);
+                                            targetSwapTwo.setVisibility(View.GONE);
+                                            mLootCount--;
+                                            tryContinue();
+                                        }
+                                        Log.d("targetReset", "loot swap click");
+                                        targetReset();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        Log.d("targetReset", "target off");
+                        targetReset();
+                    }
+                }
+            }
+        };
+    }
+
+    byte[] mNextCardTable;
+    View.OnClickListener mDamageListener = mDamageListener();
+    View.OnClickListener mDamageListener() {
+        return v -> {
+            String requestString = null;
+            try {
+                Byte[] idHands = new Byte[2];
+                idHands[0] = mHandOne.getIDItem();
+                idHands[1] = mHandTwo.getIDItem();
+                request.setData(mJackson.writeValueAsString(idHands));
+                requestString = mJackson.writeValueAsString(request);
+            }
+            catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+            post("damage", requestString, new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    Log.d("damage onFailure", e.toString());
+                }
+                @Override
+                public void onResponse(final Call call, Response response) throws IOException {
+                    String responseStr = response.body().string();
+                    Log.d("damage responseStr", responseStr);
+                    MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
+                    if (!myResponse.isError()){
+                        mTable.post(() -> {
+                            int mobDamage = mCardTableTarget.getValueOne();
+                            if(mobDamage>0&& mHandOne.getType() == InventoryType.SHIELD){
+                                if (mHandOne.getValueOne() < mobDamage){
+                                    mobDamage -= mHandOne.getValueOne();
+                                }
+                                else{
+                                    mobDamage = 0;
+                                }
+                            }
+                            if(mobDamage>0&& mHandTwo.getType() == InventoryType.SHIELD){
+                                if (mHandTwo.getValueOne() < mobDamage){
+                                    mobDamage -= mHandTwo.getValueOne();
+                                }
+                                else{
+                                    mobDamage = 0;
+                                }
+                            }
+                            if (mobDamage>0){
+                                changeHP(-mobDamage);
+                            }
+                            if (mHp < 1) {
+                                mMoneyBank += mMoney;
+                                mMoney = 0;
+                                resetGame();
+                                mTable.post(() -> {
+                                    changeHPInUIThread(mHpMax);
+                                    mCardTableTarget.getChangeAnimation().start();
+                                    mCardTableTarget.getChangeAnimation().end();
+                                    collectionButton.setVisibility(View.VISIBLE);
+                                    mStatsButton.setVisibility(View.VISIBLE);
+                                    mButtonStart.setVisibility(View.VISIBLE);
+                                });
+                                return;
+                            }
+                            updateHPText();
+                            if(mHandOne.mDurabilityText.getVisibility()==View.VISIBLE){
+                                mHandOne.setDurabilityInUIThread(mHandOne.getDurability()-1);
+                                if (mHandOne.getDurability()<1){
+                                    mHandOne.setIDItem(mHandOne.getIDDefault());
+                                    mHandOne.load(mStats, mDBOpenHelper);
+                                }
+                                else{
+                                    mHandOne.updateDurabilityText();
+                                }
+                            }
+                            if(mHandTwo.mDurabilityText.getVisibility()==View.VISIBLE){
+                                mHandTwo.setDurabilityInUIThread(mHandTwo.getDurability()-1);
+                                if (mHandTwo.getDurability()<1){
+                                    mHandTwo.setIDItem(mHandTwo.getIDDefault());
+                                    mHandTwo.load(mStats, mDBOpenHelper);
+                                }
+                                else{
+                                    mHandTwo.updateDurabilityText();
+                                }
+                            }
+
+                            int damage = ((mHandOne.getType() == InventoryType.WEAPON) ?
+                                    mHandOne.getValueOne() : 0) + ((mHandTwo.getType() == InventoryType.WEAPON) ?
+                                    mHandTwo.getValueOne() : 0);
+                            mCardTableTarget.changeValueTwo(-damage);
+
+                            if (mCardTableTarget.getValueTwo() < 1){
+                                try {
+                                    DamageResponse damageResponse = mJackson.readValue(
+                                            myResponse.getData(),
+                                            DamageResponse.class
+                                    );
+                                    mNextCardTable = damageResponse.getCardTableID();
+                                    CardPlayerResponse[] loot = mJackson.readValue(
+                                            damageResponse.getLoot(),
+                                            CardPlayerResponse[].class
+                                    );
+                                    mLootCount = loot.length;
+                                    for (int i = 0; i < mLootCount; i++) {
+                                        mLoot[i].bringToFront();
+                                        mLoot[i].setIDItem(loot[i].getIdItem());
+                                        mLoot[i].setDurability(loot[i].getDurability());
+                                    }
+                                    mobDead();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            else {
+                                mCardTableTarget.updateValueTwoText();
+                            }
+                        });
+                    }
+                }
+            });
+        };
+    }
+
+    //region Stats
     Stats mStats;
     int mStatsResetCost;
     public void onClickIconStats(View view){
@@ -3346,6 +2722,204 @@ public class MainActivity extends AppCompatActivity {
             );
         }
     }
+    //endregion
+    //region Trade
+    View.OnClickListener mOnClickBuyCardListener = mOnClickBuyCardListener();
+    View.OnClickListener mOnClickBuyCardListener() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mMoney >=((CardInventory)v).getCost()&& mInventoryItemCount < INVENTORY_MAX_COUNT){
+                    trade_target = (CardInventory)v;
+                    mDialogWindow.openDialog(
+                            String.format("Купить карту за %d золотых?", trade_target.getCost()),
+                            mCardTradeBuyClickYes
+                    );
+                }
+                else{
+                    if (!(mInventoryItemCount < INVENTORY_MAX_COUNT)){
+                        mDialogWindow.openInfo("Нет места в инвентаре.");
+                    }
+                    else{
+                        mDialogWindow.openInfo("Недостаточно золота.");
+                    }
+                }
+            }
+        };
+    }
+
+    View.OnClickListener mCardTradeBuyClickYes = mCardTradeBuyClickYes();
+    View.OnClickListener mCardTradeBuyClickYes() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mDialogWindow.close();
+                trade_target.setVisibility(View.INVISIBLE);
+                mTradeCost[trade_target.getSlotId()].setVisibility(View.INVISIBLE);
+                mTradeCostImage[trade_target.getSlotId()].setVisibility(View.INVISIBLE);
+                mInventory[mInventoryItemCount].copy(trade_target);
+                mInventory[mInventoryItemCount].setVisibility(View.VISIBLE);
+                mInventoryItemCount++;
+                changeMoneyInUIThread(-trade_target.getCost());
+            }
+        };
+    }
+
+    View.OnClickListener mCardTradeSellClickYes = mCardTradeSellClickYes();
+    View.OnClickListener mCardTradeSellClickYes() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mDialogWindow.close();
+                mTargetSwap.setVisibility(View.INVISIBLE);
+                mInventoryItemCount--;
+                inventorySort();
+                changeMoneyInUIThread(mTargetSwap.getCost());
+                targetReset();
+            }
+        };
+    }
+
+    View.OnDragListener mOnSell = mOnSell();
+    View.OnDragListener mOnSell() {
+        return new View.OnDragListener() {
+            @Override
+            public boolean onDrag(View v, DragEvent event) {
+
+/*
+                if (!event.getResult() && event.getAction() == DragEvent.ACTION_DRAG_STARTED) {
+                    return true;
+                }
+*/
+                if (event.getAction() == DragEvent.ACTION_DROP) {
+                    mTargetSwap.setVisibility(View.VISIBLE);
+                    if (mTargetSwap.getIdDrawable()!=R.drawable.kulak_levo||
+                            mTargetSwap.getIdDrawable()!=R.drawable.kulak_pravo)
+                    {
+                        mDialogWindow.openDialog(
+                                String.format("Продать карту за %d золотых?", mTargetSwap.getCost()),
+                                mCardTradeSellClickYes
+                        );
+                    }
+                }
+                return true;
+            }
+        };
+    }
+
+    byte mCostVendorSkill = 1;
+    View.OnClickListener mOnClickVendorSkill = mOnClickVendorSkill();
+    View.OnClickListener mOnClickVendorSkill() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mMoney >= mCostVendorSkill){
+                    mDialogWindow.openDialog(
+                            String.format("Обновить ассортимент торговца за %d золотых?", mCostVendorSkill),
+                            mOnClickVendorSkillYes
+                    );
+                }
+                else{
+                    mDialogWindow.openInfo(
+                            String.format("Недостаточно %d золота.", mCostVendorSkill - mMoney)
+                    );
+                }
+            }
+        };
+    }
+    View.OnClickListener mOnClickVendorSkillYes = mOnClickVendorSkillYes();
+    View.OnClickListener mOnClickVendorSkillYes() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mDialogWindow.close();
+                changeMoneyInUIThread(-mCostVendorSkill);
+                for (byte i = 0; i< LOOT_MAX_COUNT; i++){
+                    mTradeItem[i].change(mStats, mDBOpenHelper,random, mGearScore);
+                    mTradeItem[i].open();
+                    mTradeItem[i].setVisibility(View.VISIBLE);
+                    mTradeCost[i].setText(String.format("%d", mTradeItem[i].getCost()));
+                    mTradeCost[i].setVisibility(View.VISIBLE);
+                    mTradeCostImage[i].setVisibility(View.VISIBLE);
+                }
+            }
+        };
+    }
+
+    View.OnClickListener mOnClickBlacksmithSkill = mOnClickBlacksmithSkill();
+    View.OnClickListener mOnClickBlacksmithSkill() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mMoney >= mCostVendorSkill){
+                    mDialogWindow.openDialog(
+                            String.format("Починитm предмет за %d золотых?", mCostVendorSkill),
+                            mOnClickBlacksmithSkillYes
+                    );
+                }
+                else{
+                    mDialogWindow.openInfo(
+                            String.format("Недостаточно %d золота.", mCostVendorSkill - mMoney)
+                    );
+                }
+            }
+        };
+    }
+    View.OnClickListener mOnClickBlacksmithSkillYes = mOnClickBlacksmithSkillYes();
+    View.OnClickListener mOnClickBlacksmithSkillYes() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mDialogWindow.close();
+                changeMoneyInUIThread(-mCostVendorSkill);
+                mTargetSwap.setDurability(10);
+                if (mTargetSwap.mSlotType == SlotType.HAND){
+                    ((CardHand) mTargetSwap).updateDurabilityText();
+                }
+                targetReset();
+            }
+        };
+    }
+
+    View.OnClickListener mOnClickInnkeeperSkill = mOnClickInnkeeperSkill();
+    View.OnClickListener mOnClickInnkeeperSkill() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mMoney >= mCostVendorSkill){
+                    mDialogWindow.openDialog(
+                            String.format("Отдохнуть и восстановить здоровье за %d золотых?", mCostVendorSkill),
+                            mOnClickInnkeeperSkillYes
+                    );
+                }
+                else{
+                    mDialogWindow.openInfo(
+                            String.format("Недостаточно %d золота.", mCostVendorSkill - mMoney)
+                    );
+                }
+            }
+        };
+    }
+    View.OnClickListener mOnClickInnkeeperSkillYes = mOnClickInnkeeperSkillYes();
+    View.OnClickListener mOnClickInnkeeperSkillYes() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mDialogWindow.close();
+                changeMoneyInUIThread(-mCostVendorSkill);
+                changeHPInUIThread(mHpMax);
+                mTradeSkillImage.setOnClickListener(null);
+            }
+        };
+    }
+
+    public void onClickTradeExit(View view){
+        mCardTableTarget.getChangeAnimation().start();
+        mTradeSkill.setVisibility(View.GONE);
+        mTradeZone.setVisibility(View.GONE);
+        mTable.setOnDragListener(mTableOnDropListener);
+    }
+    //endregion
 
     public void onClickIconMenu(View view){
         if (findViewById(R.id.balanceMenu).getVisibility()==View.GONE){
@@ -3464,5 +3038,324 @@ public class MainActivity extends AppCompatActivity {
         catch (Exception e){
 
         }
+    }
+
+    void post(String text, String data, Callback callback) {
+        RequestBody body = RequestBody.create(
+                MediaType.parse("application/json; charset=utf-8"),
+                data
+        );
+        Log.d("post "+text, data);
+        Request request = new Request.Builder()
+                .url("https://88.80.52.80:4430/"+text)
+                .post(body)
+                .build();
+        Call call = client.newCall(request);
+        call.enqueue(callback);
+    }
+
+    private void resetGame() {
+        for (byte i = 0; i < 8; i++) {
+            mCardsTable[i].setIdInArray(i);
+            mCardsTable[i].close(mIdDrawableCardBack);
+            mCardsTable[i].setVisibility(View.INVISIBLE);
+        }
+        mCardCenter.setVisibility(View.INVISIBLE);
+
+        mLoot[0].setVisibility(View.GONE);;
+        mLoot[1].setVisibility(View.GONE);
+        mLoot[2].setVisibility(View.GONE);
+
+        mInventoryItemCount = 0;
+
+        mHandOne.setOnClickListener(null);
+        mHandTwo.setOnClickListener(null);
+        mHandOne.setIDItem(mHandOne.getIDDefault());
+        mHandOne.load(mStats, mDBOpenHelper);
+        mHandOne.open();
+        mHandTwo.setIDItem(mHandTwo.getIDDefault());
+        mHandTwo.load(mStats, mDBOpenHelper);
+        mHandTwo.open();
+
+        for (byte i = 0; i < INVENTORY_MAX_COUNT; i++) {
+            mInventory[i].setVisibility(View.GONE);
+            mInventory[i].setSlotId(i);
+            mInventory[i].close(mIdDrawableCardBack);
+        }
+
+        mIsAnimate = true;
+        Log.d("mIsAnimate", String.valueOf(mIsAnimate));
+
+        mCardsTable[1].setOnClickListener(setTargetListener);
+        mCardsTable[3].setOnClickListener(setTargetListener);
+        mCardsTable[4].setOnClickListener(setTargetListener);
+        mCardsTable[6].setOnClickListener(setTargetListener);
+
+        mShadow.setVisibility(View.VISIBLE);
+        mShadow.setAlpha(0f);
+    }
+
+    private void setSelectTarget() {
+        mState = State.SELECT_TARGET;
+        for (byte i = 0; i < LOOT_MAX_COUNT; i++) {
+            mLoot[i].close(mIdDrawableCardBack);
+            mLoot[i].setVisibility(View.GONE);
+        }
+        mLootCount = 0;
+        if (mTargetSwap != null) {
+            targetReset();
+        }
+        mCardTableTarget.getChangeAnimation().start();
+        mCardTableTarget.setOnClickListener(setTargetListener);
+        mButtonContinue.setVisibility(View.GONE);
+    }
+
+    private void deleteOnClickListenerBeforeAnomationTargetReset() {
+        for (byte i = 0; i < INVENTORY_MAX_COUNT; i++) {
+            mInventory[i].setOnClickListener(null);
+        }
+        for (int i = 0; i < LOOT_MAX_COUNT; i++) {
+            mLoot[i].setOnClickListener(null);
+        }
+        mHandOne.setOnClickListener(null);
+        mHandTwo.setOnClickListener(null);
+    }
+
+    private void targetReset() {
+        if (mTargetSwap !=null){
+            target_off_animation.start();
+            Log.d("target off", (String) mTargetSwap.mNameText.getText());
+        }
+        mTradeSkillImage.setOnClickListener(null);
+        mTargetSwap = null;
+        is_first_click = true;
+    }
+
+    private void changeGearScore(int delta) {
+        mGearScore += delta;
+        mGearScoreText.setText(String.format("%d", mGearScore));
+    }
+
+    private void useFood() {
+        request.setData(mTargetSwap.getIDItem().toString());
+        String requestString = null;
+        try {
+            requestString = mJackson.writeValueAsString(request);
+        }
+        catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        post("use/food", requestString, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.d("use/food onFailure", e.toString());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseStr = response.body().string();
+                Log.d("use/food responseStr", responseStr);
+                MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
+                if (!myResponse.isError()){
+                    mTable.post(() -> {
+                        changeHP(mTargetSwap.getValueOne());
+                        mInventoryItemCount--;
+                        inventorySort();
+                        if (mState == State.SELECT_LOOT){
+                            try {
+                                if (myResponse.getData()!=null){
+                                    mNextCardTable = mJackson.readValue(myResponse.getData(), byte[].class);
+                                }
+                            }
+                            catch (IOException e){
+                                e.printStackTrace();
+                            }
+                            tryPickingLoot();
+                        }
+                        targetReset();
+                        Log.d("targetReset", "use food");
+                        updateHPText();
+                    });
+                }
+            }
+        });
+    }
+
+    private void useSpell() {
+        request.setData(mTargetSwap.getIDItem().toString());
+        String requestString = null;
+        try {
+            requestString = mJackson.writeValueAsString(request);
+        }
+        catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        post("use/spell", requestString, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.d("use/spell onFailure", e.toString());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseStr = response.body().string();
+                Log.d("use/spell responseStr", responseStr);
+                MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
+                if (!myResponse.isError()){
+                    mTable.post(() -> {
+                        mCardTableTarget.changeValueTwo(-mTargetSwap.getValueOne());
+                        mInventoryItemCount--;
+                        inventorySort();
+                        tryPickingLoot();
+                        targetReset();
+                        Log.d("targetReset", "use spell");
+                        if (mCardTableTarget.getValueTwo() < 1) {
+                            DamageResponse damageResponse = null;
+                            try {
+                                damageResponse = mJackson.readValue(
+                                        myResponse.getData(),
+                                        DamageResponse.class
+                                );
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            mNextCardTable = damageResponse.getCardTableID();
+                            CardPlayerResponse[] loot = new CardPlayerResponse[0];
+                            try {
+                                loot = mJackson.readValue(
+                                        damageResponse.getLoot(),
+                                        CardPlayerResponse[].class
+                                );
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            mLootCount = loot.length;
+                            for (int i = 0; i < mLootCount; i++) {
+                                mLoot[i].bringToFront();
+                                mLoot[i].setIDItem(loot[i].getIdItem());
+                                mLoot[i].setDurability(loot[i].getDurability());
+                            }
+                        }
+                        if (mCardTableTarget.getValueTwo() < 1) {
+                            mobDead();
+                        }
+                        else{
+                            mCardTableTarget.updateValueTwoText();
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    private void mobDead() {
+        mCardTableTarget.setValueTwoText(0);
+        mCardTableTarget.setOnClickListener(null);
+        changeMoneyInUIThread(mCardTableTarget.getMoney());
+        mStats.addExperience(mCardTableTarget.getExperience());
+        mCardTableTarget.getCloseAnimation().start();
+    }
+
+    private void loadLoot() {
+        mState = State.SELECT_LOOT;
+        mShadow.bringToFront();
+
+        for (int i = 0; i < mLootCount; i++) {
+            mLoot[i].load(mStats,mDBOpenHelper);
+            mLoot[i].setVisibility(View.VISIBLE);
+            mLoot[i].open();
+            mLoot[i].bringToFront();
+        }
+
+        tryPickingLoot();
+
+        if (mLootCount > 0) {
+            mButtonContinue.bringToFront();
+            mButtonContinue.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void tryPickingLoot() {
+        byte i = 0;
+        while (((mLootCount > 0) && (mInventoryItemCount < INVENTORY_MAX_COUNT))) {
+            if(mLoot[i].getVisibility()==View.VISIBLE) {
+                mInventory[mInventoryItemCount].copy(mLoot[i]);
+                mLoot[i].setVisibility(View.GONE);
+                mInventory[mInventoryItemCount].setVisibility(View.VISIBLE);
+                mInventoryItemCount++;
+                mLootCount--;
+            }
+            i++;
+        }
+        tryContinue();
+    }
+
+    private void tryContinue() {
+        if (mLootCount < 1 && mState == State.SELECT_LOOT) {
+            if (mNextCardTable==null){
+                onClickButtonContinue(null);
+            }
+            else{
+                setSelectTarget();
+            }
+        }
+    }
+
+    void changeMoneyInUIThread(int delta){
+        mMoney += delta;
+        updateMoneyText();
+    }
+    void setMoneyInUIThread(int money){
+        mMoney = money;
+        updateMoneyText();
+    }
+    void updateMoneyText(){
+        mMoneyText.setText(String.format("%d", mMoney));
+    }
+    void changeMoneyBankInUIThread(int delta){
+        mMoneyBank += delta;
+        updateMoneyText();
+    }
+    void setMoneyBankInUIThread(int money){
+        mMoneyBank = money;
+        updateMoneyText();
+    }
+    void updateMoneyBankText(){
+        mMoneyText.setText(String.format("%d", mMoneyBank));
+    }
+
+    void changeHPInUIThread(int delta) {
+        if (mHp + delta < mHpMax) {
+            mHp = mHp + delta;
+        }
+        else {
+            mHp = mHpMax;
+        }
+        updateHPText();
+    }
+    void changeHP(int delta) {
+        if (mHp + delta < mHpMax) {
+            mHp = mHp + delta;
+        }
+        else {
+            mHp = mHpMax;
+        }
+    }
+    void setHPInUIThread(int hp) {
+        mHp = hp;
+        updateHPText();
+    }
+    void updateHPText(){
+        mHpText.setText(String.valueOf(mHp));
+        mHpBarDrawable.setLevel(10000*mHp/mHpMax);
+    }
+
+    void inventorySort() {
+        mTargetSwap.setVisibility(View.VISIBLE);
+        byte id = mTargetSwap.getSlotId();
+        for (; id < mInventoryItemCount; id++) {
+            mInventory[id].copy(mInventory[id + 1]);
+        }
+        mInventory[id].setVisibility(View.GONE);
     }
 }
