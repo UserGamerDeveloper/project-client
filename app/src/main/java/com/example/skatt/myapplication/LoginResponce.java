@@ -55,6 +55,7 @@ public class LoginResponce {
     public StatsResponse getStats() {
         return mStats;
     }
+
     public Byte getCardTableTargetIDInArray() {
         return mCardTableTargetIDInArray;
     }
@@ -114,6 +115,13 @@ public class LoginResponce {
         mStats = stats;
     }
 
+    public List<CardPlayerResponse> getTrade() {
+        return mTrade;
+    }
+    public void setTrade(List<CardPlayerResponse> trade) {
+        mTrade = trade;
+    }
+
     private byte mHP;
     private byte mState;
     private int mMoney;
@@ -131,5 +139,6 @@ public class LoginResponce {
     private List<CardPlayerResponse> mInventory =new ArrayList<>();
     private List<CardPlayerResponse> mLoot =new ArrayList<>();
     private List<CardPlayerResponse> mHands =new ArrayList<>();
+    private List<CardPlayerResponse> mTrade = new ArrayList<>();
     private StatsResponse mStats;
 }

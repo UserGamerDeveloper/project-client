@@ -68,9 +68,9 @@ public class MainActivity extends AppCompatActivity {
     int mHp;
     CardTable mCardTableTarget;
     CardTable[] mCardsTable = new CardTable[8];
-    final byte LOOT_MAX_COUNT = 3;
+    final byte LOOT_AND_TRADE_MAX_COUNT = 3;
     int mLootCount;
-    CardInventory[] mLoot = new CardInventory[LOOT_MAX_COUNT];
+    CardInventory[] mLoot = new CardInventory[LOOT_AND_TRADE_MAX_COUNT];
     byte mInventoryItemCount;
     final byte INVENTORY_MAX_COUNT = 4;
     CardInventory[] mInventory = new CardInventory[INVENTORY_MAX_COUNT];
@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
             for (byte i = 0; i < INVENTORY_MAX_COUNT; i++) {
                 mInventory[i].setOnClickListener(mInventoryOnClickSwap);
             }
-            for (int i = 0; i < LOOT_MAX_COUNT; i++) {
+            for (int i = 0; i < LOOT_AND_TRADE_MAX_COUNT; i++) {
                 mLoot[i].setOnClickListener(mInventoryOnClickSwap);
             }
             mHandOne.setOnClickListener(mInventoryOnClickSwap);
@@ -187,6 +187,7 @@ public class MainActivity extends AppCompatActivity {
     byte mState;
     MyRequest request;
     OkHttpClient client;
+    byte[] mNextCardTable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -514,11 +515,7 @@ public class MainActivity extends AppCompatActivity {
                     if (!myResponse.isError()){
                         SQLiteDatabase data_base = mDBOpenHelper.getReadableDatabase();
 
-                        String[] column_name = {
-                                DBOpenHelper.HP,
-                                DBOpenHelper.COSTRESET
-                        };
-
+                        String[] column_name = {DBOpenHelper.HP, DBOpenHelper.COSTRESET};
                         Cursor cursor = data_base.query(
                                 DBOpenHelper.sTableTest,
                                 column_name,
@@ -530,12 +527,8 @@ public class MainActivity extends AppCompatActivity {
                         );
                         cursor.moveToFirst();
 
-                        mHpMaxDefault = cursor.getInt(
-                                cursor.getColumnIndexOrThrow(DBOpenHelper.HP)
-                        );
-                        mStatsResetCost = cursor.getInt(
-                                cursor.getColumnIndexOrThrow(DBOpenHelper.COSTRESET)
-                        );
+                        mHpMaxDefault = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.HP));
+                        mStatsResetCost = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.COSTRESET));
                         cursor.close();
 
                         LoginResponce loginResponce = mJackson.readValue(
@@ -643,16 +636,19 @@ public class MainActivity extends AppCompatActivity {
                                 mIsAnimate = false;
                                 if (mState!=State.SELECT_TARGET){
                                     mCardTableTarget = mCardsTable[loginResponce.getCardTableTargetIDInArray()];
-                                    mCardTableTarget.bringToFront();
-                                    mShadow.bringToFront();
-                                    mCardTableTarget.getTargetAnimation().start();
-                                    mCardTableTarget.getTargetAnimation().end();
                                     if (mState==State.COMBAT){
+                                        mShadow.bringToFront();
+                                        mCardTableTarget.getTargetAnimation().start();
+                                        mCardTableTarget.getTargetAnimation().end();
                                         mCardTableTarget.bringToFront();
                                         mCardTableTarget.setValueTwoInUIThread(loginResponce.getCardTableTargetHP());
                                         mCardTableTarget.setOnClickListener(mDamageListener);
                                     }
                                     if (mState==State.SELECT_LOOT) {
+                                        mCardTableTarget.bringToFront();
+                                        mShadow.bringToFront();
+                                        mCardTableTarget.getTargetAnimation().start();
+                                        mCardTableTarget.getTargetAnimation().end();
                                         mIsAnimate = true;
                                         List<CardPlayerResponse> loot = loginResponce.getLoot();
                                         for (mLootCount = 0; mLootCount<loot.size();mLootCount++){
@@ -672,6 +668,45 @@ public class MainActivity extends AppCompatActivity {
                                         mCardTableTarget.getCloseAnimation().end();
                                         mButtonContinue.bringToFront();
                                         mButtonContinue.setVisibility(View.VISIBLE);
+                                    }
+                                    if (mState==State.TRADE){
+                                        card_6_animation_click_vendor.start();
+                                        card_6_animation_click_vendor.end();
+                                        mShadow.bringToFront();
+                                        mCardTableTarget.bringToFront();
+                                        List<CardPlayerResponse> items = loginResponce.getTrade();
+                                        for (byte i = 0; i< LOOT_AND_TRADE_MAX_COUNT; i++){
+                                            CardPlayerResponse item = items.get(i);
+                                            mTradeItem[i].setIDItem(item.getIdItem());
+                                            mTradeItem[i].setDurability(item.getDurability());
+                                            mTradeItem[i].load(mStats, mDBOpenHelper);
+                                            mTradeItem[i].open();
+                                            mTradeItem[i].setVisibility(View.VISIBLE);
+                                            mTradeCost[i].setText(String.format("%d", mTradeItem[i].getCost()));
+                                            mTradeCost[i].setVisibility(View.VISIBLE);
+                                            mTradeCostImage[i].setVisibility(View.VISIBLE);
+                                        }
+                                        mTradeSkill.setVisibility(View.VISIBLE);
+                                        mTradeZone.setVisibility(View.VISIBLE);
+                                        mTable.setOnDragListener(null);
+                                        if(mCardTableTarget.getSubType() == CardTableSubType.TRADER){
+                                            Picasso.with(getBaseContext())
+                                                    .load(R.drawable.navik_torgovca)
+                                                    .into(mTradeSkillImage);
+                                            mTradeSkillImage.setOnClickListener(mOnClickVendorSkill);
+                                        }
+                                        if (mCardTableTarget.getSubType() == CardTableSubType.BLACKSMITH){
+                                            Picasso.with(getBaseContext())
+                                                    .load(R.drawable.navik_kuznecaa)
+                                                    .into(mTradeSkillImage);
+                                            mTradeSkillImage.setOnClickListener(null);
+                                        }
+                                        if (mCardTableTarget.getSubType() == CardTableSubType.INNKEEPER){
+                                            Picasso.with(getBaseContext())
+                                                    .load(R.drawable.navik_traktirshika)
+                                                    .into(mTradeSkillImage);
+                                            mTradeSkillImage.setOnClickListener(mOnClickInnkeeperSkill);
+                                        }
                                     }
                                 }
                             }
@@ -723,7 +758,7 @@ public class MainActivity extends AppCompatActivity {
                 Math.pow(mLoot[0].mImageView.getHeight(), 2.0)) * card_hp_and_damage_text_size_constant);
         float card_loot_name_text_size = (float) (Math.sqrt(Math.pow(mLoot[0].mImageView.getWidth(), 2.0) +
                 Math.pow(mLoot[0].mImageView.getHeight(), 2.0)) * card_name_text_size_constant);
-        for (int i = 0; i < LOOT_MAX_COUNT; i++) {
+        for (int i = 0; i < LOOT_AND_TRADE_MAX_COUNT; i++) {
             mLoot[i].mNameText.setTextSize(COMPLEX_UNIT_PX, card_loot_name_text_size);
             mLoot[i].mValueOneText.setTextSize(COMPLEX_UNIT_PX, card_loot_value_one_text_size);
         }
@@ -2100,8 +2135,8 @@ public class MainActivity extends AppCompatActivity {
                         else{
                             mDialogWindow.openInfo("Нет места в инвентаре.");
                         }
-                        Log.d("targetReset", "hand take off");
-                        targetReset();
+                        Log.d("resetTargetSwap", "hand take off");
+                        resetTargetSwap();
                     }
                     return true;
                 }
@@ -2167,8 +2202,8 @@ public class MainActivity extends AppCompatActivity {
                                 inventorySort();
                                 tryPickingLoot();
                             }
-                            Log.d("targetReset", "hand swap");
-                            targetReset();
+                            Log.d("resetTargetSwap", "hand swap");
+                            resetTargetSwap();
                             return true;
                         }
                     }
@@ -2202,8 +2237,8 @@ public class MainActivity extends AppCompatActivity {
                         target_swap_two.copy(mTargetSwap);
                         mTargetSwap.copy(inventory_temp);
                         mTargetSwap.setVisibility(View.VISIBLE);
-                        Log.d("targetReset", "loot swap");
-                        targetReset();
+                        Log.d("resetTargetSwap", "loot swap");
+                        resetTargetSwap();
                         return true;
                     }
                     else {
@@ -2224,8 +2259,8 @@ public class MainActivity extends AppCompatActivity {
                                         tryContinue();
                             }
                             mTargetSwap.setVisibility(View.VISIBLE);
-                            Log.d("targetReset", "loot swap");
-                            targetReset();
+                            Log.d("resetTargetSwap", "loot swap");
+                            resetTargetSwap();
                             return true;
                         }
                     }
@@ -2269,123 +2304,106 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
-    View.OnClickListener setTargetListener = setTarget();
-    View.OnClickListener setTarget() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!mIsAnimate) {
-                    mIsAnimate = true;
-                    Log.d("mIsAnimate", String.valueOf(mIsAnimate));
-                    mCardTableTarget = (CardTable) v;
-                    String requestString = null;
-                    try {
-                        request.setData(mJackson.writeValueAsString(mCardTableTarget.getIdInArray()));
-                        requestString = mJackson.writeValueAsString(request);
-                    }
-                    catch (JsonProcessingException e) {
-                        e.printStackTrace();
-                    }
-                    post("target", requestString, new Callback() {
-                        @Override
-                        public void onFailure(Call call, IOException e) {
-                            Log.d("target onFailure", e.toString());
-                        }
-                        @Override
-                        public void onResponse(Call call, Response response) throws IOException {
-                            String responseStr = response.body().string();
-                            Log.d("target response ", responseStr);
-                            MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
-                            if (!myResponse.isError()){
-                                mTable.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if(mCardTableTarget.getType()== CardTableType.MOB){
-                                            mCardTableTarget.bringToFront();
-                                            mCardTableTarget.getTargetAnimation().start();
-                                            mCardTableTarget.setOnClickListener(mDamageListener);
-                                        }
-                                        if (mCardTableTarget.getType()==CardTableType.VENDOR){
-                                            card_6_animation_click_vendor.start();
-                                            if(mCardTableTarget.getSubType()== CardTableSubType.TRADER){
-                                                mShadow.bringToFront();
-                                                mCardTableTarget.bringToFront();
-                                                Picasso.with(getBaseContext())
-                                                        .load(R.drawable.navik_torgovca)
-                                                        .into(mTradeSkillImage);
-                                                mTradeSkillImage.setOnClickListener(mOnClickVendorSkill);
-                                                for (byte i = 0; i< LOOT_MAX_COUNT; i++){
-                                                    mTradeItem[i].change(mStats, mDBOpenHelper,random, mGearScore);
-                                                    mTradeItem[i].open();
-                                                    mTradeItem[i].setVisibility(View.VISIBLE);
-                                                    mTradeCost[i].setText(String.format("%d", mTradeItem[i].getCost()));
-                                                    mTradeCost[i].setVisibility(View.VISIBLE);
-                                                    mTradeCostImage[i].setVisibility(View.VISIBLE);
-                                                }
-                                                mTradeSkill.setVisibility(View.VISIBLE);
-                                                mTradeZone.setVisibility(View.VISIBLE);
-                                                mTable.setOnDragListener(null);
-                                            }
-                                            if (mCardTableTarget.getSubType()== CardTableSubType.BLACKSMITH){
-                                                mShadow.bringToFront();
-                                                mCardTableTarget.bringToFront();
-                                                Picasso.with(getBaseContext())
-                                                        .load(R.drawable.navik_kuznecaa)
-                                                        .into(mTradeSkillImage);
-                                                mTradeSkillImage.setOnClickListener(null);
-                                                for (byte i = 0; i< LOOT_MAX_COUNT; i++){
-                                                    mTradeItem[i].change(mStats, mDBOpenHelper,random, mGearScore, random.nextInt(2));
-                                                    mTradeItem[i].open();
-                                                    mTradeItem[i].setVisibility(View.VISIBLE);
-                                                    mTradeItem[i].setDurability(mTradeItem[i].getDurabilityMax());
-                                                    mTradeCost[i].setText(String.format("%d", mTradeItem[i].getCost()));
-                                                    mTradeCost[i].setVisibility(View.VISIBLE);
-                                                    mTradeCostImage[i].setVisibility(View.VISIBLE);
-                                                }
-                                                mTradeSkill.setVisibility(View.VISIBLE);
-                                                mTradeZone.setVisibility(View.VISIBLE);
-                                                mTable.setOnDragListener(null);
-                                            }
-                                            if (mCardTableTarget.getSubType()== CardTableSubType.INNKEEPER){
-                                                mShadow.bringToFront();
-                                                mCardTableTarget.bringToFront();
-                                                Picasso.with(getBaseContext())
-                                                        .load(R.drawable.navik_traktirshika)
-                                                        .into(mTradeSkillImage);
-                                                mTradeSkillImage.setOnClickListener(mOnClickInnkeeperSkill);
-                                                for (byte i = 0; i< LOOT_MAX_COUNT; i++){
-                                                    mTradeItem[i].change(mStats, mDBOpenHelper,random, mGearScore, InventoryType.FOOD);
-                                                    mTradeItem[i].open();
-                                                    mTradeItem[i].setVisibility(View.VISIBLE);
-                                                    mTradeCost[i].setText(String.format("%d", mTradeItem[i].getCost()));
-                                                    mTradeCost[i].setVisibility(View.VISIBLE);
-                                                    mTradeCostImage[i].setVisibility(View.VISIBLE);
-                                                }
-                                                mTradeSkill.setVisibility(View.VISIBLE);
-                                                mTradeZone.setVisibility(View.VISIBLE);
-                                                mTable.setOnDragListener(null);
-                                            }
-                                        }
-                                        if (mCardTableTarget.getType()== CardTableType.HALT){
-                                            mShadow.bringToFront();
-                                            mCardTableTarget.bringToFront();
-                                            mCardTableTarget.getTargetAnimation().start();
-                                            changeHPInUIThread(mHpMax);
-                                            mCardTableTarget.getChangeAnimation().start();
-                                        }
-                                        if (mCardTableTarget.getType()== CardTableType.CHEST){
-                                            mShadow.bringToFront();
-                                            mCardTableTarget.bringToFront();
-                                            mCardTableTarget.getTargetAnimation().start();
-                                            mCardTableTarget.getCloseAnimation().start();
-                                            //changeMoneyInUIThread(mCardTableTarget.getMoney());
-                                        }
-                                    }
-                                });
-                            }
-                        }
-                    });
+    View.OnClickListener setTargetListener = setTargetListener();
+    View.OnClickListener setTargetListener() {
+        return v -> {
+            if (!mIsAnimate) {
+                mCardTableTarget = (CardTable) v;
+                String requestString = null;
+                try {
+                    request.setData(mJackson.writeValueAsString(mCardTableTarget.getIdInArray()));
+                    requestString = mJackson.writeValueAsString(request);
                 }
+                catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
+                post("target", requestString, new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        Log.d("target onFailure", e.toString());
+                    }
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        String responseStr = response.body().string();
+                        Log.d("target response ", responseStr);
+                        MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
+                        if (!myResponse.isError()){
+                            mTable.post(() -> {
+                                mIsAnimate = true;
+                                Log.d("mIsAnimate", String.valueOf(mIsAnimate));
+                                if(mCardTableTarget.getType() == CardTableType.MOB){
+                                    mCardTableTarget.bringToFront();
+                                    mCardTableTarget.getTargetAnimation().start();
+                                    mCardTableTarget.setOnClickListener(mDamageListener);
+                                    return;
+                                }
+                                if (mCardTableTarget.getType() == CardTableType.VENDOR){
+                                    card_6_animation_click_vendor.start();
+                                    CardPlayerResponse[] cardTrade = null;
+                                    try {
+                                        cardTrade = mJackson.readValue(
+                                                myResponse.getData(),
+                                                CardPlayerResponse[].class
+                                        );
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                    mShadow.bringToFront();
+                                    mCardTableTarget.bringToFront();
+                                    for (byte i = 0; i< LOOT_AND_TRADE_MAX_COUNT; i++){
+                                        mTradeItem[i].setIDItem(cardTrade[i].getIdItem());
+                                        mTradeItem[i].load(mStats, mDBOpenHelper);
+                                        mTradeItem[i].setDurability(cardTrade[i].getDurability());
+                                        mTradeItem[i].open();
+                                        mTradeItem[i].setVisibility(View.VISIBLE);
+                                        mTradeCost[i].setText(String.format("%d", mTradeItem[i].getCost()));
+                                        mTradeCost[i].setVisibility(View.VISIBLE);
+                                        mTradeCostImage[i].setVisibility(View.VISIBLE);
+                                    }
+                                    mTradeSkill.setVisibility(View.VISIBLE);
+                                    mTradeZone.setVisibility(View.VISIBLE);
+                                    mTable.setOnDragListener(null);
+                                    if(mCardTableTarget.getSubType() == CardTableSubType.TRADER){
+                                        Picasso.with(getBaseContext())
+                                                .load(R.drawable.navik_torgovca)
+                                                .into(mTradeSkillImage);
+                                        mTradeSkillImage.setOnClickListener(mOnClickVendorSkill);
+                                        return;
+                                    }
+                                    if (mCardTableTarget.getSubType() == CardTableSubType.BLACKSMITH){
+                                        Picasso.with(getBaseContext())
+                                                .load(R.drawable.navik_kuznecaa)
+                                                .into(mTradeSkillImage);
+                                        mTradeSkillImage.setOnClickListener(null);
+                                        return;
+                                    }
+                                    if (mCardTableTarget.getSubType() == CardTableSubType.INNKEEPER){
+                                        Picasso.with(getBaseContext())
+                                                .load(R.drawable.navik_traktirshika)
+                                                .into(mTradeSkillImage);
+                                        mTradeSkillImage.setOnClickListener(mOnClickInnkeeperSkill);
+                                        return;
+                                    }
+                                }
+                                if (mCardTableTarget.getType() == CardTableType.HALT){
+                                    mShadow.bringToFront();
+                                    mCardTableTarget.bringToFront();
+                                    mCardTableTarget.getTargetAnimation().start();
+                                    changeHPInUIThread(mHpMax);
+                                    mCardTableTarget.getChangeAnimation().start();
+                                    return;
+                                }
+                                if (mCardTableTarget.getType() == CardTableType.CHEST){
+                                    mShadow.bringToFront();
+                                    mCardTableTarget.bringToFront();
+                                    mCardTableTarget.getTargetAnimation().start();
+                                    mCardTableTarget.getCloseAnimation().start();
+                                    //changeMoneyInUIThread(mCardTableTarget.getMoney());
+                                }
+                            });
+                        }
+                    }
+                });
             }
         };
     }
@@ -2444,8 +2462,8 @@ public class MainActivity extends AppCompatActivity {
                                         inventorySort();
                                         tryPickingLoot();
                                     }
-                                    Log.d("targetReset", "hand swap click");
-                                    targetReset();
+                                    Log.d("resetTargetSwap", "hand swap click");
+                                    resetTargetSwap();
                                 }
                             }
                             if (targetSwapTwo.mSlotType == SlotType.LOOT) {
@@ -2453,8 +2471,8 @@ public class MainActivity extends AppCompatActivity {
                                     inventory_temp.Copy(targetSwapTwo);
                                     targetSwapTwo.copy(mTargetSwap);
                                     mTargetSwap.copy(inventory_temp);
-                                    Log.d("targetReset", "loot swap click");
-                                    targetReset();
+                                    Log.d("resetTargetSwap", "loot swap click");
+                                    resetTargetSwap();
                                 }
                                 else {
                                     if (targetSwapTwo.getType() == InventoryType.WEAPON ||
@@ -2473,23 +2491,22 @@ public class MainActivity extends AppCompatActivity {
                                             mLootCount--;
                                             tryContinue();
                                         }
-                                        Log.d("targetReset", "loot swap click");
-                                        targetReset();
+                                        Log.d("resetTargetSwap", "loot swap click");
+                                        resetTargetSwap();
                                     }
                                 }
                             }
                         }
                     }
                     else {
-                        Log.d("targetReset", "target off");
-                        targetReset();
+                        Log.d("resetTargetSwap", "target off");
+                        resetTargetSwap();
                     }
                 }
             }
         };
     }
 
-    byte[] mNextCardTable;
     View.OnClickListener mDamageListener = mDamageListener();
     View.OnClickListener mDamageListener() {
         return v -> {
@@ -2775,7 +2792,7 @@ public class MainActivity extends AppCompatActivity {
                 mInventoryItemCount--;
                 inventorySort();
                 changeMoneyInUIThread(mTargetSwap.getCost());
-                targetReset();
+                resetTargetSwap();
             }
         };
     }
@@ -2834,7 +2851,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 mDialogWindow.close();
                 changeMoneyInUIThread(-mCostVendorSkill);
-                for (byte i = 0; i< LOOT_MAX_COUNT; i++){
+                for (byte i = 0; i< LOOT_AND_TRADE_MAX_COUNT; i++){
                     mTradeItem[i].change(mStats, mDBOpenHelper,random, mGearScore);
                     mTradeItem[i].open();
                     mTradeItem[i].setVisibility(View.VISIBLE);
@@ -2876,7 +2893,7 @@ public class MainActivity extends AppCompatActivity {
                 if (mTargetSwap.mSlotType == SlotType.HAND){
                     ((CardHand) mTargetSwap).updateDurabilityText();
                 }
-                targetReset();
+                resetTargetSwap();
             }
         };
     }
@@ -3047,7 +3064,7 @@ public class MainActivity extends AppCompatActivity {
         );
         Log.d("post "+text, data);
         Request request = new Request.Builder()
-                .url("https://88.80.52.80:4430/"+text)
+                .url("https://88.80.50.18:4430/"+text)
                 .post(body)
                 .build();
         Call call = client.newCall(request);
@@ -3068,6 +3085,8 @@ public class MainActivity extends AppCompatActivity {
 
         mInventoryItemCount = 0;
 
+        mHandOne.close(mIdDrawableCardBack);
+        mHandTwo.close(mIdDrawableCardBack);
         mHandOne.setOnClickListener(null);
         mHandTwo.setOnClickListener(null);
         mHandOne.setIDItem(mHandOne.getIDDefault());
@@ -3097,13 +3116,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void setSelectTarget() {
         mState = State.SELECT_TARGET;
-        for (byte i = 0; i < LOOT_MAX_COUNT; i++) {
+        for (byte i = 0; i < LOOT_AND_TRADE_MAX_COUNT; i++) {
             mLoot[i].close(mIdDrawableCardBack);
             mLoot[i].setVisibility(View.GONE);
         }
         mLootCount = 0;
         if (mTargetSwap != null) {
-            targetReset();
+            resetTargetSwap();
         }
         mCardTableTarget.getChangeAnimation().start();
         mCardTableTarget.setOnClickListener(setTargetListener);
@@ -3114,19 +3133,21 @@ public class MainActivity extends AppCompatActivity {
         for (byte i = 0; i < INVENTORY_MAX_COUNT; i++) {
             mInventory[i].setOnClickListener(null);
         }
-        for (int i = 0; i < LOOT_MAX_COUNT; i++) {
+        for (int i = 0; i < LOOT_AND_TRADE_MAX_COUNT; i++) {
             mLoot[i].setOnClickListener(null);
         }
         mHandOne.setOnClickListener(null);
         mHandTwo.setOnClickListener(null);
     }
 
-    private void targetReset() {
+    private void resetTargetSwap() {
         if (mTargetSwap !=null){
             target_off_animation.start();
             Log.d("target off", (String) mTargetSwap.mNameText.getText());
         }
-        mTradeSkillImage.setOnClickListener(null);
+        if (mCardTableTarget.getSubType()==CardTableSubType.BLACKSMITH){
+            mTradeSkillImage.setOnClickListener(null);
+        }
         mTargetSwap = null;
         is_first_click = true;
     }
@@ -3172,8 +3193,8 @@ public class MainActivity extends AppCompatActivity {
                             }
                             tryPickingLoot();
                         }
-                        targetReset();
-                        Log.d("targetReset", "use food");
+                        resetTargetSwap();
+                        Log.d("resetTargetSwap", "use food");
                         updateHPText();
                     });
                 }
@@ -3207,8 +3228,8 @@ public class MainActivity extends AppCompatActivity {
                         mInventoryItemCount--;
                         inventorySort();
                         tryPickingLoot();
-                        targetReset();
-                        Log.d("targetReset", "use spell");
+                        resetTargetSwap();
+                        Log.d("resetTargetSwap", "use spell");
                         if (mCardTableTarget.getValueTwo() < 1) {
                             DamageResponse damageResponse = null;
                             try {

@@ -9,8 +9,8 @@ import android.widget.TextView;
 import java.util.Random;
 
 public class CardHand extends CardInventory {
+    static final byte ID_DEFAULT = 0;
     int mIDDrawableDefault;
-    byte mIDDefault = 0;
     TextView mDurabilityText;
     ImageView mDurabilityImage;
 
@@ -27,8 +27,9 @@ public class CardHand extends CardInventory {
     @Override
     protected void setData(Stats stats, Random random, Cursor cursor) {
         super.setData(stats,random,cursor);
-        if (mIDItem==mIDDefault){
+        if (mIDItem == ID_DEFAULT){
             mIdDrawable = mIDDrawableDefault;
+            mDurability = 0;
         }
     }
 
@@ -39,6 +40,11 @@ public class CardHand extends CardInventory {
             mDurabilityImage.setVisibility(VISIBLE);
             mDurabilityText.setVisibility(VISIBLE);
         }
+    }
+    void close(int card_back) {
+        super.close(card_back);
+        mDurabilityImage.setVisibility(INVISIBLE);
+        mDurabilityText.setVisibility(INVISIBLE);
     }
 
     void copy(CardInventory card){
@@ -58,10 +64,7 @@ public class CardHand extends CardInventory {
     }
 
     public byte getIDDefault() {
-        return mIDDefault;
-    }
-    public void setIDDefault(byte IDDefault) {
-        mIDDefault = IDDefault;
+        return ID_DEFAULT;
     }
 
     void setDurabilityInUIThread(int durability){
