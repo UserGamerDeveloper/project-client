@@ -2931,10 +2931,38 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClickTradeExit(View view){
-        mCardTableTarget.getChangeAnimation().start();
-        mTradeSkill.setVisibility(View.GONE);
-        mTradeZone.setVisibility(View.GONE);
-        mTable.setOnDragListener(mTableOnDropListener);
+        String requestString = null;
+        try {
+            requestString = mJackson.writeValueAsString(request);
+        }
+        catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        post("trade/exit", requestString, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.d("trade/exit onFailure", e.toString());
+            }
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseStr = response.body().string();
+                Log.d("trade/exit response ", responseStr);
+                MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
+                if (!myResponse.isError()){
+                    mTable.post(() -> {
+                        try {
+                            mNextCardTable = mJackson.readValue(myResponse.getData(), byte[].class);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        mCardTableTarget.getChangeAnimation().start();
+                        mTradeSkill.setVisibility(View.GONE);
+                        mTradeZone.setVisibility(View.GONE);
+                        mTable.setOnDragListener(mTableOnDropListener);
+                    });
+                }
+            }
+        });
     }
     //endregion
 
