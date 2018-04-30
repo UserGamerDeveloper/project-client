@@ -103,7 +103,6 @@ public class MainActivity extends AppCompatActivity {
     ConstraintLayout mTable;
     private View collectionButton;
     final class SlotType {
-
         final static byte LOOT = 0;
         final static byte HAND = 1;
         final static byte INVENTORY = 2;
@@ -158,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
     };
     Animator target_on_animation;
     Animator target_off_animation;
-    CardInventory trade_target;
+    CardInventory mTradeTarget;
     TextView[] mTradeCost = new TextView[3];
     ImageView[] mTradeCostImage = new ImageView[3];
     CardInventory[] mTradeItem = new CardInventory[3];
@@ -2743,23 +2742,21 @@ public class MainActivity extends AppCompatActivity {
     //region Trade
     View.OnClickListener mOnClickBuyCardListener = mOnClickBuyCardListener();
     View.OnClickListener mOnClickBuyCardListener() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mMoney >=((CardInventory)v).getCost()&& mInventoryItemCount < INVENTORY_MAX_COUNT){
-                    trade_target = (CardInventory)v;
-                    mDialogWindow.openDialog(
-                            String.format("Купить карту за %d золотых?", trade_target.getCost()),
-                            mCardTradeBuyClickYes
-                    );
+        return v -> {
+            CardInventory item = (CardInventory)v;
+            if (mMoney < item.getCost()){
+                mDialogWindow.openInfo("Недостаточно золота.");
+            }
+            else{
+                if (!(mInventoryItemCount < INVENTORY_MAX_COUNT)){
+                    mDialogWindow.openInfo("Нет места в инвентаре.");
                 }
                 else{
-                    if (!(mInventoryItemCount < INVENTORY_MAX_COUNT)){
-                        mDialogWindow.openInfo("Нет места в инвентаре.");
-                    }
-                    else{
-                        mDialogWindow.openInfo("Недостаточно золота.");
-                    }
+                    mTradeTarget = item;
+                    mDialogWindow.openDialog(
+                            String.format("Купить карту за %d золотых?", mTradeTarget.getCost()),
+                            mCardTradeBuyClickYes
+                    );
                 }
             }
         };
@@ -2767,18 +2764,44 @@ public class MainActivity extends AppCompatActivity {
 
     View.OnClickListener mCardTradeBuyClickYes = mCardTradeBuyClickYes();
     View.OnClickListener mCardTradeBuyClickYes() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mDialogWindow.close();
-                trade_target.setVisibility(View.INVISIBLE);
-                mTradeCost[trade_target.getSlotId()].setVisibility(View.INVISIBLE);
-                mTradeCostImage[trade_target.getSlotId()].setVisibility(View.INVISIBLE);
-                mInventory[mInventoryItemCount].copy(trade_target);
-                mInventory[mInventoryItemCount].setVisibility(View.VISIBLE);
-                mInventoryItemCount++;
-                changeMoneyInUIThread(-trade_target.getCost());
+        return v -> {
+            String requestString = null;
+            try {
+                CardPlayerResponse item = new CardPlayerResponse(
+                        mTradeTarget.getIDItem(),
+                        mTradeTarget.getSlotId(),
+                        (byte) mTradeTarget.getDurability()
+                );
+                request.setData(mJackson.writeValueAsString(item));
+                requestString = mJackson.writeValueAsString(request);
             }
+            catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+            post("trade/buy", requestString, new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    Log.d("trade/buy onFailure ", e.toString());
+                }
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    String responseStr = response.body().string();
+                    Log.d("trade/buy response ", responseStr);
+                    MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
+                    if (!myResponse.isError()){
+                        mTable.post(() -> {
+                            mDialogWindow.close();
+                            mTradeTarget.setVisibility(View.INVISIBLE);
+                            mTradeCost[mTradeTarget.getSlotId()].setVisibility(View.INVISIBLE);
+                            mTradeCostImage[mTradeTarget.getSlotId()].setVisibility(View.INVISIBLE);
+                            mInventory[mInventoryItemCount].copy(mTradeTarget);
+                            mInventory[mInventoryItemCount].setVisibility(View.VISIBLE);
+                            mInventoryItemCount++;
+                            changeMoneyInUIThread(-mTradeTarget.getCost());
+                        });
+                    }
+                }
+            });
         };
     }
 
@@ -2865,36 +2888,30 @@ public class MainActivity extends AppCompatActivity {
 
     View.OnClickListener mOnClickBlacksmithSkill = mOnClickBlacksmithSkill();
     View.OnClickListener mOnClickBlacksmithSkill() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mMoney >= mCostVendorSkill){
-                    mDialogWindow.openDialog(
-                            String.format("Починитm предмет за %d золотых?", mCostVendorSkill),
-                            mOnClickBlacksmithSkillYes
-                    );
-                }
-                else{
-                    mDialogWindow.openInfo(
-                            String.format("Недостаточно %d золота.", mCostVendorSkill - mMoney)
-                    );
-                }
+        return v -> {
+            if (mMoney >= mCostVendorSkill){
+                mDialogWindow.openDialog(
+                        String.format("Починить предмет за %d золотых?", mCostVendorSkill),
+                        mOnClickBlacksmithSkillYes
+                );
+            }
+            else{
+                mDialogWindow.openInfo(
+                        String.format("Недостаточно %d золота.", mCostVendorSkill - mMoney)
+                );
             }
         };
     }
     View.OnClickListener mOnClickBlacksmithSkillYes = mOnClickBlacksmithSkillYes();
     View.OnClickListener mOnClickBlacksmithSkillYes() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mDialogWindow.close();
-                changeMoneyInUIThread(-mCostVendorSkill);
-                mTargetSwap.setDurability(10);
-                if (mTargetSwap.mSlotType == SlotType.HAND){
-                    ((CardHand) mTargetSwap).updateDurabilityText();
-                }
-                resetTargetSwap();
+        return v -> {
+            mDialogWindow.close();
+            changeMoneyInUIThread(-mCostVendorSkill);
+            mTargetSwap.setDurability(10);
+            if (mTargetSwap.mSlotType == SlotType.HAND){
+                ((CardHand) mTargetSwap).updateDurabilityText();
             }
+            resetTargetSwap();
         };
     }
 
@@ -3092,7 +3109,7 @@ public class MainActivity extends AppCompatActivity {
         );
         Log.d("post "+text, data);
         Request request = new Request.Builder()
-                .url("https://88.80.50.18:4430/"+text)
+                .url("https://92.39.210.15:4430/"+text)
                 .post(body)
                 .build();
         Call call = client.newCall(request);
