@@ -261,7 +261,7 @@ public class MainActivity extends AppCompatActivity {
         mDialogWindow.setButtonNo(findViewById(R.id.trade_window_no));
 
         mTradeSkillImage = findViewById(R.id.trade_skill_image);
-        mTradeSkillImage.setOnClickListener(mOnClickVendorSkill);
+        mTradeSkillImage.setOnClickListener(mOnClickTraderSkill);
 
         mShadow = findViewById(R.id.shadow);
 
@@ -692,7 +692,7 @@ public class MainActivity extends AppCompatActivity {
                                             Picasso.with(getBaseContext())
                                                     .load(R.drawable.navik_torgovca)
                                                     .into(mTradeSkillImage);
-                                            mTradeSkillImage.setOnClickListener(mOnClickVendorSkill);
+                                            mTradeSkillImage.setOnClickListener(mOnClickTraderSkill);
                                         }
                                         if (mCardTableTarget.getSubType() == CardTableSubType.BLACKSMITH){
                                             Picasso.with(getBaseContext())
@@ -2366,7 +2366,7 @@ public class MainActivity extends AppCompatActivity {
                                         Picasso.with(getBaseContext())
                                                 .load(R.drawable.navik_torgovca)
                                                 .into(mTradeSkillImage);
-                                        mTradeSkillImage.setOnClickListener(mOnClickVendorSkill);
+                                        mTradeSkillImage.setOnClickListener(mOnClickTraderSkill);
                                         return;
                                     }
                                     if (mCardTableTarget.getSubType() == CardTableSubType.BLACKSMITH){
@@ -2740,6 +2740,8 @@ public class MainActivity extends AppCompatActivity {
     }
     //endregion
     //region Trade
+    static final byte COST_VENDOR_SKILL = 1;
+
     View.OnClickListener mOnClickBuyCardListener = mOnClickBuyCardListener();
     View.OnClickListener mOnClickBuyCardListener() {
         return v -> {
@@ -2869,57 +2871,81 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
-    byte mCostVendorSkill = 1;
-    View.OnClickListener mOnClickVendorSkill = mOnClickVendorSkill();
-    View.OnClickListener mOnClickVendorSkill() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mMoney >= mCostVendorSkill){
-                    mDialogWindow.openDialog(
-                            String.format("Обновить ассортимент торговца за %d золотых?", mCostVendorSkill),
-                            mOnClickVendorSkillYes
-                    );
-                }
-                else{
-                    mDialogWindow.openInfo(
-                            String.format("Недостаточно %d золота.", mCostVendorSkill - mMoney)
-                    );
-                }
+    View.OnClickListener mOnClickTraderSkill = mOnClickTraderSkill();
+    View.OnClickListener mOnClickTraderSkill() {
+        return v -> {
+            if (mMoney >= COST_VENDOR_SKILL){
+                mDialogWindow.openDialog(
+                        String.format("Обновить ассортимент торговца за %d золотых?", COST_VENDOR_SKILL),
+                        mOnClickTraderSkillYes
+                );
+            }
+            else{
+                mDialogWindow.openInfo(
+                        String.format("Недостаточно %d золота.", COST_VENDOR_SKILL - mMoney)
+                );
             }
         };
     }
-    View.OnClickListener mOnClickVendorSkillYes = mOnClickVendorSkillYes();
-    View.OnClickListener mOnClickVendorSkillYes() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mDialogWindow.close();
-                changeMoneyInUIThread(-mCostVendorSkill);
-                for (byte i = 0; i< LOOT_AND_TRADE_MAX_COUNT; i++){
-                    mTradeItem[i].change(mStats, mDBOpenHelper,random, mGearScore);
-                    mTradeItem[i].open();
-                    mTradeItem[i].setVisibility(View.VISIBLE);
-                    mTradeCost[i].setText(String.format("%d", mTradeItem[i].getCost()));
-                    mTradeCost[i].setVisibility(View.VISIBLE);
-                    mTradeCostImage[i].setVisibility(View.VISIBLE);
-                }
+    View.OnClickListener mOnClickTraderSkillYes = mOnClickTraderSkillYes();
+    View.OnClickListener mOnClickTraderSkillYes() {
+        return v -> {
+            String requestString = null;
+            try {
+                requestString = mJackson.writeValueAsString(request);
             }
+            catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+            post("trade/use/trader", requestString, new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    Log.d("trade/use/trader", " onFailure "+e.toString());
+                }
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    String responseStr = response.body().string();
+                    Log.d("trade/use/trader", " response "+responseStr);
+                    MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
+                    if (!myResponse.isError()){
+                        mTable.post(() -> {
+                            mDialogWindow.close();
+                            changeMoneyInUIThread(-COST_VENDOR_SKILL);
+                            CardPlayerResponse[] cardTrade;
+                            try {
+                                cardTrade = mJackson.readValue(myResponse.getData(), CardPlayerResponse[].class);
+                                for (byte i = 0; i< LOOT_AND_TRADE_MAX_COUNT; i++){
+                                    mTradeItem[i].setIDItem(cardTrade[i].getIdItem());
+                                    mTradeItem[i].load(mStats, mDBOpenHelper);
+                                    mTradeItem[i].setDurability(cardTrade[i].getDurability());
+                                    mTradeItem[i].open();
+                                    mTradeItem[i].setVisibility(View.VISIBLE);
+                                    mTradeCost[i].setText(String.format("%d", mTradeItem[i].getCost()));
+                                    mTradeCost[i].setVisibility(View.VISIBLE);
+                                    mTradeCostImage[i].setVisibility(View.VISIBLE);
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        });
+                    }
+                }
+            });
         };
     }
 
     View.OnClickListener mOnClickBlacksmithSkill = mOnClickBlacksmithSkill();
     View.OnClickListener mOnClickBlacksmithSkill() {
         return v -> {
-            if (mMoney >= mCostVendorSkill){
+            if (mMoney >= COST_VENDOR_SKILL){
                 mDialogWindow.openDialog(
-                        String.format("Починить предмет за %d золотых?", mCostVendorSkill),
+                        String.format("Починить предмет за %d золотых?", COST_VENDOR_SKILL),
                         mOnClickBlacksmithSkillYes
                 );
             }
             else{
                 mDialogWindow.openInfo(
-                        String.format("Недостаточно %d золота.", mCostVendorSkill - mMoney)
+                        String.format("Недостаточно %d золота.", COST_VENDOR_SKILL - mMoney)
                 );
             }
         };
@@ -2928,7 +2954,7 @@ public class MainActivity extends AppCompatActivity {
     View.OnClickListener mOnClickBlacksmithSkillYes() {
         return v -> {
             mDialogWindow.close();
-            changeMoneyInUIThread(-mCostVendorSkill);
+            changeMoneyInUIThread(-COST_VENDOR_SKILL);
             mTargetSwap.setDurability(10);
             if (mTargetSwap.mSlotType == SlotType.HAND){
                 ((CardHand) mTargetSwap).updateDurabilityText();
@@ -2942,15 +2968,15 @@ public class MainActivity extends AppCompatActivity {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mMoney >= mCostVendorSkill){
+                if (mMoney >= COST_VENDOR_SKILL){
                     mDialogWindow.openDialog(
-                            String.format("Отдохнуть и восстановить здоровье за %d золотых?", mCostVendorSkill),
+                            String.format("Отдохнуть и восстановить здоровье за %d золотых?", COST_VENDOR_SKILL),
                             mOnClickInnkeeperSkillYes
                     );
                 }
                 else{
                     mDialogWindow.openInfo(
-                            String.format("Недостаточно %d золота.", mCostVendorSkill - mMoney)
+                            String.format("Недостаточно %d золота.", COST_VENDOR_SKILL - mMoney)
                     );
                 }
             }
@@ -2962,7 +2988,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mDialogWindow.close();
-                changeMoneyInUIThread(-mCostVendorSkill);
+                changeMoneyInUIThread(-COST_VENDOR_SKILL);
                 changeHPInUIThread(mHpMax);
                 mTradeSkillImage.setOnClickListener(null);
             }
