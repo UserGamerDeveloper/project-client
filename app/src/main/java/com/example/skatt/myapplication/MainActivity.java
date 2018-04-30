@@ -674,7 +674,7 @@ public class MainActivity extends AppCompatActivity {
                                         mShadow.bringToFront();
                                         mCardTableTarget.bringToFront();
                                         List<CardPlayerResponse> items = loginResponce.getTrade();
-                                        for (byte i = 0; i< LOOT_AND_TRADE_MAX_COUNT; i++){
+                                        for (byte i = 0; i < items.size(); i++){
                                             CardPlayerResponse item = items.get(i);
                                             mTradeItem[i].setIDItem(item.getIdItem());
                                             mTradeItem[i].setDurability(item.getDurability());
@@ -2807,43 +2807,65 @@ public class MainActivity extends AppCompatActivity {
 
     View.OnClickListener mCardTradeSellClickYes = mCardTradeSellClickYes();
     View.OnClickListener mCardTradeSellClickYes() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mDialogWindow.close();
-                mTargetSwap.setVisibility(View.INVISIBLE);
-                mInventoryItemCount--;
-                inventorySort();
-                changeMoneyInUIThread(mTargetSwap.getCost());
-                resetTargetSwap();
+        return v -> {
+            String requestString = null;
+            try {
+                CardPlayerResponse item = new CardPlayerResponse(
+                        mTargetSwap.getIDItem(),
+                        mTargetSwap.getSlotId(),
+                        (byte) mTargetSwap.getDurability()
+                );
+                request.setData(mJackson.writeValueAsString(item));
+                requestString = mJackson.writeValueAsString(request);
             }
+            catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+            post("trade/sell", requestString, new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    Log.d("trade/sell onFailure ", e.toString());
+                }
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    String responseStr = response.body().string();
+                    Log.d("trade/sell response ", responseStr);
+                    MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
+                    if (!myResponse.isError()){
+                        mTable.post(() -> {
+                            mDialogWindow.close();
+                            mTargetSwap.setVisibility(View.INVISIBLE);
+                            mInventoryItemCount--;
+                            inventorySort();
+                            changeMoneyInUIThread(mTargetSwap.getCost());
+                            resetTargetSwap();
+                        });
+                    }
+                }
+            });
         };
     }
 
     View.OnDragListener mOnSell = mOnSell();
     View.OnDragListener mOnSell() {
-        return new View.OnDragListener() {
-            @Override
-            public boolean onDrag(View v, DragEvent event) {
-
+        return (v, event) -> {
 /*
-                if (!event.getResult() && event.getAction() == DragEvent.ACTION_DRAG_STARTED) {
-                    return true;
-                }
-*/
-                if (event.getAction() == DragEvent.ACTION_DROP) {
-                    mTargetSwap.setVisibility(View.VISIBLE);
-                    if (mTargetSwap.getIdDrawable()!=R.drawable.kulak_levo||
-                            mTargetSwap.getIdDrawable()!=R.drawable.kulak_pravo)
-                    {
-                        mDialogWindow.openDialog(
-                                String.format("Продать карту за %d золотых?", mTargetSwap.getCost()),
-                                mCardTradeSellClickYes
-                        );
-                    }
-                }
+            if (!event.getResult() && event.getAction() == DragEvent.ACTION_DRAG_STARTED) {
                 return true;
             }
+*/
+            if (event.getAction() == DragEvent.ACTION_DROP) {
+                mTargetSwap.setVisibility(View.VISIBLE);
+                if (mTargetSwap.getIdDrawable()!=R.drawable.kulak_levo &&
+                        mTargetSwap.getIdDrawable()!=R.drawable.kulak_pravo)
+                {
+                    mDialogWindow.openDialog(
+                            String.format("Продать карту за %d золотых?", mTargetSwap.getCost()),
+                            mCardTradeSellClickYes
+                    );
+                }
+            }
+            return true;
         };
     }
 
@@ -3157,6 +3179,13 @@ public class MainActivity extends AppCompatActivity {
 
         mShadow.setVisibility(View.VISIBLE);
         mShadow.setAlpha(0f);
+
+        for (byte i = 0; i < LOOT_AND_TRADE_MAX_COUNT; i++){
+            mTradeItem[i].setVisibility(View.INVISIBLE);
+            mTradeCost[i].setText(String.format("%d", mTradeItem[i].getCost()));
+            mTradeCost[i].setVisibility(View.INVISIBLE);
+            mTradeCostImage[i].setVisibility(View.INVISIBLE);
+        }
     }
 
     private void setSelectTarget() {
