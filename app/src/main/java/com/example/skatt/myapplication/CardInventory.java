@@ -158,6 +158,10 @@ class CardInventory extends Card {
         this.mIDItem = null;
     }
 
+    void repair() {
+        this.mDurability = mDurabilityMax;
+    }
+
     void copy(CardInventory card){
         super.copy(card);
         mIDItem = card.getIDItem();

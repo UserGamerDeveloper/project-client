@@ -634,6 +634,7 @@ public class MainActivity extends AppCompatActivity {
                                 }
                                 mIsAnimate = false;
                                 if (mState!=State.SELECT_TARGET){
+                                    mIsAnimate = true;
                                     mCardTableTarget = mCardsTable[loginResponce.getCardTableTargetIDInArray()];
                                     if (mState==State.COMBAT){
                                         mShadow.bringToFront();
@@ -648,7 +649,6 @@ public class MainActivity extends AppCompatActivity {
                                         mShadow.bringToFront();
                                         mCardTableTarget.getTargetAnimation().start();
                                         mCardTableTarget.getTargetAnimation().end();
-                                        mIsAnimate = true;
                                         List<CardPlayerResponse> loot = loginResponce.getLoot();
                                         for (mLootCount = 0; mLootCount<loot.size();mLootCount++){
                                             CardPlayerResponse cardPlayerResponse = loot.get(mLootCount);
@@ -2953,13 +2953,39 @@ public class MainActivity extends AppCompatActivity {
     View.OnClickListener mOnClickBlacksmithSkillYes = mOnClickBlacksmithSkillYes();
     View.OnClickListener mOnClickBlacksmithSkillYes() {
         return v -> {
-            mDialogWindow.close();
-            changeMoneyInUIThread(-COST_VENDOR_SKILL);
-            mTargetSwap.setDurability(10);
-            if (mTargetSwap.mSlotType == SlotType.HAND){
-                ((CardHand) mTargetSwap).updateDurabilityText();
+            String requestString = null;
+            try {
+                CardPlayerResponse item = new CardPlayerResponse(
+                        mTargetSwap.getIDItem(),
+                        mTargetSwap.getSlotId(),
+                        (byte) mTargetSwap.getDurability()
+                );
+                request.setData(mJackson.writeValueAsString(item));
+                requestString = mJackson.writeValueAsString(request);
             }
-            resetTargetSwap();
+            catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+            post("trade/use/blacksmith", requestString, new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    Log.d("trade/use/blacksmith", " onFailure "+e.toString());
+                }
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    String responseStr = response.body().string();
+                    Log.d("trade/use/blacksmith", " response "+responseStr);
+                    MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
+                    if (!myResponse.isError()){
+                        mTable.post(() -> {
+                            mDialogWindow.close();
+                            changeMoneyInUIThread(-COST_VENDOR_SKILL);
+                            mTargetSwap.repair();
+                            resetTargetSwap();
+                        });
+                    }
+                }
+            });
         };
     }
 
@@ -3157,7 +3183,7 @@ public class MainActivity extends AppCompatActivity {
         );
         Log.d("post "+text, data);
         Request request = new Request.Builder()
-                .url("https://92.39.210.15:4430/"+text)
+                .url("https://88.80.45.86:4430/"+text)
                 .post(body)
                 .build();
         Call call = client.newCall(request);

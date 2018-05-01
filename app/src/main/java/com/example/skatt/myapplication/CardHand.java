@@ -47,6 +47,11 @@ public class CardHand extends CardInventory {
         mDurabilityText.setVisibility(INVISIBLE);
     }
 
+    void repair() {
+        super.repair();
+        this.updateDurabilityText();
+    }
+
     void copy(CardInventory card){
         super.copy(card);
         updateDurabilityText();
