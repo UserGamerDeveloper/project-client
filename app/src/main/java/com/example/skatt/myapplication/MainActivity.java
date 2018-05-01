@@ -966,12 +966,8 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         AnimatorListenerAdapter cardTableCloseBackAnimationListener = new AnimatorListenerAdapter() {
-
             @Override
-            public void onAnimationStart(Animator animation) {
-
-            }
-
+            public void onAnimationStart(Animator animation) {}
             @Override
             public void onAnimationEnd(Animator animation) {
                 loadLoot();
@@ -2385,20 +2381,41 @@ public class MainActivity extends AppCompatActivity {
                                         return;
                                     }
                                 }
+                                if (mCardTableTarget.getType() == CardTableType.CHEST){
+                                    try {
+                                        DamageResponse damageResponse = mJackson.readValue(
+                                                myResponse.getData(),
+                                                DamageResponse.class
+                                        );
+                                        mNextCardTable = damageResponse.getCardTableID();
+                                        CardPlayerResponse[] loot = mJackson.readValue(
+                                                damageResponse.getLoot(),
+                                                CardPlayerResponse[].class
+                                        );
+                                        mLootCount = loot.length;
+                                        for (int i = 0; i < mLootCount; i++) {
+                                            mLoot[i].bringToFront();
+                                            mLoot[i].setIDItem(loot[i].getIdItem());
+                                            mLoot[i].setDurability(loot[i].getDurability());
+                                        }
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                    mShadow.bringToFront();
+                                    mCardTableTarget.bringToFront();
+                                    mCardTableTarget.getTargetAnimation().start();
+                                    mCardTableTarget.getTargetAnimation().end();
+                                    mCardTableTarget.getCloseAnimation().start();
+                                    changeMoneyInUIThread(mCardTableTarget.getMoney());
+                                    return;
+                                }
                                 if (mCardTableTarget.getType() == CardTableType.HALT){
                                     mShadow.bringToFront();
                                     mCardTableTarget.bringToFront();
                                     mCardTableTarget.getTargetAnimation().start();
+                                    mCardTableTarget.getTargetAnimation().end();
                                     changeHPInUIThread(mHpMax);
                                     mCardTableTarget.getChangeAnimation().start();
-                                    return;
-                                }
-                                if (mCardTableTarget.getType() == CardTableType.CHEST){
-                                    mShadow.bringToFront();
-                                    mCardTableTarget.bringToFront();
-                                    mCardTableTarget.getTargetAnimation().start();
-                                    mCardTableTarget.getCloseAnimation().start();
-                                    //changeMoneyInUIThread(mCardTableTarget.getMoney());
                                 }
                             });
                         }

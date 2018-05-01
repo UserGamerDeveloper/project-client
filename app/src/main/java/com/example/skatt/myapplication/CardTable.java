@@ -93,13 +93,13 @@ class CardTable extends Card {
             mValueTwoText.setText(
                     String.format("%s ", mValueTwo)
             );
-            mMoney = cursor.getInt(
-                    cursor.getColumnIndexOrThrow(DBOpenHelper.money)
-            );
             mExperience = cursor.getInt(
                     cursor.getColumnIndexOrThrow(DBOpenHelper.EXPERIENCE)
             );
         }
+        mMoney = cursor.getInt(
+                cursor.getColumnIndexOrThrow(DBOpenHelper.money)
+        );
         //endregion
         cursor.close();
     }

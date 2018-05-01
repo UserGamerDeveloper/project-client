@@ -10,8 +10,6 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import java.util.Random;
-
 class CardInventory extends Card {
 
     final static String[] COLUMN_NAME = {
@@ -44,39 +42,6 @@ class CardInventory extends Card {
         super(context, attrs, defStyleAttr);
     }
 
-    void change(Stats stats, DBOpenHelper db_open_helper, Random random, int gearScoreMob){
-        gearScoreMob = 0;
-        SQLiteDatabase data_base = db_open_helper.getReadableDatabase();
-
-        int type = random.nextInt(3);
-
-        Cursor cursor = data_base.query(
-                DBOpenHelper.table_inventory,
-                COLUMN_NAME,
-                DBOpenHelper.MOBGEARSCORE + "=? AND " + DBOpenHelper.type + "=?",
-                new String[]{gearScoreMob+"",type+""},
-                null,
-                null,
-                null
-        );
-        setData(stats, random, cursor);
-    }
-    void change(Stats stats, DBOpenHelper db_open_helper, Random random, int gearScoreMob, int type){
-        gearScoreMob = 0;
-        SQLiteDatabase data_base = db_open_helper.getReadableDatabase();
-
-        Cursor cursor = data_base.query(
-                DBOpenHelper.table_inventory,
-                COLUMN_NAME,
-                DBOpenHelper.MOBGEARSCORE + "=? AND " + DBOpenHelper.type + "=?",
-                new String[]{gearScoreMob+"",type+""},
-                null,
-                null,
-                null
-        );
-
-        setData(stats, random, cursor);
-    }
     void load(Stats stats, DBOpenHelper db_open_helper){
         SQLiteDatabase data_base = db_open_helper.getReadableDatabase();
 
@@ -90,11 +55,10 @@ class CardInventory extends Card {
                 null,
                 null
         );
-
-        setData(stats, new Random(), cursor);
+        setData(stats, cursor);
     }
-    protected void setData(Stats stats, Random random, Cursor cursor) {
-        cursor.moveToPosition(random.nextInt(cursor.getCount()));
+    protected void setData(Stats stats, Cursor cursor) {
+        cursor.moveToFirst();
 
         this.mGearScore = cursor.getInt(
                 cursor.getColumnIndexOrThrow(DBOpenHelper.GEARSCORE)
@@ -145,7 +109,7 @@ class CardInventory extends Card {
         this.mCost = cursor.getInt(
                 cursor.getColumnIndexOrThrow(DBOpenHelper.cost)
         );
-        
+
         cursor.close();
     }
 

@@ -395,7 +395,6 @@ public class DBOpenHelper extends SQLiteOpenHelper {
     }
     //16
     private void Set_Mobs(SQLiteDatabase sqLiteDatabase) {
-
         ContentValues values = new ContentValues();
         //region Mobs
         values.put(DBOpenHelper.id, 4);
@@ -515,6 +514,7 @@ public class DBOpenHelper extends SQLiteOpenHelper {
         values.put(DBOpenHelper.id_image, R.drawable.testblack);
         values.put(DBOpenHelper.type, CardTableType.CHEST);
         values.put(DBOpenHelper.GEARSCORE, 9999);
+        values.put(DBOpenHelper.money, 1);
 
         sqLiteDatabase.insert(
                 DBOpenHelper.table_mobs,

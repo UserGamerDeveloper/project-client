@@ -6,8 +6,6 @@ import android.util.AttributeSet;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.Random;
-
 public class CardHand extends CardInventory {
     static final byte ID_DEFAULT = 0;
     int mIDDrawableDefault;
@@ -25,8 +23,8 @@ public class CardHand extends CardInventory {
     }
 
     @Override
-    protected void setData(Stats stats, Random random, Cursor cursor) {
-        super.setData(stats,random,cursor);
+    protected void setData(Stats stats, Cursor cursor) {
+        super.setData(stats, cursor);
         if (mIDItem == ID_DEFAULT){
             mIdDrawable = mIDDrawableDefault;
             mDurability = 0;
