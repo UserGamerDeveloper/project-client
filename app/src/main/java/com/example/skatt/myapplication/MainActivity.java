@@ -187,6 +187,7 @@ public class MainActivity extends AppCompatActivity {
     MyRequest request;
     OkHttpClient client;
     byte[] mNextCardTable;
+    static final String SERVER_URL = "https://88.80.45.86:4430/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -2991,33 +2992,50 @@ public class MainActivity extends AppCompatActivity {
 
     View.OnClickListener mOnClickInnkeeperSkill = mOnClickInnkeeperSkill();
     View.OnClickListener mOnClickInnkeeperSkill() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mMoney >= COST_VENDOR_SKILL){
-                    mDialogWindow.openDialog(
-                            String.format("Отдохнуть и восстановить здоровье за %d золотых?", COST_VENDOR_SKILL),
-                            mOnClickInnkeeperSkillYes
-                    );
-                }
-                else{
-                    mDialogWindow.openInfo(
-                            String.format("Недостаточно %d золота.", COST_VENDOR_SKILL - mMoney)
-                    );
-                }
+        return v -> {
+            if (mMoney >= COST_VENDOR_SKILL){
+                mDialogWindow.openDialog(
+                        String.format("Отдохнуть и восстановить здоровье за %d золотых?", COST_VENDOR_SKILL),
+                        mOnClickInnkeeperSkillYes
+                );
+            }
+            else{
+                mDialogWindow.openInfo(
+                        String.format("Недостаточно %d золота.", COST_VENDOR_SKILL - mMoney)
+                );
             }
         };
     }
     View.OnClickListener mOnClickInnkeeperSkillYes = mOnClickInnkeeperSkillYes();
     View.OnClickListener mOnClickInnkeeperSkillYes() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mDialogWindow.close();
-                changeMoneyInUIThread(-COST_VENDOR_SKILL);
-                changeHPInUIThread(mHpMax);
-                mTradeSkillImage.setOnClickListener(null);
+        return v -> {
+            String requestString = null;
+            try {
+                requestString = mJackson.writeValueAsString(request);
             }
+            catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+            post("trade/use/innkeeper", requestString, new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    Log.d("trade/use/innkeeper", " onFailure "+e.toString());
+                }
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    String responseStr = response.body().string();
+                    Log.d("trade/use/innkeeper", " response "+responseStr);
+                    MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
+                    if (!myResponse.isError()){
+                        mTable.post(() -> {
+                            mDialogWindow.close();
+                            changeMoneyInUIThread(-COST_VENDOR_SKILL);
+                            changeHPInUIThread(mHpMax);
+                            mTradeSkillImage.setOnClickListener(null);
+                        });
+                    }
+                }
+            });
         };
     }
 
@@ -3176,14 +3194,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    void post(String text, String data, Callback callback) {
+    void post(String command, String data, Callback callback) {
         RequestBody body = RequestBody.create(
                 MediaType.parse("application/json; charset=utf-8"),
                 data
         );
-        Log.d("post "+text, data);
+        Log.d("post "+command, data);
         Request request = new Request.Builder()
-                .url("https://88.80.45.86:4430/"+text)
+                .url(SERVER_URL + command)
                 .post(body)
                 .build();
         Call call = client.newCall(request);
