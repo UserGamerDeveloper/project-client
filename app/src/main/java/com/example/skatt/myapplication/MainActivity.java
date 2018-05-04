@@ -41,7 +41,6 @@ import java.security.cert.CertificateFactory;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -97,7 +96,6 @@ public class MainActivity extends AppCompatActivity {
     boolean mIsAnimate;
     private final int mIdDrawableCardBack = R.drawable.card_back;
     private final int cardCenterBack = R.drawable.perekrestok;
-    final Random random = new Random();
     DBOpenHelper mDBOpenHelper = new DBOpenHelper(MainActivity.this);
     Drawable mHpBarDrawable;
     ConstraintLayout mTable;
@@ -187,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
     MyRequest request;
     OkHttpClient client;
     byte[] mNextCardTable;
-    static final String SERVER_URL = "https://88.80.45.86:4430/";
+    static final String SERVER_URL = "https://88.80.45.97:4430/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -515,9 +513,9 @@ public class MainActivity extends AppCompatActivity {
                     if (!myResponse.isError()){
                         SQLiteDatabase data_base = mDBOpenHelper.getReadableDatabase();
 
-                        String[] column_name = {DBOpenHelper.HP, DBOpenHelper.COSTRESET};
+                        String[] column_name = {DBOpenHelper.HP_DEFAULT, DBOpenHelper.COST_RESET_STATS};
                         Cursor cursor = data_base.query(
-                                DBOpenHelper.sTableTest,
+                                DBOpenHelper.TABLE_TEST,
                                 column_name,
                                 null,
                                 null,
@@ -527,8 +525,8 @@ public class MainActivity extends AppCompatActivity {
                         );
                         cursor.moveToFirst();
 
-                        mHpMaxDefault = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.HP));
-                        mStatsResetCost = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.COSTRESET));
+                        mHpMaxDefault = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.HP_DEFAULT));
+                        mStatsResetCost = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.COST_RESET_STATS));
                         cursor.close();
 
                         LoginResponce loginResponce = mJackson.readValue(
@@ -3101,67 +3099,79 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     public void onClickBalanceButton(View view){
-
         EditText baseText = findViewById(R.id.TEST1);
         EditText idText = findViewById(R.id.id);
         EditText paramText = findViewById(R.id.parmetr);
         EditText valueText = findViewById(R.id.value);
-
-       try {
-            String base = baseText.getText().toString();
+        try {
+            final String base = baseText.getText().toString();
             String id = idText.getText().toString();
             String param = paramText.getText().toString();
             String value = valueText.getText().toString();
-            Byte.parseByte(value);
-            final String a = "0";
-            final String b = "1";
-            final String c = "2";
-            String where = null;
-            String[] arg = null;
-            ContentValues values = new ContentValues();
+            Integer.parseInt(value);
 
-            switch (base){
-                case a:{
-                    base = DBOpenHelper.sTableTest;
-                    break;
-                }
-                case b:{
-                    Byte.parseByte(id);
-                    base = DBOpenHelper.table_mobs;
-                    where = DBOpenHelper.id +"=?";
-                    arg = new String[]{id+""};
-                    break;
-                }
-                case c:{
-                    Byte.parseByte(id);
-                    base = DBOpenHelper.table_inventory;
-                    where = DBOpenHelper.id +"=?";
-                    arg = new String[]{id+""};
-                    break;
-                }
-                default:{
-                    break;
-                }
-            }
-            values.put(param, value);
+            BalanceRequest balanceRequest = new BalanceRequest(base, id, param, value);
+            request.setData(mJackson.writeValueAsString(balanceRequest));
+            String requestString = mJackson.writeValueAsString(request);
 
-            SQLiteDatabase data_base = mDBOpenHelper.getWritableDatabase();
+            post("test", requestString, new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    Log.d("test", " onFailure "+e.toString());
+                }
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    String responseStr = response.body().string();
+                    Log.d("test", " response "+responseStr);
+                    MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
+                    if (!myResponse.isError()){
+                        mTable.post(() -> {
+                            String where = null;
+                            String[] arg = null;
+                            ContentValues values = new ContentValues();
+                            String basee;
+                            switch (base){
+                                case "0":{
+                                    basee = DBOpenHelper.TABLE_TEST;
+                                    break;
+                                }
+                                case "1":{
+                                    basee = DBOpenHelper.TABLE_MOBS;
+                                    where = DBOpenHelper.id +"=?";
+                                    arg = new String[]{id+""};
+                                    break;
+                                }
+                                case "2":{
+                                    basee = DBOpenHelper.TABLE_INVENTORY;
+                                    where = DBOpenHelper.id +"=?";
+                                    arg = new String[]{id+""};
+                                    break;
+                                }
+                                default:{
+                                    return;
+                                }
+                            }
+                            values.put(param, value);
 
-            data_base.update(
-                    base,
-                    values,
-                    where,
-                    arg
-            );
-            data_base.close();
-           baseText.setText("");
-           idText.setText("");
-           paramText.setText("");
-           valueText.setText("");
-       }
-        catch (Exception e){
+                            SQLiteDatabase data_base = mDBOpenHelper.getWritableDatabase();
 
+                            data_base.update(
+                                    basee,
+                                    values,
+                                    where,
+                                    arg
+                            );
+                            data_base.close();
+                            baseText.setText("");
+                            idText.setText("");
+                            paramText.setText("");
+                            valueText.setText("");
+                        });
+                    }
+                }
+            });
         }
+        catch (Exception e){}
     }
 
     public void onClickIconCollection(View view){
@@ -3178,37 +3188,42 @@ public class MainActivity extends AppCompatActivity {
         try {
             byte idslot = Byte.parseByte(idslotText.getText().toString());
             byte iditem = Byte.parseByte(iditemText.getText().toString());
-
             if (idslot<4){
+                mInventory[idslot].setIDItem(iditem);
                 mInventory[idslot].load(mStats, mDBOpenHelper);
+                mInventory[idslot].repair();
                 mInventory[idslot].open();
                 mInventory[idslot].setVisibility(View.VISIBLE);
-                mInventory[idslot].setDurability(mInventory[idslot].getDurabilityMax());
             }
             else{
                 if (idslot==4){
+                    mHandOne.setIDItem(iditem);
                     mHandOne.load(mStats, mDBOpenHelper);
+                    mHandOne.repair();
                     mHandOne.open();
                     mHandOne.setVisibility(View.VISIBLE);
                     mHandOne.mDurabilityText.setVisibility(View.VISIBLE);
                     mHandOne.mDurabilityImage.setVisibility(View.VISIBLE);
-                    mHandOne.setDurabilityInUIThread(mHandOne.getDurabilityMax());
                 }
                 else{
-                    mHandTwo.load(mStats, mDBOpenHelper);
-                    mHandTwo.open();
-                    mHandTwo.setVisibility(View.VISIBLE);
-                    mHandTwo.mDurabilityText.setVisibility(View.VISIBLE);
-                    mHandTwo.mDurabilityImage.setVisibility(View.VISIBLE);
-                    mHandTwo.setDurabilityInUIThread(mHandTwo.getDurabilityMax());
+                    if (idslot==5){
+                        mHandTwo.setIDItem(iditem);
+                        mHandTwo.load(mStats, mDBOpenHelper);
+                        mHandTwo.repair();
+                        mHandTwo.open();
+                        mHandTwo.setVisibility(View.VISIBLE);
+                        mHandTwo.mDurabilityText.setVisibility(View.VISIBLE);
+                        mHandTwo.mDurabilityImage.setVisibility(View.VISIBLE);
+                    }
+                    else{
+                        return;
+                    }
                 }
             }
             idslotText.setText("");
             iditemText.setText("");
         }
-        catch (Exception e){
-
-        }
+        catch (Exception e){}
     }
 
     void post(String command, String data, Callback callback) {

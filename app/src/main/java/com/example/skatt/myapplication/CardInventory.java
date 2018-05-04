@@ -16,12 +16,12 @@ class CardInventory extends Card {
             DBOpenHelper.id,
             DBOpenHelper.name,
             DBOpenHelper.VALUEONE,
-            DBOpenHelper.id_image,
+            DBOpenHelper.ID_IMAGE,
             DBOpenHelper.type,
-            DBOpenHelper.cost,
+            DBOpenHelper.COST,
             DBOpenHelper.GEARSCORE,
-            DBOpenHelper.MOBGEARSCORE,
-            DBOpenHelper.DURABILITY
+            DBOpenHelper.MOB_GEARSCORE,
+            DBOpenHelper.DURABILITY_MAX
     };
     protected Byte mIDItem;
     int mDurability;
@@ -47,7 +47,7 @@ class CardInventory extends Card {
 
         Log.d("mIDItem.toString()", mIDItem.toString());
         Cursor cursor = data_base.query(
-                DBOpenHelper.table_inventory,
+                DBOpenHelper.TABLE_INVENTORY,
                 COLUMN_NAME,
                 DBOpenHelper.id + "=?",
                 new String[]{mIDItem.toString()},
@@ -66,7 +66,7 @@ class CardInventory extends Card {
         this.TEST_GearScoreText.setText(String.format("%d", mGearScore));
 
         TEST_MOB_GEARSCORE = cursor.getInt(
-                cursor.getColumnIndexOrThrow(DBOpenHelper.MOBGEARSCORE)
+                cursor.getColumnIndexOrThrow(DBOpenHelper.MOB_GEARSCORE)
         );
         this.TEST_GearScoreText.setText(String.format("%d", TEST_MOB_GEARSCORE));
 
@@ -85,14 +85,14 @@ class CardInventory extends Card {
             case InventoryType.WEAPON :{
                 mValueOne +=stats.getDamageBonus();
                 mDurabilityMax = cursor.getInt(
-                        cursor.getColumnIndexOrThrow(DBOpenHelper.DURABILITY)
+                        cursor.getColumnIndexOrThrow(DBOpenHelper.DURABILITY_MAX)
                 );
                 break;
             }
             case InventoryType.SHIELD :{
                 mValueOne +=stats.getDefenceBonus();
                 mDurabilityMax = cursor.getInt(
-                        cursor.getColumnIndexOrThrow(DBOpenHelper.DURABILITY)
+                        cursor.getColumnIndexOrThrow(DBOpenHelper.DURABILITY_MAX)
                 );
                 break;
             }
@@ -103,11 +103,11 @@ class CardInventory extends Card {
         this.setValueOneText(mValueOne);
 
         mIdDrawable = cursor.getInt(
-                cursor.getColumnIndexOrThrow(DBOpenHelper.id_image)
+                cursor.getColumnIndexOrThrow(DBOpenHelper.ID_IMAGE)
         );
 
         this.mCost = cursor.getInt(
-                cursor.getColumnIndexOrThrow(DBOpenHelper.cost)
+                cursor.getColumnIndexOrThrow(DBOpenHelper.COST)
         );
 
         cursor.close();
@@ -117,6 +117,7 @@ class CardInventory extends Card {
         super.open();
         this.mValueOneText.setVisibility(View.VISIBLE);
     }
+
     void close(int card_back) {
         super.close(card_back);
         this.mIDItem = null;
@@ -128,12 +129,12 @@ class CardInventory extends Card {
 
     void copy(CardInventory card){
         super.copy(card);
-        mIDItem = card.getIDItem();
+        this.mIDItem = card.getIDItem();
         this.mValueOneText.setVisibility(View.VISIBLE);
         this.mDurability = card.getDurability();
         this.mCost = card.getCost();
         this.TEST_MOB_GEARSCORE = card.TEST_MOB_GEARSCORE;
-        TEST_MOB_GEARSCORE_TEXT.setText(this.TEST_MOB_GEARSCORE+"");
+        this.TEST_MOB_GEARSCORE_TEXT.setText(this.TEST_MOB_GEARSCORE+"");
     }
     void copy(CardInventoryTemp card){
         this.mIDItem = card.getIDItem();
@@ -151,9 +152,10 @@ class CardInventory extends Card {
         this.mGearScore = card.getGearScore();
         this.TEST_GearScoreText.setText(String.format("%d", mGearScore));
         this.TEST_MOB_GEARSCORE = card.TEST_MOB_GEARSCORE;
-        TEST_MOB_GEARSCORE_TEXT.setText(this.TEST_MOB_GEARSCORE+"");
+        this.TEST_MOB_GEARSCORE_TEXT.setText(this.TEST_MOB_GEARSCORE+"");
     }
 
+    //region setters/getters
     boolean isEmpty(){
         return mIDItem == null;
     }
@@ -193,4 +195,5 @@ class CardInventory extends Card {
     public void setSlotType(byte slotType) {
         this.mSlotType = slotType;
     }
+    //endregion
 }

@@ -39,6 +39,7 @@ public class CardHand extends CardInventory {
             mDurabilityText.setVisibility(VISIBLE);
         }
     }
+
     void close(int card_back) {
         super.close(card_back);
         mDurabilityImage.setVisibility(INVISIBLE);
@@ -59,6 +60,7 @@ public class CardHand extends CardInventory {
         updateDurabilityText();
     }
 
+    //region setters/getters
     public int getIDDrawableDefault() {
         return mIDDrawableDefault;
     }
@@ -87,4 +89,5 @@ public class CardHand extends CardInventory {
             );
         }
     }
+    //endregion
 }

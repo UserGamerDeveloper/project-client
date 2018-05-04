@@ -15,7 +15,7 @@ class CardTable extends Card {
             DBOpenHelper.name,
             DBOpenHelper.VALUEONE,
             DBOpenHelper.VALUETWO,
-            DBOpenHelper.id_image,
+            DBOpenHelper.ID_IMAGE,
             DBOpenHelper.money,
             DBOpenHelper.type,
             DBOpenHelper.GEARSCORE,
@@ -31,8 +31,6 @@ class CardTable extends Card {
     TextView mValueTwoText;
     private int mMoney;
     private int mExperience;
-    private boolean mLogin = false;
-    static float sGearScoreRangeRate;
 
     public CardTable(Context context) {
         super(context);
@@ -47,7 +45,7 @@ class CardTable extends Card {
     void load(DBOpenHelper db_open_helper){
         SQLiteDatabase data_base = db_open_helper.getReadableDatabase();
         Cursor cursor = data_base.query(
-                DBOpenHelper.table_mobs,
+                DBOpenHelper.TABLE_MOBS,
                 COLUMN_NAME,
                 DBOpenHelper.id + "=?",
                 new String[]{mIDMob.toString()},
@@ -64,7 +62,7 @@ class CardTable extends Card {
         );
 
         mIdDrawable = cursor.getInt(
-                cursor.getColumnIndexOrThrow(DBOpenHelper.id_image)
+                cursor.getColumnIndexOrThrow(DBOpenHelper.ID_IMAGE)
         );
 
         mType = cursor.getInt(
@@ -106,7 +104,7 @@ class CardTable extends Card {
 
     void copy(CardTable card){
         super.copy(card);
-        mIDMob = card.getIDMob();
+        this.mIDMob = card.getIDMob();
         this.mValueTwo = card.getValueTwo();
         this.mValueTwoText.setText(card.mValueTwoText.getText());
         this.mValueTwoText.setVisibility(card.mValueTwoText.getVisibility());
@@ -126,10 +124,11 @@ class CardTable extends Card {
         this.mIDMob = null;
         this.mValueTwoText.setVisibility(View.INVISIBLE);
     }
-    boolean isClose(){
-        return ((mIdDrawable == CARD_BACK) || (mIdDrawable == CARD_CENTER_BACK));
-    }
 
+    //region setters/getters
+    boolean isClose(){
+        return (super.isClose() || (mIdDrawable == CARD_CENTER_BACK));
+    }
     boolean isEmpty(){
         return mIDMob == null;
     }
@@ -225,18 +224,5 @@ class CardTable extends Card {
     public void setExperience(int experience) {
         mExperience = experience;
     }
-
-    public static float getGearScoreRangeRate() {
-        return sGearScoreRangeRate;
-    }
-    public static void setGearScoreRangeRate(float gearScoreRangeRate) {
-        sGearScoreRangeRate = gearScoreRangeRate;
-    }
-
-    public boolean isLogin() {
-        return mLogin;
-    }
-    public void setLogin(boolean login) {
-        mLogin = login;
-    }
+    //endregion
 }

@@ -33,7 +33,6 @@ public class Card extends ConstraintLayout {
     }
 
     void copy(Card card){
-
         this.mValueOne = card.getValueOne();
         this.mIdDrawable = card.getIdDrawable();
         Picasso.with(getContext()).load(mIdDrawable).placeholder(R.color.color_black).into(mImageView);
@@ -58,7 +57,6 @@ public class Card extends ConstraintLayout {
     }
 
     void close(int card_back) {
-
         this.mNameText.setVisibility(View.INVISIBLE);
         this.mValueOneText.setVisibility(View.INVISIBLE);
         Picasso.with(getContext()).load(card_back).placeholder(R.color.color_black).into(mImageView);
@@ -68,6 +66,7 @@ public class Card extends ConstraintLayout {
         this.mIdDrawable = card_back;
     }
 
+    //region setters/getters
     boolean isClose(){
         return mIdDrawable == CARD_BACK;
     }
@@ -111,6 +110,9 @@ public class Card extends ConstraintLayout {
     }
     public void setGearScore(int gearScore) {
         mGearScore = gearScore;
+    }
+    public void setGearScoreInUIThread(int gearScore) {
+        mGearScore = gearScore;
         TEST_GearScoreText.setText(String.format("%d", mGearScore));
     }
 
@@ -120,4 +122,5 @@ public class Card extends ConstraintLayout {
     public void setSubType(byte subType) {
         mSubType = subType;
     }
+    //endregion
 }
