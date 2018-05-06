@@ -185,12 +185,14 @@ public class MainActivity extends AppCompatActivity {
     MyRequest request;
     OkHttpClient client;
     byte[] mNextCardTable;
-    static final String SERVER_URL = "https://88.80.45.97:4430/";
+    static final String SERVER_URL = "https://91.185.71.85:4430/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        findViewById(R.id.signLayout).setVisibility(View.VISIBLE);
 
         //region set certificate
         try {
@@ -534,16 +536,14 @@ public class MainActivity extends AppCompatActivity {
                                 LoginResponce.class
                         );
                         mTable.post(() -> {
+                            setTextSize();
+                            setAnimators();
+                            resetGame();
                             mMoneyBank = loginResponce.getMoneyBank();
                             mStats.login(loginResponce.getStats());
                             mHpMax = mHpMaxDefault + mStats.getHPBonus();
                             mHp = mHpMax;
                             mState = loginResponce.getState();
-                            resetGame();
-                            mInventory[0].setVisibility(View.VISIBLE);
-                            mLoot[0].setVisibility(View.VISIBLE);
-                            setTextSize();
-                            setAnimators();
                             updateMoneyBankText();
                             mStats.updateLevelAndExperienceTextInThreadUI();
                             mIsAnimate = true;
@@ -750,7 +750,6 @@ public class MainActivity extends AppCompatActivity {
             mInventory[i].mNameText.setTextSize(COMPLEX_UNIT_PX, card_inventory_name_text_size);
             mInventory[i].mValueOneText.setTextSize(COMPLEX_UNIT_PX, card_inventory_value_one_text_size);
         }
-        mInventory[0].setVisibility(View.GONE);
 
         float card_loot_value_one_text_size = (float) (Math.sqrt(Math.pow(mLoot[0].mImageView.getWidth(), 2.0) +
                 Math.pow(mLoot[0].mImageView.getHeight(), 2.0)) * card_hp_and_damage_text_size_constant);
@@ -760,8 +759,6 @@ public class MainActivity extends AppCompatActivity {
             mLoot[i].mNameText.setTextSize(COMPLEX_UNIT_PX, card_loot_name_text_size);
             mLoot[i].mValueOneText.setTextSize(COMPLEX_UNIT_PX, card_loot_value_one_text_size);
         }
-        Log.d(""+card_loot_value_one_text_size, ""+card_loot_name_text_size);
-        mLoot[0].setVisibility(View.GONE);
 
         float card_hand_value_one_text_size = (float) (Math.sqrt(Math.pow(mHandOne.mImageView.getWidth(), 2.0) +
                 Math.pow(mHandOne.mImageView.getHeight(), 2.0)) * card_hp_and_damage_text_size_constant);
@@ -771,7 +768,6 @@ public class MainActivity extends AppCompatActivity {
         mHandOne.mValueOneText.setTextSize(COMPLEX_UNIT_PX, card_hand_value_one_text_size);
         mHandTwo.mNameText.setTextSize(COMPLEX_UNIT_PX, card_hand_name_text_size);
         mHandTwo.mValueOneText.setTextSize(COMPLEX_UNIT_PX, card_hand_value_one_text_size);
-
 
         hp_text_size = (float) (Math.sqrt(Math.pow(hp_view.getWidth(), 2.0) +
                 Math.pow(hp_view.getHeight(), 2.0)) * hp_text_size_constant);
@@ -802,12 +798,12 @@ public class MainActivity extends AppCompatActivity {
         mLoot[0].mImageView.getLocationOnScreen(card_loot_coordinates);
         findViewById(R.id.guideline_inventory_top).getLocationOnScreen(guideline_inventory_top_coordinates);
 
-        inventory_animation_delta = card_inventory_coordinates[1] + mInventory[0].mImageView.getHeight() -
+        inventory_animation_delta = card_inventory_coordinates[1] /*+ mInventory[0].mImageView.getHeight()*/ -
                 displayMetrics.heightPixels;
         hand_animation_delta = card_hand_coordinates[1] + mHandOne.mImageView.getHeight() -
                 guideline_inventory_top_coordinates[1];
+        Log.d("+", "mHandOne.mImageView.getHeight() "+mHandOne.mImageView.getHeight());
         loot_animation_delta = displayMetrics.heightPixels * 0.05f;
-
         mCardCenter.getLocationOnScreen(card_5_coordinates);
         mCardsTable[6].mImageView.getLocationOnScreen(card_8_coordinates);
         mCardsTable[3].mImageView.getLocationOnScreen(card_4_coordinates);
@@ -2105,37 +2101,36 @@ public class MainActivity extends AppCompatActivity {
 
     View.OnLongClickListener mOnLongClickListener = mOnLongClickListener();
     View.OnLongClickListener mOnLongClickListener() {
-        return new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                if (mTargetSwap.getType() == InventoryType.FOOD) {
-                    useFood();
-                    return true;
-                }
-                if (mTargetSwap.getType() == InventoryType.SPELL) {
-                    useSpell();
-                    return true;
-                }
-                if(mTargetSwap.mSlotType == SlotType.HAND){
-                    CardHand card_hand = (CardHand) mTargetSwap;
-                    if (card_hand.getIDItem()!=card_hand.getIDDefault()){
-                        if (mInventoryItemCount < INVENTORY_MAX_COUNT){
-                            mInventory[mInventoryItemCount].copy(card_hand);
-                            mInventory[mInventoryItemCount].setVisibility(View.VISIBLE);
-                            mInventoryItemCount++;
-                            card_hand.setIDItem(card_hand.getIDDefault());
-                            card_hand.load(mStats, mDBOpenHelper);
-                        }
-                        else{
-                            mDialogWindow.openInfo("Нет места в инвентаре.");
-                        }
-                        Log.d("resetTargetSwap", "hand take off");
-                        resetTargetSwap();
+        return v -> {
+            if (mTargetSwap.getType() == InventoryType.FOOD) {
+                useFood();
+                return true;
+            }
+            if (mTargetSwap.getType() == InventoryType.SPELL) {
+                useSpell();
+                return true;
+            }
+            if(mTargetSwap.mSlotType == SlotType.HAND){
+                CardHand cardHand = (CardHand) mTargetSwap;
+                if (!cardHand.isFist()){
+                    if (mInventoryItemCount < INVENTORY_MAX_COUNT){
+                        mInventory[mInventoryItemCount].copy(cardHand);
+                        mInventory[mInventoryItemCount].setVisibility(View.VISIBLE);
+                        mInventoryItemCount++;
+                        cardHand.close(mIdDrawableCardBack);
+                        cardHand.setFist();
+                        cardHand.load(mStats, mDBOpenHelper);
+                        cardHand.open();
                     }
-                    return true;
+                    else{
+                        mDialogWindow.openInfo("Нет места в инвентаре.");
+                    }
+                    Log.d("resetTargetSwap", "hand take off");
+                    resetTargetSwap();
                 }
                 return true;
             }
+            return true;
         };
     }
 
@@ -2145,13 +2140,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if(MotionEvent.ACTION_MOVE==event.getAction()){
-                    if (event.getHistorySize()==1){
-                        if (event.getY()<event.getHistoricalY(0)) {
-                            ClipData data = ClipData.newPlainText("", "");
-                            View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(mTargetSwap);
-                            mTargetSwap.startDrag(data, shadowBuilder, mTargetSwap, 0);
-                            mTargetSwap.setVisibility(View.INVISIBLE);
-                            Log.d("INVISIBLE", "onTouch: ");
+                    if (event.getHistorySize()==2){
+                        if (event.getX()!=event.getHistoricalX(0)){
+                            if (event.getY()!=event.getHistoricalY(0)) {
+                                ClipData data = ClipData.newPlainText("", "");
+                                View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(mTargetSwap);
+                                mTargetSwap.startDrag(data, shadowBuilder, mTargetSwap, 0);
+                                mTargetSwap.setVisibility(View.INVISIBLE);
+                                Log.d("INVISIBLE", "onTouch: ");
+                            }
                         }
                     }
                 }
@@ -2437,7 +2434,6 @@ public class MainActivity extends AppCompatActivity {
                     if (mTargetSwap.mSlotType == SlotType.LOOT) {
                         target_on_animation = ObjectAnimator.ofFloat(mTargetSwap, View.TRANSLATION_Y, 0f, -loot_animation_delta);
                         target_off_animation = ObjectAnimator.ofFloat(mTargetSwap, View.TRANSLATION_Y, -loot_animation_delta, 0f);
-
                     }
                     if (mTargetSwap.mSlotType == SlotType.INVENTORY) {
                         target_on_animation = ObjectAnimator.ofFloat(mTargetSwap, View.TRANSLATION_Y, 0f, -inventory_animation_delta);
@@ -2451,8 +2447,10 @@ public class MainActivity extends AppCompatActivity {
                     target_on_animation.addListener(target_on_animation_end);
                     target_on_animation.start();
 
-                    if (mTradeSkill.getVisibility()==View.VISIBLE && mCardTableTarget.getSubType()== CardTableSubType.BLACKSMITH&&
-                            (mTargetSwap.getType()== InventoryType.SHIELD|| mTargetSwap.getType()== InventoryType.WEAPON)){
+                    if (mTradeSkill.getVisibility() == View.VISIBLE &&
+                            mCardTableTarget.getSubType() == CardTableSubType.BLACKSMITH &&
+                            (mTargetSwap.getType() == InventoryType.SHIELD ||
+                                    mTargetSwap.getType() == InventoryType.WEAPON)){
                         mTradeSkillImage.setOnClickListener(mOnClickBlacksmithSkill);
                     }
                 }
@@ -2583,26 +2581,8 @@ public class MainActivity extends AppCompatActivity {
                                 return;
                             }
                             updateHPText();
-                            if(mHandOne.mDurabilityText.getVisibility()==View.VISIBLE){
-                                mHandOne.setDurabilityInUIThread(mHandOne.getDurability()-1);
-                                if (mHandOne.getDurability()<1){
-                                    mHandOne.setIDItem(mHandOne.getIDDefault());
-                                    mHandOne.load(mStats, mDBOpenHelper);
-                                }
-                                else{
-                                    mHandOne.updateDurabilityText();
-                                }
-                            }
-                            if(mHandTwo.mDurabilityText.getVisibility()==View.VISIBLE){
-                                mHandTwo.setDurabilityInUIThread(mHandTwo.getDurability()-1);
-                                if (mHandTwo.getDurability()<1){
-                                    mHandTwo.setIDItem(mHandTwo.getIDDefault());
-                                    mHandTwo.load(mStats, mDBOpenHelper);
-                                }
-                                else{
-                                    mHandTwo.updateDurabilityText();
-                                }
-                            }
+                            mHandOne.tryDestroy(mStats, mDBOpenHelper);
+                            mHandTwo.tryDestroy(mStats, mDBOpenHelper);
 
                             int damage = ((mHandOne.getType() == InventoryType.WEAPON) ?
                                     mHandOne.getValueOne() : 0) + ((mHandTwo.getType() == InventoryType.WEAPON) ?
@@ -3321,8 +3301,10 @@ public class MainActivity extends AppCompatActivity {
             target_off_animation.start();
             Log.d("target off", (String) mTargetSwap.mNameText.getText());
         }
-        if (mCardTableTarget.getSubType()==CardTableSubType.BLACKSMITH){
-            mTradeSkillImage.setOnClickListener(null);
+        if(mCardTableTarget!=null){
+            if (mCardTableTarget.getSubType()==CardTableSubType.BLACKSMITH){
+                mTradeSkillImage.setOnClickListener(null);
+            }
         }
         mTargetSwap = null;
         is_first_click = true;

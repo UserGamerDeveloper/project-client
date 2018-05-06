@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout"
@@ -167,7 +166,7 @@
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/golovorez" />
+                app:srcCompat="@drawable/testblack" />
 
             <com.example.skatt.myapplication.Custom_Text_View
                 android:id="@+id/card_name_9"
@@ -238,7 +237,7 @@
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/golovorez" />
+                app:srcCompat="@drawable/testblack" />
 
             <com.example.skatt.myapplication.Custom_Text_View
                 android:id="@+id/card_name_8"
@@ -277,6 +276,7 @@
                 app:layout_constraintStart_toStartOf="@+id/card_view_8"
                 app:layout_constraintTop_toTopOf="@+id/card_view_8"
                 app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
+
             <com.example.skatt.myapplication.Custom_Text_View
                 android:id="@+id/card8GearScore"
                 android:layout_width="wrap_content"
@@ -308,7 +308,7 @@
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/golovorez" />
+                app:srcCompat="@drawable/testblack" />
 
             <com.example.skatt.myapplication.Custom_Text_View
                 android:id="@+id/card_name_7"
@@ -347,6 +347,7 @@
                 app:layout_constraintStart_toStartOf="@+id/card_view_7"
                 app:layout_constraintTop_toTopOf="@+id/card_view_7"
                 app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
+
             <com.example.skatt.myapplication.Custom_Text_View
                 android:id="@+id/card7GearScore"
                 android:layout_width="wrap_content"
@@ -359,6 +360,7 @@
                 app:layout_constraintTop_toTopOf="@+id/card_view_7" />
 
         </com.example.skatt.myapplication.CardTable>
+
         <com.example.skatt.myapplication.CardTable
             android:id="@+id/card_table_6"
             android:layout_width="0dp"
@@ -368,54 +370,55 @@
             app:layout_constraintRight_toRightOf="@+id/guideline_vertical5"
             app:layout_constraintTop_toTopOf="@+id/guideline_horizontal2">
 
-                <ImageView
-                    android:id="@+id/card_view_6"
-                    android:layout_width="wrap_content"
-                    android:layout_height="@dimen/card_view_layout_height"
-                    android:adjustViewBounds="true"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/golovorez" />
+            <ImageView
+                android:id="@+id/card_view_6"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/card_view_layout_height"
+                android:adjustViewBounds="true"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/testblack" />
 
-                <com.example.skatt.myapplication.Custom_Text_View
-                    android:id="@+id/card_name_6"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="TextViewText"
-                    android:textSize="32px"
-                    app:layout_constraintBottom_toBottomOf="@+id/card_view_6"
-                    app:layout_constraintEnd_toEndOf="@+id/card_view_6"
-                    app:layout_constraintStart_toStartOf="@+id/card_view_6"
-                    app:layout_constraintTop_toTopOf="@+id/card_view_6"
-                    app:layout_constraintVertical_bias="@dimen/name_layout_constraintVertical_bias" />
+            <com.example.skatt.myapplication.Custom_Text_View
+                android:id="@+id/card_name_6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TextViewText"
+                android:textSize="32px"
+                app:layout_constraintBottom_toBottomOf="@+id/card_view_6"
+                app:layout_constraintEnd_toEndOf="@+id/card_view_6"
+                app:layout_constraintStart_toStartOf="@+id/card_view_6"
+                app:layout_constraintTop_toTopOf="@+id/card_view_6"
+                app:layout_constraintVertical_bias="@dimen/name_layout_constraintVertical_bias" />
 
-                <com.example.skatt.myapplication.Custom_Text_View
-                    android:id="@+id/card_hp_6"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text=" 0"
-                    android:textSize="29px"
-                    app:layout_constraintBottom_toBottomOf="@+id/card_view_6"
-                    app:layout_constraintEnd_toEndOf="@+id/card_view_6"
-                    app:layout_constraintHorizontal_bias="@dimen/hp_layout_constraintHorizontal_bias"
-                    app:layout_constraintStart_toStartOf="@+id/card_view_6"
-                    app:layout_constraintTop_toTopOf="@+id/card_view_6"
-                    app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
+            <com.example.skatt.myapplication.Custom_Text_View
+                android:id="@+id/card_hp_6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=" 0"
+                android:textSize="29px"
+                app:layout_constraintBottom_toBottomOf="@+id/card_view_6"
+                app:layout_constraintEnd_toEndOf="@+id/card_view_6"
+                app:layout_constraintHorizontal_bias="@dimen/hp_layout_constraintHorizontal_bias"
+                app:layout_constraintStart_toStartOf="@+id/card_view_6"
+                app:layout_constraintTop_toTopOf="@+id/card_view_6"
+                app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
 
-                <com.example.skatt.myapplication.Custom_Text_View
-                    android:id="@+id/card_damage_6"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0 "
-                    android:textSize="30px"
-                    app:layout_constraintBottom_toBottomOf="@+id/card_view_6"
-                    app:layout_constraintEnd_toEndOf="@+id/card_view_6"
-                    app:layout_constraintHorizontal_bias="@dimen/damage_layout_constraintHorizontal_bias"
-                    app:layout_constraintStart_toStartOf="@+id/card_view_6"
-                    app:layout_constraintTop_toTopOf="@+id/card_view_6"
-                    app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
+            <com.example.skatt.myapplication.Custom_Text_View
+                android:id="@+id/card_damage_6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0 "
+                android:textSize="30px"
+                app:layout_constraintBottom_toBottomOf="@+id/card_view_6"
+                app:layout_constraintEnd_toEndOf="@+id/card_view_6"
+                app:layout_constraintHorizontal_bias="@dimen/damage_layout_constraintHorizontal_bias"
+                app:layout_constraintStart_toStartOf="@+id/card_view_6"
+                app:layout_constraintTop_toTopOf="@+id/card_view_6"
+                app:layout_constraintVertical_bias="@dimen/hp_and_damage_layout_constraintVertical_bias" />
+
             <com.example.skatt.myapplication.Custom_Text_View
                 android:id="@+id/card6GearScore"
                 android:layout_width="wrap_content"
@@ -458,7 +461,7 @@
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/golovorez" />
+                app:srcCompat="@drawable/testblack" />
 
             <com.example.skatt.myapplication.Custom_Text_View
                 android:id="@+id/card_name_4"
@@ -529,7 +532,7 @@
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/golovorez" />
+                app:srcCompat="@drawable/testblack" />
 
             <com.example.skatt.myapplication.Custom_Text_View
                 android:id="@+id/card_name_3"
@@ -600,7 +603,7 @@
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/golovorez" />
+                app:srcCompat="@drawable/testblack" />
 
             <com.example.skatt.myapplication.Custom_Text_View
                 android:id="@+id/card_name_2"
@@ -671,7 +674,7 @@
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/golovorez" />
+                app:srcCompat="@drawable/testblack" />
 
             <com.example.skatt.myapplication.Custom_Text_View
                 android:id="@+id/card_name_1"
@@ -873,7 +876,7 @@
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/jalo" />
+                app:srcCompat="@drawable/testblack" />
 
             <com.example.skatt.myapplication.Custom_Text_View
                 android:id="@+id/card_loot_0_name"
@@ -945,7 +948,7 @@
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/jalo" />
+                app:srcCompat="@drawable/testblack" />
 
             <com.example.skatt.myapplication.Custom_Text_View
                 android:id="@+id/card_loot_1_name"
@@ -1017,7 +1020,7 @@
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/jalo" />
+                app:srcCompat="@drawable/testblack" />
 
             <com.example.skatt.myapplication.Custom_Text_View
                 android:id="@+id/card_loot_2_name"
@@ -1242,7 +1245,7 @@
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/jalo" />
+                app:srcCompat="@drawable/testblack" />
 
             <com.example.skatt.myapplication.Custom_Text_View
                 android:id="@+id/card_trade_0_name"
@@ -1327,7 +1330,7 @@
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/jalo" />
+                app:srcCompat="@drawable/testblack" />
 
             <com.example.skatt.myapplication.Custom_Text_View
                 android:id="@+id/card_trade_1_name"
@@ -1365,6 +1368,7 @@
                 app:layout_constraintHorizontal_bias="0.72"
                 app:layout_constraintStart_toStartOf="@+id/card_trade_1_view"
                 app:layout_constraintTop_toTopOf="@+id/card_trade_1_view" />
+
             <com.example.skatt.myapplication.Custom_Text_View
                 android:id="@+id/cardTrade1GearScoreMob"
                 android:layout_width="wrap_content"
@@ -1411,7 +1415,7 @@
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/jalo" />
+                app:srcCompat="@drawable/testblack" />
 
             <com.example.skatt.myapplication.Custom_Text_View
                 android:id="@+id/card_trade_2_name"
@@ -1578,7 +1582,7 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.0"
-            app:srcCompat="@drawable/jalo" />
+            app:srcCompat="@drawable/testblack" />
 
         <com.example.skatt.myapplication.Custom_Text_View
             android:id="@+id/card_hand_left_name"
@@ -1672,12 +1676,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="0 0/0"
-        app:layout_constraintBottom_toTopOf="parent"
-        app:layout_constraintEnd_toStartOf="parent"
-        app:layout_constraintHorizontal_bias="0.51"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.77" />
+        app:layout_constraintVertical_bias="0.78" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline_hp_Bar_Right"
@@ -1724,10 +1727,10 @@
         android:id="@+id/card_hand_right"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="@+id/guideline_hp_Right"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/guideline_table_bottom"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintTop_toTopOf="@+id/guideline_table_bottom">
 
         <ImageView
             android:id="@+id/card_hand_right_view"
@@ -1739,7 +1742,7 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.0"
-            app:srcCompat="@drawable/jalo" />
+            app:srcCompat="@drawable/testblack" />
 
         <com.example.skatt.myapplication.Custom_Text_View
             android:id="@+id/card_hand_right_name"
@@ -1886,7 +1889,7 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/jalo" />
+            app:srcCompat="@drawable/testblack" />
 
         <com.example.skatt.myapplication.Custom_Text_View
             android:id="@+id/card_inventory_0_name"
@@ -1908,9 +1911,9 @@
             android:textSize="29px"
             app:layout_constraintBottom_toBottomOf="@+id/card_inventory_0_view"
             app:layout_constraintEnd_toEndOf="@+id/card_inventory_0_view"
+            app:layout_constraintHorizontal_bias="0.21"
             app:layout_constraintStart_toStartOf="@+id/card_inventory_0_view"
             app:layout_constraintTop_toTopOf="@+id/card_inventory_0_view"
-            app:layout_constraintHorizontal_bias="0.21"
             app:layout_constraintVertical_bias="0.13" />
 
         <com.example.skatt.myapplication.Custom_Text_View
@@ -1924,6 +1927,7 @@
             app:layout_constraintHorizontal_bias="0.72"
             app:layout_constraintStart_toStartOf="@+id/card_inventory_0_view"
             app:layout_constraintTop_toTopOf="@+id/card_inventory_0_view" />
+
         <com.example.skatt.myapplication.Custom_Text_View
             android:id="@+id/cardInventory0GearScoreMob"
             android:layout_width="wrap_content"
@@ -1969,7 +1973,7 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/jalo" />
+            app:srcCompat="@drawable/testblack" />
 
         <com.example.skatt.myapplication.Custom_Text_View
             android:id="@+id/card_inventory_1_name"
@@ -1989,9 +1993,9 @@
             android:layout_height="wrap_content"
             android:text=" 0"
             android:textSize="29px"
-            app:layout_constraintHorizontal_bias="0.21"
             app:layout_constraintBottom_toBottomOf="@+id/card_inventory_1_view"
             app:layout_constraintEnd_toEndOf="@+id/card_inventory_1_view"
+            app:layout_constraintHorizontal_bias="0.21"
             app:layout_constraintStart_toStartOf="@+id/card_inventory_1_view"
             app:layout_constraintTop_toTopOf="@+id/card_inventory_1_view"
             app:layout_constraintVertical_bias="0.13" />
@@ -2053,7 +2057,7 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/jalo" />
+            app:srcCompat="@drawable/testblack" />
 
         <com.example.skatt.myapplication.Custom_Text_View
             android:id="@+id/card_inventory_2_name"
@@ -2091,6 +2095,7 @@
             app:layout_constraintHorizontal_bias="0.72"
             app:layout_constraintStart_toStartOf="@+id/card_inventory_2_view"
             app:layout_constraintTop_toTopOf="@+id/card_inventory_2_view" />
+
         <com.example.skatt.myapplication.Custom_Text_View
             android:id="@+id/cardInventory2GearScoreMob"
             android:layout_width="wrap_content"
@@ -2136,7 +2141,7 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/jalo" />
+            app:srcCompat="@drawable/testblack" />
 
         <com.example.skatt.myapplication.Custom_Text_View
             android:id="@+id/card_inventory_3_name"
@@ -2701,7 +2706,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:background="@color/color_black">
+        android:background="@drawable/testblack"
+        android:visibility="gone">
 
         <com.google.android.gms.common.SignInButton
             android:id="@+id/signInButton"
@@ -2714,5 +2720,11 @@
             app:layout_constraintTop_toTopOf="parent" />
 
     </android.support.constraint.ConstraintLayout>
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="1px"
+        android:layout_height="1px"
+        app:srcCompat="@android:color/holo_red_dark" />
 
 </android.support.constraint.ConstraintLayout>

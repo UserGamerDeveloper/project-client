@@ -55,7 +55,7 @@ class CardInventory extends Card {
                 null,
                 null
         );
-        setData(stats, cursor);
+        this.setData(stats, cursor);
     }
     protected void setData(Stats stats, Cursor cursor) {
         cursor.moveToFirst();

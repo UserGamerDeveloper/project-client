@@ -25,7 +25,7 @@ public class CardHand extends CardInventory {
     @Override
     protected void setData(Stats stats, Cursor cursor) {
         super.setData(stats, cursor);
-        if (mIDItem == ID_DEFAULT){
+        if (isFist()){
             mIdDrawable = mIDDrawableDefault;
             mDurability = 0;
         }
@@ -60,7 +60,34 @@ public class CardHand extends CardInventory {
         updateDurabilityText();
     }
 
+    void setFist(){
+        mIDItem = ID_DEFAULT;
+    }
+
+    void decrementDurability(){
+        mDurability--;
+    }
+
+    void tryDestroy(Stats stats, DBOpenHelper dbOpenHelper){
+        if(!isFist()){
+            mDurability--;
+            if (mDurability < 1){
+                close(CARD_BACK);
+                setFist();
+                load(stats, dbOpenHelper);
+                open();
+            }
+            else{
+                updateDurabilityText();
+            }
+        }
+    }
+
     //region setters/getters
+    boolean isFist(){
+        return mIDItem == ID_DEFAULT;
+    }
+
     public int getIDDrawableDefault() {
         return mIDDrawableDefault;
     }

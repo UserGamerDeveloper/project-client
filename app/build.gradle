@@ -39,7 +39,7 @@ android {
 }
 
 ext {
-    supportLibraryVersion = '27.1.0'
+    supportLibraryVersion = '27.1.1'
 }
 
 dependencies {
@@ -48,9 +48,9 @@ dependencies {
     implementation "com.android.support:design:$supportLibraryVersion"
     implementation "com.android.support:support-compat:$supportLibraryVersion"
     implementation "com.android.support:recyclerview-v7:$supportLibraryVersion"
-    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
     implementation 'com.squareup.picasso:picasso:2.5.2'
-    implementation 'com.google.android.gms:play-services-auth:11.8.0'
+    implementation 'com.google.android.gms:play-services-auth:15.0.1'
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'
     implementation 'com.fasterxml.jackson.core:jackson-core:2.7.3'
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.7.3'

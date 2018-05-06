@@ -59,11 +59,11 @@ public class Card extends ConstraintLayout {
     void close(int card_back) {
         this.mNameText.setVisibility(View.INVISIBLE);
         this.mValueOneText.setVisibility(View.INVISIBLE);
-        Picasso.with(getContext()).load(card_back).placeholder(R.color.color_black).into(mImageView);
+        this.mIdDrawable = card_back;
+        Picasso.with(getContext()).load(mIdDrawable).placeholder(R.color.color_black).into(mImageView);
 /*
         this.mImageView.setImageResource(CARD_BACK);
 */
-        this.mIdDrawable = card_back;
     }
 
     //region setters/getters
