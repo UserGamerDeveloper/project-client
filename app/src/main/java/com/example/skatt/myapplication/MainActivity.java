@@ -2071,8 +2071,12 @@ public class MainActivity extends AppCompatActivity {
                 break;
             }
         }
-        requestData.add(new CardPlayerResponse(mHandOne.getIDItem(), (byte) 4, (byte) mHandOne.getDurability()));
-        requestData.add(new CardPlayerResponse(mHandTwo.getIDItem(), (byte) 5, (byte) mHandTwo.getDurability()));
+        if (!mHandOne.isFist()){
+            requestData.add(new CardPlayerResponse(mHandOne.getIDItem(), (byte) 4, (byte) mHandOne.getDurability()));
+        }
+        if (!mHandTwo.isFist()){
+            requestData.add(new CardPlayerResponse(mHandTwo.getIDItem(), (byte) 5, (byte) mHandTwo.getDurability()));
+        }
         try {
             request.setData(mJackson.writeValueAsString(requestData));
             requestString = mJackson.writeValueAsString(request);
