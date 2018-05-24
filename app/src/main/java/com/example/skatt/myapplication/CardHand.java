@@ -7,7 +7,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class CardHand extends CardInventory {
-    static final byte ID_DEFAULT = 0;
+    static final byte ID_DEFAULT = 1;
     int mIDDrawableDefault;
     TextView mDurabilityText;
     ImageView mDurabilityImage;

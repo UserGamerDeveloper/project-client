@@ -160,6 +160,9 @@ class CardInventory extends Card {
         return mIDItem == null;
     }
 
+    boolean isWeaponOrShield(){
+        return mType == InventoryType.WEAPON || mType == InventoryType.SHIELD;
+    }
     public Byte getIDItem() {
         return mIDItem;
     }

@@ -185,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
     MyRequest request;
     OkHttpClient client;
     byte[] mNextCardTable;
-    static final String SERVER_URL = "https://91.185.71.85:4430/";
+    static final String SERVER_URL = "https://88.80.60.119:4430/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -548,6 +548,7 @@ public class MainActivity extends AppCompatActivity {
                             mStats.updateLevelAndExperienceTextInThreadUI();
                             mIsAnimate = true;
                             if (mState!=State.NONE){
+                                setGearScore(myResponse.getGearScore());
                                 mHp = loginResponce.getHP();
                                 mMoney = loginResponce.getMoney();
                                 if (loginResponce.getCardTable0()!=null){
@@ -798,11 +799,10 @@ public class MainActivity extends AppCompatActivity {
         mLoot[0].mImageView.getLocationOnScreen(card_loot_coordinates);
         findViewById(R.id.guideline_inventory_top).getLocationOnScreen(guideline_inventory_top_coordinates);
 
-        inventory_animation_delta = card_inventory_coordinates[1] /*+ mInventory[0].mImageView.getHeight()*/ -
+        inventory_animation_delta = card_inventory_coordinates[1] + mInventory[0].mImageView.getHeight() -
                 displayMetrics.heightPixels;
         hand_animation_delta = card_hand_coordinates[1] + mHandOne.mImageView.getHeight() -
                 guideline_inventory_top_coordinates[1];
-        Log.d("+", "mHandOne.mImageView.getHeight() "+mHandOne.mImageView.getHeight());
         loot_animation_delta = displayMetrics.heightPixels * 0.05f;
         mCardCenter.getLocationOnScreen(card_5_coordinates);
         mCardsTable[6].mImageView.getLocationOnScreen(card_8_coordinates);
@@ -2037,6 +2037,7 @@ public class MainActivity extends AppCompatActivity {
                 if (!myResponse.isError()){
                     mNextCardTable = mJackson.readValue(myResponse.getData(), byte[].class);
                     mTable.post(() -> {
+                        setGearScore(myResponse.getGearScore());
                         collectionButton.setVisibility(View.GONE);
                         mStatsButton.setVisibility(View.GONE);
                         setHPInUIThread(mHpMaxDefault+mStats.getHPBonus());
@@ -2092,6 +2093,7 @@ public class MainActivity extends AppCompatActivity {
                 if (!myResponse.isError()){
                     mNextCardTable = mJackson.readValue(myResponse.getData(), byte[].class);
                     mTable.post(() -> {
+                        setGearScore(myResponse.getGearScore());
                         setSelectTarget();
                     });
                 }
@@ -2546,6 +2548,7 @@ public class MainActivity extends AppCompatActivity {
                     MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
                     if (!myResponse.isError()){
                         mTable.post(() -> {
+                            setGearScore(myResponse.getGearScore());
                             int mobDamage = mCardTableTarget.getValueOne();
                             if(mobDamage>0&& mHandOne.getType() == InventoryType.SHIELD){
                                 if (mHandOne.getValueOne() < mobDamage){
@@ -2746,8 +2749,22 @@ public class MainActivity extends AppCompatActivity {
                 mDialogWindow.openInfo("Недостаточно золота.");
             }
             else{
-                if (!(mInventoryItemCount < INVENTORY_MAX_COUNT)){
-                    mDialogWindow.openInfo("Нет места в инвентаре.");
+                if ((mInventoryItemCount >= INVENTORY_MAX_COUNT)){
+                    if (item.isWeaponOrShield()){
+                        if (mHandTwo.isFist() || mHandOne.isFist()){
+                            mTradeTarget = item;
+                            mDialogWindow.openDialog(
+                                    String.format("Купить карту за %d золотых?", mTradeTarget.getCost()),
+                                    mCardTradeBuyClickYes
+                            );
+                        }
+                        else{
+                            mDialogWindow.openInfo("Нет места в инвентаре.");
+                        }
+                    }
+                    else{
+                        mDialogWindow.openInfo("Нет места в инвентаре.");
+                    }
                 }
                 else{
                     mTradeTarget = item;
@@ -2763,11 +2780,34 @@ public class MainActivity extends AppCompatActivity {
     View.OnClickListener mCardTradeBuyClickYes = mCardTradeBuyClickYes();
     View.OnClickListener mCardTradeBuyClickYes() {
         return v -> {
+            byte slotId;
+            mDialogWindow.close();
+            mTradeTarget.setVisibility(View.INVISIBLE);
+            mTradeCost[mTradeTarget.getSlotId()].setVisibility(View.INVISIBLE);
+            mTradeCostImage[mTradeTarget.getSlotId()].setVisibility(View.INVISIBLE);
+            if (mTradeTarget.isWeaponOrShield()){
+                if (mHandOne.isFist()){
+                    slotId = 4;
+                    mHandOne.copy(mTradeTarget);
+                }
+                else{
+                    slotId = 5;
+                    mHandTwo.copy(mTradeTarget);
+                }
+            }
+            else{
+                slotId = mInventoryItemCount;
+                mInventory[mInventoryItemCount].copy(mTradeTarget);
+                mInventory[mInventoryItemCount].setVisibility(View.VISIBLE);
+                mInventoryItemCount++;
+            }
+            changeMoneyInUIThread(-mTradeTarget.getCost());
+
             String requestString = null;
             try {
                 CardPlayerResponse item = new CardPlayerResponse(
                         mTradeTarget.getIDItem(),
-                        mTradeTarget.getSlotId(),
+                        slotId,
                         (byte) mTradeTarget.getDurability()
                 );
                 request.setData(mJackson.writeValueAsString(item));
@@ -2776,10 +2816,12 @@ public class MainActivity extends AppCompatActivity {
             catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
+
             post("trade/buy", requestString, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     Log.d("trade/buy onFailure ", e.toString());
+                    rePost(call, this);
                 }
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
@@ -2788,14 +2830,7 @@ public class MainActivity extends AppCompatActivity {
                     MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
                     if (!myResponse.isError()){
                         mTable.post(() -> {
-                            mDialogWindow.close();
-                            mTradeTarget.setVisibility(View.INVISIBLE);
-                            mTradeCost[mTradeTarget.getSlotId()].setVisibility(View.INVISIBLE);
-                            mTradeCostImage[mTradeTarget.getSlotId()].setVisibility(View.INVISIBLE);
-                            mInventory[mInventoryItemCount].copy(mTradeTarget);
-                            mInventory[mInventoryItemCount].setVisibility(View.VISIBLE);
-                            mInventoryItemCount++;
-                            changeMoneyInUIThread(-mTradeTarget.getCost());
+                            setGearScore(myResponse.getGearScore());
                         });
                     }
                 }
@@ -2831,6 +2866,7 @@ public class MainActivity extends AppCompatActivity {
                     MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
                     if (!myResponse.isError()){
                         mTable.post(() -> {
+                            setGearScore(myResponse.getGearScore());
                             mDialogWindow.close();
                             mTargetSwap.setVisibility(View.INVISIBLE);
                             mInventoryItemCount--;
@@ -3219,6 +3255,10 @@ public class MainActivity extends AppCompatActivity {
         Call call = client.newCall(request);
         call.enqueue(callback);
     }
+    void rePost(Call call, Callback callback) {
+        Call newCall = client.newCall(call.request());
+        newCall.enqueue(callback);
+    }
 
     private void resetGame() {
         for (byte i = 0; i < 8; i++) {
@@ -3310,8 +3350,8 @@ public class MainActivity extends AppCompatActivity {
         is_first_click = true;
     }
 
-    private void changeGearScore(int delta) {
-        mGearScore += delta;
+    private void setGearScore(int gearScore) {
+        mGearScore = gearScore;
         mGearScoreText.setText(String.format("%d", mGearScore));
     }
 
@@ -3337,6 +3377,7 @@ public class MainActivity extends AppCompatActivity {
                 MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
                 if (!myResponse.isError()){
                     mTable.post(() -> {
+                        setGearScore(myResponse.getGearScore());
                         changeHP(mTargetSwap.getValueOne());
                         mInventoryItemCount--;
                         inventorySort();
@@ -3382,6 +3423,7 @@ public class MainActivity extends AppCompatActivity {
                 MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
                 if (!myResponse.isError()){
                     mTable.post(() -> {
+                        setGearScore(myResponse.getGearScore());
                         mCardTableTarget.changeValueTwo(-mTargetSwap.getValueOne());
                         mInventoryItemCount--;
                         inventorySort();
