@@ -31,6 +31,7 @@ class CardInventory extends Card {
     int mCost;
     int TEST_MOB_GEARSCORE;
     TextView TEST_MOB_GEARSCORE_TEXT;
+    TextView mDurabilityText;
 
     public CardInventory(Context context) {
         super(context);
@@ -60,27 +61,13 @@ class CardInventory extends Card {
     protected void setData(Stats stats, Cursor cursor) {
         cursor.moveToFirst();
 
-        this.mGearScore = cursor.getInt(
-                cursor.getColumnIndexOrThrow(DBOpenHelper.GEARSCORE)
-        );
+        this.mGearScore = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.GEARSCORE));
         this.TEST_GearScoreText.setText(String.format("%d", mGearScore));
-
-        TEST_MOB_GEARSCORE = cursor.getInt(
-                cursor.getColumnIndexOrThrow(DBOpenHelper.MOB_GEARSCORE)
-        );
-        this.TEST_GearScoreText.setText(String.format("%d", TEST_MOB_GEARSCORE));
-
-        mNameText.setText(
-                cursor.getString(
-                        cursor.getColumnIndexOrThrow(DBOpenHelper.name)
-                )
-        );
-        this.mType = cursor.getInt(
-                cursor.getColumnIndexOrThrow(DBOpenHelper.type)
-        );
-        mValueOne = cursor.getInt(
-                cursor.getColumnIndexOrThrow(DBOpenHelper.VALUEONE)
-        );
+        TEST_MOB_GEARSCORE = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.MOB_GEARSCORE));
+        this.TEST_MOB_GEARSCORE_TEXT.setText(String.format("%d", TEST_MOB_GEARSCORE));
+        mNameText.setText(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.name)));
+        this.mType = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.type));
+        mValueOne = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.VALUEONE));
         switch (mType){
             case InventoryType.WEAPON :{
                 mValueOne +=stats.getDamageBonus();
@@ -101,14 +88,9 @@ class CardInventory extends Card {
             }
         }
         this.setValueOneText(mValueOne);
-
-        mIdDrawable = cursor.getInt(
-                cursor.getColumnIndexOrThrow(DBOpenHelper.ID_IMAGE)
-        );
-
-        this.mCost = cursor.getInt(
-                cursor.getColumnIndexOrThrow(DBOpenHelper.COST)
-        );
+        mIdDrawable = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.ID_IMAGE));
+        this.mCost = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.COST));
+        updateDurabilityText();
 
         cursor.close();
     }
@@ -124,7 +106,21 @@ class CardInventory extends Card {
     }
 
     void repair() {
-        this.mDurability = mDurabilityMax;
+        mDurability = mDurabilityMax;
+        this.updateDurabilityText();
+    }
+
+    void updateDurabilityText(){
+        if (mDurability/10>1){
+            mDurabilityText.setText(
+                    String.format("%d/%d", mDurability, mDurabilityMax)
+            );
+        }
+        else{
+            mDurabilityText.setText(
+                    String.format(" %d/%d", mDurability, mDurabilityMax)
+            );
+        }
     }
 
     void copy(CardInventory card){
@@ -132,6 +128,8 @@ class CardInventory extends Card {
         this.mIDItem = card.getIDItem();
         this.mValueOneText.setVisibility(View.VISIBLE);
         this.mDurability = card.getDurability();
+        this.mDurabilityMax = card.getDurabilityMax();
+        this.updateDurabilityText();
         this.mCost = card.getCost();
         this.TEST_MOB_GEARSCORE = card.TEST_MOB_GEARSCORE;
         this.TEST_MOB_GEARSCORE_TEXT.setText(this.TEST_MOB_GEARSCORE+"");
@@ -148,6 +146,8 @@ class CardInventory extends Card {
         this.setValueOneText(card.value_one);
         this.mType = card.Get_Type();
         this.mDurability = card.durability;
+        this.mDurabilityMax = card.getDurabilityMax();
+        this.updateDurabilityText();
         this.mCost = card.Get_Cost();
         this.mGearScore = card.getGearScore();
         this.TEST_GearScoreText.setText(String.format("%d", mGearScore));

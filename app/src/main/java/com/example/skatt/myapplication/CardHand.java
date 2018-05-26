@@ -9,7 +9,6 @@ import android.widget.TextView;
 public class CardHand extends CardInventory {
     static final byte ID_DEFAULT = 1;
     int mIDDrawableDefault;
-    TextView mDurabilityText;
     ImageView mDurabilityImage;
 
     public CardHand(Context context) {
@@ -28,6 +27,12 @@ public class CardHand extends CardInventory {
         if (isFist()){
             mIdDrawable = mIDDrawableDefault;
             mDurability = 0;
+            mDurabilityImage.setVisibility(INVISIBLE);
+            mDurabilityText.setVisibility(INVISIBLE);
+        }
+        else {
+            mDurabilityImage.setVisibility(VISIBLE);
+            mDurabilityText.setVisibility(VISIBLE);
         }
     }
 
@@ -46,18 +51,13 @@ public class CardHand extends CardInventory {
         mDurabilityText.setVisibility(INVISIBLE);
     }
 
-    void repair() {
-        super.repair();
-        this.updateDurabilityText();
-    }
-
     void copy(CardInventory card){
         super.copy(card);
-        updateDurabilityText();
+        this.open();
     }
     void copy(CardInventoryTemp card){
         super.copy(card);
-        updateDurabilityText();
+        this.open();
     }
 
     void setFist(){
@@ -102,19 +102,6 @@ public class CardHand extends CardInventory {
     void setDurabilityInUIThread(int durability){
         super.setDurability(durability);
         updateDurabilityText();
-    }
-
-    void updateDurabilityText(){
-        if (mDurability/10>1){
-            mDurabilityText.setText(
-                    String.format("%s", mDurability)
-            );
-        }
-        else{
-            mDurabilityText.setText(
-                    String.format(" %s", mDurability)
-            );
-        }
     }
     //endregion
 }

@@ -7,6 +7,7 @@ public class CardInventoryTemp {
     private int type;
     CharSequence name_text = "";
     int durability;
+    int mDurabilityMax;
     int cost;
     int mGearScore;
     int TEST_MOB_GEARSCORE;
@@ -18,6 +19,7 @@ public class CardInventoryTemp {
         this.name_text = card.mNameText.getText();
         this.type = card.getType();
         this.durability = card.getDurability();
+        this.mDurabilityMax = card.getDurabilityMax();
         this.cost = card.getCost();
         this.mGearScore = card.getGearScore();
         this.TEST_MOB_GEARSCORE = card.TEST_MOB_GEARSCORE;
@@ -26,7 +28,9 @@ public class CardInventoryTemp {
     public Byte getIDItem() {
         return mIDItem;
     }
-
+    public int getDurabilityMax() {
+        return mDurabilityMax;
+    }
     boolean Is_Close(int card_back){
         return id_drawable == card_back;
     }

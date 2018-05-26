@@ -55,49 +55,20 @@ class CardTable extends Card {
         );
         cursor.moveToFirst();
         //region set data
-        mNameText.setText(
-                cursor.getString(
-                        cursor.getColumnIndexOrThrow(DBOpenHelper.name)
-                )
-        );
-
-        mIdDrawable = cursor.getInt(
-                cursor.getColumnIndexOrThrow(DBOpenHelper.ID_IMAGE)
-        );
-
-        mType = cursor.getInt(
-                cursor.getColumnIndexOrThrow(DBOpenHelper.type)
-        );
-        mSubType = cursor.getInt(
-                cursor.getColumnIndexOrThrow(DBOpenHelper.SUBTYPE)
-        );
-
-        this.mGearScore = cursor.getInt(
-                cursor.getColumnIndexOrThrow(DBOpenHelper.GEARSCORE)
-        );
+        mNameText.setText(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.name)));
+        mIdDrawable = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.ID_IMAGE));
+        mType = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.type));
+        mSubType = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.SUBTYPE));
+        this.mGearScore = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.GEARSCORE));
         this.TEST_GearScoreText.setText(String.format("%d", mGearScore));
-
         if(mType == CardTableType.MOB){
-
-            mValueOne = cursor.getInt(
-                    cursor.getColumnIndexOrThrow(DBOpenHelper.VALUEONE)
-            );
-            mValueOneText.setText(
-                    String.format(" %s", mValueOne)
-            );
-            mValueTwo = cursor.getInt(
-                    cursor.getColumnIndexOrThrow(DBOpenHelper.VALUETWO)
-            );
-            mValueTwoText.setText(
-                    String.format("%s ", mValueTwo)
-            );
-            mExperience = cursor.getInt(
-                    cursor.getColumnIndexOrThrow(DBOpenHelper.EXPERIENCE)
-            );
+            mValueOne = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.VALUEONE));
+            mValueOneText.setText(String.format(" %s", mValueOne));
+            mValueTwo = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.VALUETWO));
+            mValueTwoText.setText(String.format("%s ", mValueTwo));
+            mExperience = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.EXPERIENCE));
         }
-        mMoney = cursor.getInt(
-                cursor.getColumnIndexOrThrow(DBOpenHelper.money)
-        );
+        mMoney = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.money));
         //endregion
         cursor.close();
     }
