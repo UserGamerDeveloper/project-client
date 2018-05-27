@@ -705,6 +705,7 @@ public class MainActivity extends AppCompatActivity {
                                                     .load(R.drawable.navik_torgovca)
                                                     .into(mTradeSkillImage);
                                             mTradeSkillImage.setOnClickListener(mOnClickTraderSkill);
+                                            mCostVendorSkill = loginResponce.getCostVendorSkill();
                                         }
                                         if (mCardTableTarget.getSubType() == CardTableSubType.BLACKSMITH){
                                             Picasso.with(getBaseContext())
@@ -717,6 +718,7 @@ public class MainActivity extends AppCompatActivity {
                                                     .load(R.drawable.navik_traktirshika)
                                                     .into(mTradeSkillImage);
                                             mTradeSkillImage.setOnClickListener(mOnClickInnkeeperSkill);
+                                            mCostVendorSkill = loginResponce.getCostVendorSkill();
                                         }
                                     }
                                 }

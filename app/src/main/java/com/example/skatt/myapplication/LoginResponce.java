@@ -55,7 +55,9 @@ public class LoginResponce {
     public StatsResponse getStats() {
         return mStats;
     }
-
+    public Integer getCostVendorSkill() {
+        return mCostVendorSkill;
+    }
     public Byte getCardTableTargetIDInArray() {
         return mCardTableTargetIDInArray;
     }
@@ -114,6 +116,9 @@ public class LoginResponce {
     public void setStats(StatsResponse stats) {
         mStats = stats;
     }
+    public void setCostVendorSkill(Integer costVendorSkill) {
+        mCostVendorSkill = costVendorSkill;
+    }
 
     public List<CardPlayerResponse> getTrade() {
         return mTrade;
@@ -141,4 +146,5 @@ public class LoginResponce {
     private List<CardPlayerResponse> mHands =new ArrayList<>();
     private List<CardPlayerResponse> mTrade = new ArrayList<>();
     private StatsResponse mStats;
+    private Integer mCostVendorSkill;
 }
