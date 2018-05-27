@@ -185,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
     MyRequest request;
     OkHttpClient client;
     byte[] mNextCardTable;
-    static final String SERVER_URL = "https://88.80.58.124:4430/";
+    static final String SERVER_URL = "https://91.185.66.111:4430/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -2798,26 +2798,30 @@ public class MainActivity extends AppCompatActivity {
     View.OnClickListener mCardTradeBuyClickYes = mCardTradeBuyClickYes();
     View.OnClickListener mCardTradeBuyClickYes() {
         return v -> {
-            byte slotId;
+            byte slotId = 0;
             mDialogWindow.close();
             mTradeTarget.setVisibility(View.INVISIBLE);
             mTradeCost[mTradeTarget.getSlotId()].setVisibility(View.INVISIBLE);
             mTradeCostImage[mTradeTarget.getSlotId()].setVisibility(View.INVISIBLE);
-            if (mTradeTarget.isWeaponOrShield()){
-                if (mHandOne.isFist()){
-                    slotId = 4;
-                    mHandOne.copy(mTradeTarget);
-                }
-                else{
-                    slotId = 5;
-                    mHandTwo.copy(mTradeTarget);
-                }
-            }
-            else{
+            if (mInventoryItemCount < INVENTORY_MAX_COUNT){
                 slotId = mInventoryItemCount;
                 mInventory[mInventoryItemCount].copy(mTradeTarget);
                 mInventory[mInventoryItemCount].setVisibility(View.VISIBLE);
                 mInventoryItemCount++;
+            }
+            else{
+                if (mTradeTarget.isWeaponOrShield()){
+                    if (mHandOne.isFist()){
+                        slotId = 4;
+                        mHandOne.copy(mTradeTarget);
+                    }
+                    else{
+                        if (mHandTwo.isFist()){
+                            slotId = 5;
+                            mHandTwo.copy(mTradeTarget);
+                        }
+                    }
+                }
             }
             changeMoneyInUIThread(-mTradeTarget.getCost());
 
