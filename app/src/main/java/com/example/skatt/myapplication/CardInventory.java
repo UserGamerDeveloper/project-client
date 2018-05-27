@@ -130,7 +130,7 @@ class CardInventory extends Card {
         this.mDurability = card.getDurability();
         this.mDurabilityMax = card.getDurabilityMax();
         this.updateDurabilityText();
-        this.mCost = card.getCost();
+        this.mCost = card.getBuyCost();
         this.TEST_MOB_GEARSCORE = card.TEST_MOB_GEARSCORE;
         this.TEST_MOB_GEARSCORE_TEXT.setText(this.TEST_MOB_GEARSCORE+"");
     }
@@ -170,8 +170,11 @@ class CardInventory extends Card {
         mIDItem = IDItem;
     }
 
-    int getCost(){
+    int getBuyCost(){
         return mCost;
+    }
+    int getSellCost(){
+        return mCost/2;
     }
 
     int getDurability(){

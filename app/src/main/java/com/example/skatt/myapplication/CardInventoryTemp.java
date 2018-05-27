@@ -20,7 +20,7 @@ public class CardInventoryTemp {
         this.type = card.getType();
         this.durability = card.getDurability();
         this.mDurabilityMax = card.getDurabilityMax();
-        this.cost = card.getCost();
+        this.cost = card.getBuyCost();
         this.mGearScore = card.getGearScore();
         this.TEST_MOB_GEARSCORE = card.TEST_MOB_GEARSCORE;
     }
