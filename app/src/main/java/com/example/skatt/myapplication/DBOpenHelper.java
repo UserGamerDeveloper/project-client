@@ -1017,6 +1017,14 @@ public class DBOpenHelper extends SQLiteOpenHelper {
         values.put(DBOpenHelper.money, 1);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
+        values.put(DBOpenHelper.id, 39);
+        values.put(DBOpenHelper.name, "Портал");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.prival);
+        values.put(DBOpenHelper.type, CardTableType.PORTAL);
+        values.put(DBOpenHelper.GEARSCORE, 9999);
+        values.put(DBOpenHelper.money, 0);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
         //region Mobs
         values.put(DBOpenHelper.id, 5);
         values.put(DBOpenHelper.name, "Моб 5");
@@ -1110,7 +1118,7 @@ public class DBOpenHelper extends SQLiteOpenHelper {
         values.put(DBOpenHelper.money, 7);
         values.put(DBOpenHelper.type, CardTableType.MOB);
         values.put(DBOpenHelper.SUBTYPE, CardTableSubType.GOBLIN);
-        values.put(DBOpenHelper.GEARSCORE, 999);
+        values.put(DBOpenHelper.GEARSCORE, 0);
         values.put(DBOpenHelper.EXPERIENCE, 7);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
@@ -1122,7 +1130,7 @@ public class DBOpenHelper extends SQLiteOpenHelper {
         values.put(DBOpenHelper.money, 7);
         values.put(DBOpenHelper.type, CardTableType.MOB);
         values.put(DBOpenHelper.SUBTYPE, CardTableSubType.GOBLIN);
-        values.put(DBOpenHelper.GEARSCORE, 999);
+        values.put(DBOpenHelper.GEARSCORE, 0);
         values.put(DBOpenHelper.EXPERIENCE, 7);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
@@ -1134,7 +1142,7 @@ public class DBOpenHelper extends SQLiteOpenHelper {
         values.put(DBOpenHelper.money, 8);
         values.put(DBOpenHelper.type, CardTableType.MOB);
         values.put(DBOpenHelper.SUBTYPE, CardTableSubType.GOBLIN);
-        values.put(DBOpenHelper.GEARSCORE, 999);
+        values.put(DBOpenHelper.GEARSCORE, 0);
         values.put(DBOpenHelper.EXPERIENCE, 8);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 

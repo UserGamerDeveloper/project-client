@@ -185,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
     MyRequest request;
     OkHttpClient client;
     byte[] mNextCardTable;
-    static final String SERVER_URL = "https://91.185.66.111:4430/";
+    static final String SERVER_URL = "https://91.185.64.56:4430/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -2427,6 +2427,15 @@ public class MainActivity extends AppCompatActivity {
                                     changeMoneyInUIThread(mCardTableTarget.getMoney());
                                     return;
                                 }
+                                if (mCardTableTarget.getType() == CardTableType.PORTAL){
+                                    mMoneyBank += mMoney;
+                                    mMoney = 0;
+                                    resetGame();
+                                    changeHPInUIThread(mHpMax);
+                                    collectionButton.setVisibility(View.VISIBLE);
+                                    mStatsButton.setVisibility(View.VISIBLE);
+                                    mButtonStart.setVisibility(View.VISIBLE);
+                                }
                                 if (mCardTableTarget.getType() == CardTableType.HALT){
                                     mShadow.bringToFront();
                                     mCardTableTarget.bringToFront();
@@ -2548,11 +2557,19 @@ public class MainActivity extends AppCompatActivity {
     View.OnClickListener mDamageListener() {
         return v -> {
             String requestString = null;
+            ArrayList<CardPlayerResponse> requestData = new ArrayList<>();
+            for (byte i = 0; i < INVENTORY_MAX_COUNT;i++) {
+                if (!mInventory[i].isEmpty()){
+                    requestData.add(new CardPlayerResponse(mInventory[i].getIDItem(), i, (byte) mInventory[i].getDurability()));
+                }
+                else{
+                    break;
+                }
+            }
+            requestData.add(new CardPlayerResponse(mHandOne.getIDItem(), (byte) 4, (byte) mHandOne.getDurability()));
+            requestData.add(new CardPlayerResponse(mHandTwo.getIDItem(), (byte) 5, (byte) mHandTwo.getDurability()));
             try {
-                CardPlayerResponse[] cardPlayer = new CardPlayerResponse[2];
-                cardPlayer[0] = new CardPlayerResponse(mHandOne.getIDItem(),(byte)4, (byte)mHandOne.getDurability());
-                cardPlayer[1] = new CardPlayerResponse(mHandTwo.getIDItem(),(byte)5, (byte)mHandTwo.getDurability());
-                request.setData(mJackson.writeValueAsString(cardPlayer));
+                request.setData(mJackson.writeValueAsString(requestData));
                 requestString = mJackson.writeValueAsString(request);
             }
             catch (JsonProcessingException e) {
@@ -2605,14 +2622,15 @@ public class MainActivity extends AppCompatActivity {
                                 });
                                 return;
                             }
-                            updateHPText();
-                            mHandOne.tryDestroy(mStats, mDBOpenHelper);
-                            mHandTwo.tryDestroy(mStats, mDBOpenHelper);
 
                             int damage = ((mHandOne.getType() == InventoryType.WEAPON) ?
                                     mHandOne.getValueOne() : 0) + ((mHandTwo.getType() == InventoryType.WEAPON) ?
                                     mHandTwo.getValueOne() : 0);
                             mCardTableTarget.changeValueTwo(-damage);
+
+                            updateHPText();
+                            mHandOne.tryDestroy(mStats, mDBOpenHelper);
+                            mHandTwo.tryDestroy(mStats, mDBOpenHelper);
 
                             if (mCardTableTarget.getValueTwo() < 1){
                                 try {
@@ -3555,9 +3573,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void useSpell() {
-        request.setData(mTargetSwap.getIDItem().toString());
         String requestString = null;
+        ArrayList<CardPlayerResponse> inventory = new ArrayList<>();
+        for (byte i = 0; i < INVENTORY_MAX_COUNT;i++) {
+            if (!mInventory[i].isEmpty()){
+                inventory.add(new CardPlayerResponse(mInventory[i].getIDItem(), i, (byte) mInventory[i].getDurability()));
+            }
+            else{
+                break;
+            }
+        }
+        inventory.add(new CardPlayerResponse(mHandOne.getIDItem(), (byte) 4, (byte) mHandOne.getDurability()));
+        inventory.add(new CardPlayerResponse(mHandTwo.getIDItem(), (byte) 5, (byte) mHandTwo.getDurability()));
+        UseSpellRequest requestData = new UseSpellRequest();
+        requestData.setInventory(inventory);
+        requestData.setSlotSpell(mTargetSwap.getSlotId());
         try {
+            request.setData(mJackson.writeValueAsString(requestData));
             requestString = mJackson.writeValueAsString(request);
         }
         catch (JsonProcessingException e) {
@@ -3568,7 +3600,6 @@ public class MainActivity extends AppCompatActivity {
             public void onFailure(Call call, IOException e) {
                 Log.d("use/spell onFailure", e.toString());
             }
-
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String responseStr = response.body().string();
