@@ -3627,8 +3627,12 @@ public class MainActivity extends AppCompatActivity {
                 break;
             }
         }
-        inventory.add(new CardPlayerResponse(mHandOne.getIDItem(), (byte) 4, (byte) mHandOne.getDurability()));
-        inventory.add(new CardPlayerResponse(mHandTwo.getIDItem(), (byte) 5, (byte) mHandTwo.getDurability()));
+        if (!mHandOne.isFist()){
+            inventory.add(new CardPlayerResponse(mHandOne.getIDItem(), (byte) 4, (byte) mHandOne.getDurability()));
+        }
+        if (!mHandTwo.isFist()){
+            inventory.add(new CardPlayerResponse(mHandTwo.getIDItem(), (byte) 5, (byte) mHandTwo.getDurability()));
+        }
         UseSpellRequest requestData = new UseSpellRequest();
         requestData.setInventory(inventory);
         requestData.setSlotSpell(mTargetSwap.getSlotId());
