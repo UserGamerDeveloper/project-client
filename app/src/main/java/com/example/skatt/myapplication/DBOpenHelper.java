@@ -51,6 +51,10 @@ public class DBOpenHelper extends SQLiteOpenHelper {
     static final String HP_BONUS_PER_STAT = "HPB";
     static final String HP_DEFAULT = "HPD";
     static final String COST_RESET_STATS = "CR";
+    static final String IP1 = "IP1";
+    static final String IP2 = "IP2";
+    static final String IP3 = "IP3";
+    static final String IP4 = "IP4";
 
     DBOpenHelper(Context context) {
         super(context, DB_name, null, DB_version);
@@ -75,7 +79,8 @@ public class DBOpenHelper extends SQLiteOpenHelper {
                 + LVL13+ " INTEGER, " + LVL14 + " INTEGER, " + LVL15+ " INTEGER, "
                 + LVL16+ " INTEGER, " + LVL17 + " INTEGER, " + LVL18+ " INTEGER, "
                 + LVL19+ " INTEGER, " + LVL20 + " INTEGER, " +
-                HP_BONUS_PER_STAT + " INTEGER, " + HP_DEFAULT + " INTEGER, " + COST_RESET_STATS + " INTEGER)";
+                HP_BONUS_PER_STAT + " INTEGER, " + HP_DEFAULT + " INTEGER, " + IP1 + " INTEGER, " +
+                IP2 + " INTEGER, " + IP3 + " INTEGER, " + IP4 + " INTEGER, " + COST_RESET_STATS + " INTEGER)";
 
         sqLiteDatabase.execSQL(query_table_mobs_create);
         sqLiteDatabase.execSQL(query_table_inventory_create);
@@ -116,6 +121,10 @@ public class DBOpenHelper extends SQLiteOpenHelper {
         values.put(DBOpenHelper.LVL20, 1000);
         values.put(DBOpenHelper.HP_DEFAULT, 30);
         values.put(DBOpenHelper.COST_RESET_STATS, 1);
+        values.put(DBOpenHelper.IP1, 0);
+        values.put(DBOpenHelper.IP2, 0);
+        values.put(DBOpenHelper.IP3, 0);
+        values.put(DBOpenHelper.IP4, 0);
 
         sqLiteDatabase.insert(
                 DBOpenHelper.TABLE_TEST,

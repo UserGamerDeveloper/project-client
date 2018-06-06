@@ -185,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
     MyRequest request;
     OkHttpClient client;
     byte[] mNextCardTable;
-    static final String SERVER_URL = "https://91.185.64.56:4430/";
+    static String SERVER_URL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -193,7 +193,29 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         findViewById(R.id.signLayout).setVisibility(View.VISIBLE);
+        findViewById(R.id.menu).bringToFront();
 
+        //region set IP
+        SQLiteDatabase data_base = mDBOpenHelper.getReadableDatabase();
+        Cursor cursor = data_base.query(
+                DBOpenHelper.TABLE_TEST,
+                new String[]{ DBOpenHelper.IP1, DBOpenHelper.IP2, DBOpenHelper.IP3, DBOpenHelper.IP4 },
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+        cursor.moveToFirst();
+        SERVER_URL = String.format(
+                "https://%s.%s.%s.%s:4430/",
+                cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.IP1)),
+                cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.IP2)),
+                cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.IP3)),
+                cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.IP4))
+        );
+        cursor.close();
+        //endregion
         //region set certificate
         try {
             KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -2483,7 +2505,8 @@ public class MainActivity extends AppCompatActivity {
                 if (mTradeSkill.getVisibility() == View.VISIBLE &&
                         mCardTableTarget.getSubType() == CardTableSubType.BLACKSMITH &&
                         (mTargetSwap.getType() == InventoryType.SHIELD ||
-                                mTargetSwap.getType() == InventoryType.WEAPON))
+                                mTargetSwap.getType() == InventoryType.WEAPON) &&
+                        mTargetSwap.getDurability() < mTargetSwap.getDurabilityMax())
                 {
                     mTradeSkillImage.setOnClickListener(mOnClickBlacksmithSkill);
                 }
@@ -2501,7 +2524,7 @@ public class MainActivity extends AppCompatActivity {
                                     targetSwapTwoHand.copy(mTargetSwap);
                                     mTargetSwap.copy(inventory_temp);
                                 }
-                                else{
+                                else {
                                     targetSwapTwoHand.copy(mTargetSwap);
                                     targetSwapTwoHand.mDurabilityText.setVisibility(View.VISIBLE);
                                     targetSwapTwoHand.mDurabilityImage.setVisibility(View.VISIBLE);
@@ -3022,6 +3045,8 @@ public class MainActivity extends AppCompatActivity {
     View.OnClickListener mOnClickBlacksmithSkill = mOnClickBlacksmithSkill();
     View.OnClickListener mOnClickBlacksmithSkill() {
         return v -> {
+            mCostVendorSkill = (int)((float)(mTargetSwap.getDurabilityMax()-mTargetSwap.getDurability())/
+                    (float)mTargetSwap.getDurabilityMax()*(float)mTargetSwap.getBuyCost()/2f);
             if (mMoney >= mCostVendorSkill){
                 mDialogWindow.openDialog(
                         String.format("Починить предмет за %d золотых?", mCostVendorSkill),
@@ -3029,6 +3054,7 @@ public class MainActivity extends AppCompatActivity {
                 );
             }
             else{
+
                 mDialogWindow.openInfo(
                         String.format("Недостаточно %d золота.", mCostVendorSkill - mMoney)
                 );
@@ -3179,66 +3205,84 @@ public class MainActivity extends AppCompatActivity {
             String value = valueText.getText().toString();
             Integer.parseInt(value);
 
-            BalanceRequest balanceRequest = new BalanceRequest(base, id, param, value);
-            request.setData(mJackson.writeValueAsString(balanceRequest));
-            String requestString = mJackson.writeValueAsString(request);
+            if (!base.equals("4")){
+                BalanceRequest balanceRequest = new BalanceRequest(base, id, param, value);
+                request.setData(mJackson.writeValueAsString(balanceRequest));
+                String requestString = mJackson.writeValueAsString(request);
 
-            post("test", requestString, new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    Log.d("test", " onFailure "+e.toString());
-                }
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    String responseStr = response.body().string();
-                    Log.d("test", " response "+responseStr);
-                    MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
-                    if (!myResponse.isError()){
-                        mTable.post(() -> {
-                            String where = null;
-                            String[] arg = null;
-                            ContentValues values = new ContentValues();
-                            String basee;
-                            switch (base){
-                                case "0":{
-                                    basee = DBOpenHelper.TABLE_TEST;
-                                    break;
-                                }
-                                case "1":{
-                                    basee = DBOpenHelper.TABLE_MOBS;
-                                    where = DBOpenHelper.id +"=?";
-                                    arg = new String[]{id+""};
-                                    break;
-                                }
-                                case "2":{
-                                    basee = DBOpenHelper.TABLE_INVENTORY;
-                                    where = DBOpenHelper.id +"=?";
-                                    arg = new String[]{id+""};
-                                    break;
-                                }
-                                default:{
-                                    return;
-                                }
-                            }
-                            values.put(param, value);
-
-                            SQLiteDatabase data_base = mDBOpenHelper.getWritableDatabase();
-
-                            data_base.update(
-                                    basee,
-                                    values,
-                                    where,
-                                    arg
-                            );
-                            data_base.close();
-                            baseText.setText("");
-                            idText.setText("");
-                            paramText.setText("");
-                            valueText.setText("");
-                        });
+                post("test", requestString, new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        Log.d("test", " onFailure "+e.toString());
                     }
-                }
-            });
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        String responseStr = response.body().string();
+                        Log.d("test", " response "+responseStr);
+                        MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
+                        if (!myResponse.isError()){
+                            mTable.post(() -> {
+                                String where = null;
+                                String[] arg = null;
+                                ContentValues values = new ContentValues();
+                                String basee;
+                                switch (base){
+                                    case "0":{
+                                        basee = DBOpenHelper.TABLE_TEST;
+                                        break;
+                                    }
+                                    case "1":{
+                                        basee = DBOpenHelper.TABLE_MOBS;
+                                        where = DBOpenHelper.id +"=?";
+                                        arg = new String[]{id+""};
+                                        break;
+                                    }
+                                    case "2":{
+                                        basee = DBOpenHelper.TABLE_INVENTORY;
+                                        where = DBOpenHelper.id +"=?";
+                                        arg = new String[]{id+""};
+                                        break;
+                                    }
+                                    default:{
+                                        return;
+                                    }
+                                }
+                                values.put(param, value);
+
+                                SQLiteDatabase data_base = mDBOpenHelper.getWritableDatabase();
+
+                                data_base.update(
+                                        basee,
+                                        values,
+                                        where,
+                                        arg
+                                );
+                                data_base.close();
+                                baseText.setText("");
+                                idText.setText("");
+                                paramText.setText("");
+                                valueText.setText("");
+                            });
+                        }
+                    }
+                });
+            }
+            else {
+                ContentValues values = new ContentValues();
+                values.put(param, value);
+                SQLiteDatabase data_base = mDBOpenHelper.getWritableDatabase();
+                data_base.update(
+                        DBOpenHelper.TABLE_TEST,
+                        values,
+                        null,
+                        null
+                );
+                data_base.close();
+                baseText.setText("");
+                idText.setText("");
+                paramText.setText("");
+                valueText.setText("");
+            }
         }
         catch (Exception e){}
     }

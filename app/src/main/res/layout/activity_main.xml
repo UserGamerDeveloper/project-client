@@ -2776,6 +2776,26 @@
 
     </LinearLayout>
 
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/signLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@drawable/testblack"
+        android:visibility="gone">
+
+        <com.google.android.gms.common.SignInButton
+            android:id="@+id/signInButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </android.support.constraint.ConstraintLayout>
+
     <LinearLayout
         android:id="@+id/balanceMenu"
         android:layout_width="0dp"
@@ -2833,26 +2853,6 @@
             app:srcCompat="@drawable/knopka_vihod" />
 
     </LinearLayout>
-
-    <android.support.constraint.ConstraintLayout
-        android:id="@+id/signLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:background="@drawable/testblack"
-        android:visibility="gone">
-
-        <com.google.android.gms.common.SignInButton
-            android:id="@+id/signInButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-    </android.support.constraint.ConstraintLayout>
 
     <ImageView
         android:id="@+id/imageView2"
