@@ -11,17 +11,7 @@ import android.widget.TextView;
 class CardTable extends Card {
 
     private static final int CARD_CENTER_BACK = R.drawable.perekrestok;
-    private static final String[] COLUMN_NAME = {
-            DBOpenHelper.name,
-            DBOpenHelper.VALUEONE,
-            DBOpenHelper.VALUETWO,
-            DBOpenHelper.ID_IMAGE,
-            DBOpenHelper.money,
-            DBOpenHelper.type,
-            DBOpenHelper.GEARSCORE,
-            DBOpenHelper.EXPERIENCE,
-            DBOpenHelper.SUBTYPE
-    };
+    private static final String[] COLUMN_NAME = {DBOpenHelper.name, DBOpenHelper.ID_IMAGE};
     protected Byte mIDMob;
     private AnimatorSet mTargetAnimation = new AnimatorSet();
     private AnimatorSet mCloseAnimation = new AnimatorSet();
@@ -42,7 +32,18 @@ class CardTable extends Card {
         super(context, attrs, defStyleAttr);
     }
 
-    void load(DBOpenHelper db_open_helper){
+    void load(DBOpenHelper db_open_helper, MobResponse mob){
+        mIDMob = mob.getID();
+        mMoney = mob.getMoney();
+        mType = mob.getType();
+        setGearScoreInUIThread(mob.getGearScore());
+        mSubType = mob.getSubType();
+        if(mType == CardTableType.MOB){
+            setValueOneInUIThread(mob.getValueOne());
+            setValueTwoInUIThread(mob.getValueTwo());
+            mExperience = mob.getExperience();
+        }
+        //region DB work
         SQLiteDatabase data_base = db_open_helper.getReadableDatabase();
         Cursor cursor = data_base.query(
                 DBOpenHelper.TABLE_MOBS,
@@ -54,23 +55,10 @@ class CardTable extends Card {
                 null
         );
         cursor.moveToFirst();
-        //region set data
         mNameText.setText(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.name)));
         mIdDrawable = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.ID_IMAGE));
-        mType = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.type));
-        mSubType = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.SUBTYPE));
-        this.mGearScore = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.GEARSCORE));
-        this.TEST_GearScoreText.setText(String.format("%d", mGearScore));
-        if(mType == CardTableType.MOB){
-            mValueOne = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.VALUEONE));
-            mValueOneText.setText(String.format(" %s", mValueOne));
-            mValueTwo = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.VALUETWO));
-            mValueTwoText.setText(String.format("%s ", mValueTwo));
-            mExperience = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.EXPERIENCE));
-        }
-        mMoney = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.money));
-        //endregion
         cursor.close();
+        //endregion
     }
 
     void copy(CardTable card){

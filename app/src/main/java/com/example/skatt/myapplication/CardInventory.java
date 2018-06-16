@@ -12,17 +12,7 @@ import com.squareup.picasso.Picasso;
 
 class CardInventory extends Card {
 
-    final static String[] COLUMN_NAME = {
-            DBOpenHelper.id,
-            DBOpenHelper.name,
-            DBOpenHelper.VALUEONE,
-            DBOpenHelper.ID_IMAGE,
-            DBOpenHelper.type,
-            DBOpenHelper.COST,
-            DBOpenHelper.GEARSCORE,
-            DBOpenHelper.MOB_GEARSCORE,
-            DBOpenHelper.DURABILITY_MAX
-    };
+    final static String[] COLUMN_NAME = {DBOpenHelper.id, DBOpenHelper.name, DBOpenHelper.ID_IMAGE};
     protected Byte mIDItem;
     int mDurability;
     int mDurabilityMax;
@@ -43,9 +33,34 @@ class CardInventory extends Card {
         super(context, attrs, defStyleAttr);
     }
 
-    void load(Stats stats, DBOpenHelper db_open_helper){
+    void load(Stats stats, DBOpenHelper db_open_helper, ItemResponse item){
+        mIDItem = item.getID();
+        mValueOne = item.getValueOne();
+        mType = item.getType();
+        setGearScoreInUIThread(item.getGearScore());
+        setMobGearScoreInUIThread(item.getMobGearScore());
+        mCost = item.getCost();
+        mDurability = item.getDurability();
+        mSlotId = item.getSlotId();
+        switch (mType){
+            case InventoryType.WEAPON :{
+                mValueOne += stats.getDamageBonus();
+                mDurabilityMax = item.getDurabilityMax();
+                break;
+            }
+            case InventoryType.SHIELD :{
+                mValueOne += stats.getDefenceBonus();
+                mDurabilityMax = item.getDurabilityMax();
+                break;
+            }
+            default:{
+                break;
+            }
+        }
+        updateDurabilityText();
+        updateValueOneText();
+        //region DB work
         SQLiteDatabase data_base = db_open_helper.getReadableDatabase();
-
         Log.d("mIDItem.toString()", mIDItem.toString());
         Cursor cursor = data_base.query(
                 DBOpenHelper.TABLE_INVENTORY,
@@ -56,43 +71,16 @@ class CardInventory extends Card {
                 null,
                 null
         );
-        this.setData(stats, cursor);
-    }
-    protected void setData(Stats stats, Cursor cursor) {
         cursor.moveToFirst();
-
-        this.mGearScore = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.GEARSCORE));
-        this.TEST_GearScoreText.setText(String.format("%d", mGearScore));
-        TEST_MOB_GEARSCORE = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.MOB_GEARSCORE));
-        this.TEST_MOB_GEARSCORE_TEXT.setText(String.format("%d", TEST_MOB_GEARSCORE));
         mNameText.setText(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.name)));
-        this.mType = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.type));
-        mValueOne = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.VALUEONE));
-        switch (mType){
-            case InventoryType.WEAPON :{
-                mValueOne +=stats.getDamageBonus();
-                mDurabilityMax = cursor.getInt(
-                        cursor.getColumnIndexOrThrow(DBOpenHelper.DURABILITY_MAX)
-                );
-                break;
-            }
-            case InventoryType.SHIELD :{
-                mValueOne +=stats.getDefenceBonus();
-                mDurabilityMax = cursor.getInt(
-                        cursor.getColumnIndexOrThrow(DBOpenHelper.DURABILITY_MAX)
-                );
-                break;
-            }
-            default:{
-                break;
-            }
-        }
-        this.setValueOneText(mValueOne);
         mIdDrawable = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.ID_IMAGE));
-        this.mCost = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.COST));
-        updateDurabilityText();
-
         cursor.close();
+        //endregion
+    }
+
+    void setMobGearScoreInUIThread(int mobGearScore) {
+        TEST_MOB_GEARSCORE = mobGearScore;
+        this.TEST_MOB_GEARSCORE_TEXT.setText(String.format("%d", TEST_MOB_GEARSCORE));
     }
 
     void open() {
@@ -182,6 +170,10 @@ class CardInventory extends Card {
     }
     void setDurability(int durability){
         this.mDurability = durability;
+    }
+    void setDurabilityInUIThread(int durability){
+        this.mDurability = durability;
+        updateDurabilityText();
     }
 
     public int getDurabilityMax() {

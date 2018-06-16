@@ -3,14 +3,14 @@ package com.example.skatt.myapplication;
 import java.util.List;
 
 public class ResponceTrade {
-    private CardPlayerResponse[] mTrade;
+    private ItemResponse[] mTrade;
     private Integer mSkillCost;
 
-    public CardPlayerResponse[] getTrade() {
+    public ItemResponse[] getTrade() {
         return mTrade;
     }
 
-    public void setTrade(CardPlayerResponse[] trade) {
+    public void setTrade(ItemResponse[] trade) {
         mTrade = trade;
     }
 

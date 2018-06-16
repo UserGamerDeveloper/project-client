@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 class Stats {
     private int mLevel;
-    private final float[] mRequirementExperience;
+    private float mRequirementExperienceToNextLevel;
     private float mExperienceValue;
     private TextView mLevelAndExperienceText;
     private int mDamagePoints;
@@ -68,72 +68,6 @@ class Stats {
         }
     }
 
-    Stats(DBOpenHelper db_open_helper) {
-
-        SQLiteDatabase data_base = db_open_helper.getReadableDatabase();
-
-        String[] column_name = {
-                DBOpenHelper.LVL1,
-                DBOpenHelper.LVL2,
-                DBOpenHelper.LVL3,
-                DBOpenHelper.LVL4,
-                DBOpenHelper.LVL5,
-                DBOpenHelper.LVL6,
-                DBOpenHelper.LVL7,
-                DBOpenHelper.LVL8,
-                DBOpenHelper.LVL9,
-                DBOpenHelper.LVL10,
-                DBOpenHelper.LVL11,
-                DBOpenHelper.LVL12,
-                DBOpenHelper.LVL13,
-                DBOpenHelper.LVL14,
-                DBOpenHelper.LVL15,
-                DBOpenHelper.LVL16,
-                DBOpenHelper.LVL17,
-                DBOpenHelper.LVL18,
-                DBOpenHelper.LVL19,
-                DBOpenHelper.LVL20,
-                DBOpenHelper.HP_BONUS_PER_STAT
-        };
-
-        Cursor cursor = data_base.query(
-                DBOpenHelper.TABLE_TEST,
-                column_name,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
-        cursor.moveToFirst();
-
-        mHPBonus = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.HP_BONUS_PER_STAT));
-        mRequirementExperience = new float[]{
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DBOpenHelper.LVL1)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DBOpenHelper.LVL2)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DBOpenHelper.LVL3)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DBOpenHelper.LVL4)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DBOpenHelper.LVL5)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DBOpenHelper.LVL6)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DBOpenHelper.LVL7)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DBOpenHelper.LVL8)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DBOpenHelper.LVL9)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DBOpenHelper.LVL10)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DBOpenHelper.LVL11)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DBOpenHelper.LVL12)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DBOpenHelper.LVL13)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DBOpenHelper.LVL14)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DBOpenHelper.LVL15)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DBOpenHelper.LVL15)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DBOpenHelper.LVL16)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DBOpenHelper.LVL17)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DBOpenHelper.LVL18)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DBOpenHelper.LVL19)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DBOpenHelper.LVL20))
-        };
-        cursor.close();
-    }
-
     void login(StatsResponse statsResponse){
         mLevel = statsResponse.getLevel();
         mExperienceValue = statsResponse.getExperienceValue();
@@ -141,12 +75,14 @@ class Stats {
         mDefencePoints = statsResponse.getDefencePoints();
         mHPPoints = statsResponse.getHPPoints();
         mPoints = statsResponse.getPoints();
+        mRequirementExperienceToNextLevel = statsResponse.getRequirementExperienceToNextLevel();
+        mHPBonus = statsResponse.getHPBonus();
     }
 
     void addExperience(int experience){
         mExperienceValue += experience;
-        if (mExperienceValue>=mRequirementExperience[mLevel]){
-            mExperienceValue -= mRequirementExperience[mLevel];
+        if (mExperienceValue>=mRequirementExperienceToNextLevel){
+            mExperienceValue -= mRequirementExperienceToNextLevel;
             mLevel++;
             mPoints++;
         }
@@ -154,7 +90,7 @@ class Stats {
     }
     void updateLevelAndExperienceTextInThreadUI(){
         mLevelAndExperienceText.setText(
-                String.format("%d %d/%d", mLevel, (int)mExperienceValue, (int)mRequirementExperience[mLevel])
+                String.format("%d %d/%f", mLevel, (int)mExperienceValue, mRequirementExperienceToNextLevel)
         );
     }
     void removeDamagePoint() {

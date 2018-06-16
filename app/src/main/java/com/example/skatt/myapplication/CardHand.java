@@ -2,12 +2,14 @@ package com.example.skatt.myapplication;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 public class CardHand extends CardInventory {
     static final byte ID_DEFAULT = 1;
+    static final byte FIST_DAMAGE = 1;
     int mIDDrawableDefault;
     ImageView mDurabilityImage;
 
@@ -22,8 +24,8 @@ public class CardHand extends CardInventory {
     }
 
     @Override
-    protected void setData(Stats stats, Cursor cursor) {
-        super.setData(stats, cursor);
+    protected void load(Stats stats, DBOpenHelper db_open_helper, ItemResponse item) {
+        super.load(stats, db_open_helper, item);
         if (isFist()){
             mIdDrawable = mIDDrawableDefault;
             mDurability = 0;
@@ -60,21 +62,32 @@ public class CardHand extends CardInventory {
         this.open();
     }
 
-    void setFist(){
+    void setFist(Stats stats){
         mIDItem = ID_DEFAULT;
+        setValueOneInUIThread(FIST_DAMAGE+stats.getDamageBonus());
+        mType = InventoryType.WEAPON;
+        setGearScoreInUIThread(0);
+        setMobGearScoreInUIThread(0);
+        mCost = 0;
+        mDurability = 0;
+        mDurabilityMax = 0;
+        updateValueOneText();
+        mIdDrawable = mIDDrawableDefault;
+        mDurabilityImage.setVisibility(INVISIBLE);
+        mDurabilityText.setVisibility(INVISIBLE);
+        this.mNameText.setText("Кулак");
     }
 
     void decrementDurability(){
         mDurability--;
     }
 
-    void tryDestroy(Stats stats, DBOpenHelper dbOpenHelper){
+    void tryDestroy(Stats stats){
         if(!isFist()){
             mDurability--;
             if (mDurability < 1){
                 close(CARD_BACK);
-                setFist();
-                load(stats, dbOpenHelper);
+                setFist(stats);
                 open();
             }
             else{

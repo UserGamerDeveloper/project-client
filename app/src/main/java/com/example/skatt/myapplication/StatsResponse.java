@@ -7,6 +7,8 @@ public class StatsResponse {
     private byte mDefencePoints;
     private byte mHPPoints;
     private byte mPoints;
+    private float mRequirementExperienceToNextLevel;
+    private int mHPBonus;
 
     public byte getLevel() {
         return mLevel;
@@ -43,5 +45,18 @@ public class StatsResponse {
     }
     public void setPoints(byte points) {
         mPoints = points;
+    }
+    public float getRequirementExperienceToNextLevel() {
+        return mRequirementExperienceToNextLevel;
+    }
+    public void setRequirementExperienceToNextLevel(float requirementExperienceToNextLevel) {
+        mRequirementExperienceToNextLevel = requirementExperienceToNextLevel;
+    }
+    public int getHPBonus() {
+        return mHPBonus;
+    }
+
+    public void setHPBonus(int HPBonus) {
+        mHPBonus = HPBonus;
     }
 }

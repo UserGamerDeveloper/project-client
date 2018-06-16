@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
     boolean mIsAnimate;
     private final int mIdDrawableCardBack = R.drawable.card_back;
     private final int cardCenterBack = R.drawable.perekrestok;
-    DBOpenHelper mDBOpenHelper = new DBOpenHelper(MainActivity.this);
+    private DBOpenHelper mDBOpenHelper = new DBOpenHelper(MainActivity.this);
     Drawable mHpBarDrawable;
     ConstraintLayout mTable;
     private View collectionButton;
@@ -184,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
     byte mState;
     MyRequest request;
     OkHttpClient client;
-    byte[] mNextCardTable;
+    MobResponse[] mNextCardTable;
     static String SERVER_URL;
 
     @Override
@@ -252,7 +252,7 @@ public class MainActivity extends AppCompatActivity {
         collectionButton = findViewById(R.id.collection);
         mStatsButton = findViewById(R.id.statsIcon);
 
-        mStats = new Stats(mDBOpenHelper);
+        mStats = new Stats();
         mStats.setLayout(findViewById(R.id.stats));
         mStats.setDamageButtonMinus(findViewById(R.id.statsDamageButtonMinus));
         mStats.setDamageButtonPlus(findViewById(R.id.statsDamageButtonPlus));
@@ -547,24 +547,6 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("login responseStr", responseStr);
                     MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
                     if (!myResponse.isError()){
-                        SQLiteDatabase data_base = mDBOpenHelper.getReadableDatabase();
-
-                        String[] column_name = {DBOpenHelper.HP_DEFAULT, DBOpenHelper.COST_RESET_STATS};
-                        Cursor cursor = data_base.query(
-                                DBOpenHelper.TABLE_TEST,
-                                column_name,
-                                null,
-                                null,
-                                null,
-                                null,
-                                null
-                        );
-                        cursor.moveToFirst();
-
-                        mHpMaxDefault = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.HP_DEFAULT));
-                        mStatsResetCost = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.COST_RESET_STATS));
-                        cursor.close();
-
                         LoginResponce loginResponce = mJackson.readValue(
                                 myResponse.getData(),
                                 LoginResponce.class
@@ -575,6 +557,7 @@ public class MainActivity extends AppCompatActivity {
                             resetGame();
                             mMoneyBank = loginResponce.getMoneyBank();
                             mStats.login(loginResponce.getStats());
+                            mHpMaxDefault = loginResponce.getHpDefault();
                             mHpMax = mHpMaxDefault + mStats.getHPBonus();
                             mHp = mHpMax;
                             mState = loginResponce.getState();
@@ -586,42 +569,40 @@ public class MainActivity extends AppCompatActivity {
                                 mHp = loginResponce.getHP();
                                 mMoney = loginResponce.getMoney();
                                 if (loginResponce.getCardTable0()!=null){
-                                    mCardsTable[0].setIDMob(loginResponce.getCardTable0());
+                                    mCardsTable[0].load(mDBOpenHelper,loginResponce.getCardTable0());
                                 }
                                 if (loginResponce.getCardTable1()!=null){
-                                    mCardsTable[1].setIDMob(loginResponce.getCardTable1());
+                                    mCardsTable[1].load(mDBOpenHelper,loginResponce.getCardTable1());
                                 }
                                 if (loginResponce.getCardTable2()!=null){
-                                    mCardsTable[2].setIDMob(loginResponce.getCardTable2());
+                                    mCardsTable[2].load(mDBOpenHelper,loginResponce.getCardTable2());
                                 }
                                 if (loginResponce.getCardTable3()!=null){
-                                    mCardsTable[3].setIDMob(loginResponce.getCardTable3());
+                                    mCardsTable[3].load(mDBOpenHelper,loginResponce.getCardTable3());
                                 }
                                 if (loginResponce.getCardTable4()!=null){
-                                    mCardsTable[4].setIDMob(loginResponce.getCardTable4());
+                                    mCardsTable[4].load(mDBOpenHelper,loginResponce.getCardTable4());
                                 }
                                 if (loginResponce.getCardTable5()!=null){
-                                    mCardsTable[5].setIDMob(loginResponce.getCardTable5());
+                                    mCardsTable[5].load(mDBOpenHelper,loginResponce.getCardTable5());
                                 }
                                 if (loginResponce.getCardTable6()!=null){
-                                    mCardsTable[6].setIDMob(loginResponce.getCardTable6());
+                                    mCardsTable[6].load(mDBOpenHelper,loginResponce.getCardTable6());
                                 }
                                 if (loginResponce.getCardTable7()!=null){
-                                    mCardsTable[7].setIDMob(loginResponce.getCardTable7());
+                                    mCardsTable[7].load(mDBOpenHelper,loginResponce.getCardTable7());
                                 }
-                                List<CardPlayerResponse> inventory = loginResponce.getInventory();
-                                Iterator<CardPlayerResponse> iterator = inventory.iterator();
+                                List<ItemResponse> inventory = loginResponce.getInventory();
+                                Iterator<ItemResponse> iterator = inventory.iterator();
                                 while (iterator.hasNext()) {
-                                    CardPlayerResponse item = iterator.next();
+                                    ItemResponse item = iterator.next();
                                     if (item.getSlotId()==4){
-                                        mHandOne.setIDItem(item.getIdItem());
-                                        mHandOne.setDurability(item.getDurability());
+                                        mHandOne.load(mStats,mDBOpenHelper,item);
                                         iterator.remove();
                                         continue;
                                     }
                                     if (item.getSlotId()==5){
-                                        mHandTwo.setIDItem(item.getIdItem());
-                                        mHandTwo.setDurability(item.getDurability());
+                                        mHandTwo.load(mStats,mDBOpenHelper,item);
                                         iterator.remove();
                                     }
                                 }
@@ -630,11 +611,8 @@ public class MainActivity extends AppCompatActivity {
                                          mInventoryItemCount<inventory.size();
                                          mInventoryItemCount++)
                                     {
-                                        CardPlayerResponse cardPlayerResponse = inventory.get(mInventoryItemCount);
-                                        mInventory[mInventoryItemCount].setDurability(
-                                                cardPlayerResponse.getDurability()
-                                        );
-                                        mInventory[mInventoryItemCount].setIDItem(cardPlayerResponse.getIdItem());
+                                        ItemResponse item = inventory.get(mInventoryItemCount);
+                                        mInventory[mInventoryItemCount].load(mStats,mDBOpenHelper,item);
                                     }
                                 }
                                 mButtonStart.setVisibility(View.GONE);
@@ -645,23 +623,16 @@ public class MainActivity extends AppCompatActivity {
                                 for (CardTable cardTable : mCardsTable) {
                                     cardTable.setVisibility(View.VISIBLE);
                                     if (!cardTable.isEmpty()){
-                                        cardTable.load(mDBOpenHelper);
                                         cardTable.open();
                                     }
                                 }
-
-                                mHandOne.load(mStats,mDBOpenHelper);
-                                mHandOne.updateDurabilityText();
                                 mHandOne.open();
                                 mHandOne.setOnClickListener(mInventoryOnClickSwap);
-                                mHandTwo.load(mStats,mDBOpenHelper);
-                                mHandTwo.updateDurabilityText();
                                 mHandTwo.open();
                                 mHandTwo.setOnClickListener(mInventoryOnClickSwap);
                                 for (byte i = 0;i<INVENTORY_MAX_COUNT;i++){
                                     mInventory[i].setOnClickListener(mInventoryOnClickSwap);
                                     if (i<mInventoryItemCount){
-                                        mInventory[i].load(mStats, mDBOpenHelper);
                                         mInventory[i].open();
                                         mInventory[i].setVisibility(View.VISIBLE);
                                     }
@@ -683,16 +654,12 @@ public class MainActivity extends AppCompatActivity {
                                         mShadow.bringToFront();
                                         mCardTableTarget.getTargetAnimation().start();
                                         mCardTableTarget.getTargetAnimation().end();
-                                        List<CardPlayerResponse> loot = loginResponce.getLoot();
+                                        List<ItemResponse> loot = loginResponce.getLoot();
                                         for (mLootCount = 0; mLootCount<loot.size();mLootCount++){
-                                            CardPlayerResponse cardPlayerResponse = loot.get(mLootCount);
-                                            mLoot[mLootCount].setIDItem(cardPlayerResponse.getIdItem());
-                                            mLoot[mLootCount].setDurability(
-                                                    cardPlayerResponse.getDurability()
-                                            );
+                                            ItemResponse item = loot.get(mLootCount);
+                                            mLoot[mLootCount].load(mStats,mDBOpenHelper,item);
                                         }
                                         for (byte i = 0;i<mLootCount;i++){
-                                            mLoot[i].load(mStats, mDBOpenHelper);
                                             mLoot[i].open();
                                             mLoot[i].setVisibility(View.VISIBLE);
                                             mLoot[i].bringToFront();
@@ -707,12 +674,10 @@ public class MainActivity extends AppCompatActivity {
                                         card_6_animation_click_vendor.end();
                                         mShadow.bringToFront();
                                         mCardTableTarget.bringToFront();
-                                        List<CardPlayerResponse> items = loginResponce.getTrade();
+                                        List<ItemResponse> items = loginResponce.getTrade();
                                         for (byte i = 0; i < items.size(); i++){
-                                            CardPlayerResponse item = items.get(i);
-                                            mTradeItem[i].setIDItem(item.getIdItem());
-                                            mTradeItem[i].setDurability(item.getDurability());
-                                            mTradeItem[i].load(mStats, mDBOpenHelper);
+                                            ItemResponse item = items.get(i);
+                                            mTradeItem[i].load(mStats, mDBOpenHelper, item);
                                             mTradeItem[i].open();
                                             mTradeItem[i].setVisibility(View.VISIBLE);
                                             mTradeCost[i].setText(String.format("%d", mTradeItem[i].getBuyCost()));
@@ -867,23 +832,19 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAnimationEnd(Animator animation) {
                 if (mCardsTable[1].isEmpty()){
-                    mCardsTable[1].setIDMob(mNextCardTable[0]);
-                    mCardsTable[1].load(mDBOpenHelper);
+                    mCardsTable[1].load(mDBOpenHelper, mNextCardTable[0]);
                     mCardsTable[1].open();
                 }
                 if (mCardsTable[3].isEmpty()){
-                    mCardsTable[3].setIDMob(mNextCardTable[1]);
-                    mCardsTable[3].load(mDBOpenHelper);
+                    mCardsTable[3].load(mDBOpenHelper, mNextCardTable[1]);
                     mCardsTable[3].open();
                 }
                 if (mCardsTable[4].isEmpty()){
-                    mCardsTable[4].setIDMob(mNextCardTable[2]);
-                    mCardsTable[4].load(mDBOpenHelper);
+                    mCardsTable[4].load(mDBOpenHelper, mNextCardTable[2]);
                     mCardsTable[4].open();
                 }
                 if (mCardsTable[6].isEmpty()){
-                    mCardsTable[6].setIDMob(mNextCardTable[3]);
-                    mCardsTable[6].load(mDBOpenHelper);
+                    mCardsTable[6].load(mDBOpenHelper, mNextCardTable[3]);
                     mCardsTable[6].open();
                 }
             }
@@ -1000,7 +961,7 @@ public class MainActivity extends AppCompatActivity {
             public void onAnimationStart(Animator animation) {}
             @Override
             public void onAnimationEnd(Animator animation) {
-                loadLoot();
+                openLootAndPick();
             }
         };
         //endregion
@@ -2071,14 +2032,16 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("start responseStr", responseStr);
                 MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
                 if (!myResponse.isError()){
-                    mNextCardTable = mJackson.readValue(myResponse.getData(), byte[].class);
+                    mNextCardTable = mJackson.readValue(myResponse.getData(), MobResponse[].class);
                     mTable.post(() -> {
                         setGearScore(myResponse.getGearScore());
                         collectionButton.setVisibility(View.GONE);
                         mStatsButton.setVisibility(View.GONE);
                         setHPInUIThread(mHpMaxDefault+mStats.getHPBonus());
-                        mHandOne.load(mStats, mDBOpenHelper);
-                        mHandTwo.load(mStats, mDBOpenHelper);
+/*
+                        mHandOne.load(mStats, mDBOpenHelper, );
+                        mHandTwo.load(mStats, mDBOpenHelper, );
+*/
                         for (int i = 0; i < 8; i++) {
                             mCardsTable[i].setVisibility(View.VISIBLE);
                         }
@@ -2131,7 +2094,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("continue responseStr", responseStr);
                 MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
                 if (!myResponse.isError()){
-                    mNextCardTable = mJackson.readValue(myResponse.getData(), byte[].class);
+                    mNextCardTable = mJackson.readValue(myResponse.getData(), MobResponse[].class);
                     mTable.post(() -> {
                         setGearScore(myResponse.getGearScore());
                         setSelectTarget();
@@ -2160,8 +2123,7 @@ public class MainActivity extends AppCompatActivity {
                         mInventory[mInventoryItemCount].setVisibility(View.VISIBLE);
                         mInventoryItemCount++;
                         cardHand.close(mIdDrawableCardBack);
-                        cardHand.setFist();
-                        cardHand.load(mStats, mDBOpenHelper);
+                        cardHand.setFist(mStats);
                         cardHand.open();
                     }
                     else{
@@ -2178,24 +2140,21 @@ public class MainActivity extends AppCompatActivity {
 
     View.OnTouchListener mCardMoveListener = mCardMoveListener();
     View.OnTouchListener mCardMoveListener() {
-        return new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if(MotionEvent.ACTION_MOVE==event.getAction()){
-                    if (event.getHistorySize()==2){
-                        if (event.getX()!=event.getHistoricalX(0)){
-                            if (event.getY()!=event.getHistoricalY(0)) {
-                                ClipData data = ClipData.newPlainText("", "");
-                                View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(mTargetSwap);
-                                mTargetSwap.startDrag(data, shadowBuilder, mTargetSwap, 0);
-                                mTargetSwap.setVisibility(View.INVISIBLE);
-                                Log.d("INVISIBLE", "onTouch: ");
-                            }
+        return (v, event) -> {
+            if(MotionEvent.ACTION_MOVE==event.getAction()){
+                if (event.getHistorySize()==2){
+                    if (event.getX()!=event.getHistoricalX(0)){
+                        if (event.getY()!=event.getHistoricalY(0)) {
+                            ClipData data = ClipData.newPlainText("", "");
+                            View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(mTargetSwap);
+                            mTargetSwap.startDrag(data, shadowBuilder, mTargetSwap, 0);
+                            mTargetSwap.setVisibility(View.INVISIBLE);
+                            Log.d("INVISIBLE", "onTouch: ");
                         }
                     }
                 }
-                return false;
             }
+            return false;
         };
     }
 
@@ -2383,11 +2342,9 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                     mShadow.bringToFront();
                                     mCardTableTarget.bringToFront();
+                                    ItemResponse[] items = responceTrade.getTrade();
                                     for (byte i = 0; i< LOOT_AND_TRADE_MAX_COUNT; i++){
-                                        mTradeItem[i].setIDItem(responceTrade.getTrade()[i].getIdItem());
-                                        mTradeItem[i].setDurability(responceTrade.getTrade()[i].getDurability());
-                                        mTradeItem[i].load(mStats, mDBOpenHelper);
-                                        mTradeItem[i].setDurability(responceTrade.getTrade()[i].getDurability());
+                                        mTradeItem[i].load(mStats, mDBOpenHelper, items[i]);
                                         mTradeItem[i].open();
                                         mTradeItem[i].setVisibility(View.VISIBLE);
                                         mTradeCost[i].setText(String.format("%d", mTradeItem[i].getBuyCost()));
@@ -2427,16 +2384,14 @@ public class MainActivity extends AppCompatActivity {
                                                 myResponse.getData(),
                                                 DamageResponse.class
                                         );
-                                        mNextCardTable = damageResponse.getCardTableID();
-                                        CardPlayerResponse[] loot = mJackson.readValue(
+                                        mNextCardTable = damageResponse.getNextMobs();
+                                        ItemResponse[] loot = mJackson.readValue(
                                                 damageResponse.getLoot(),
-                                                CardPlayerResponse[].class
+                                                ItemResponse[].class
                                         );
                                         mLootCount = loot.length;
                                         for (int i = 0; i < mLootCount; i++) {
-                                            mLoot[i].bringToFront();
-                                            mLoot[i].setIDItem(loot[i].getIdItem());
-                                            mLoot[i].setDurability(loot[i].getDurability());
+                                            mLoot[i].load(mStats,mDBOpenHelper,loot[i]);
                                         }
                                     } catch (IOException e) {
                                         e.printStackTrace();
@@ -2652,8 +2607,8 @@ public class MainActivity extends AppCompatActivity {
                             mCardTableTarget.changeValueTwo(-damage);
 
                             updateHPText();
-                            mHandOne.tryDestroy(mStats, mDBOpenHelper);
-                            mHandTwo.tryDestroy(mStats, mDBOpenHelper);
+                            mHandOne.tryDestroy(mStats);
+                            mHandTwo.tryDestroy(mStats);
 
                             if (mCardTableTarget.getValueTwo() < 1){
                                 try {
@@ -2661,16 +2616,14 @@ public class MainActivity extends AppCompatActivity {
                                             myResponse.getData(),
                                             DamageResponse.class
                                     );
-                                    mNextCardTable = damageResponse.getCardTableID();
-                                    CardPlayerResponse[] loot = mJackson.readValue(
+                                    mNextCardTable = damageResponse.getNextMobs();
+                                    ItemResponse[] loot = mJackson.readValue(
                                             damageResponse.getLoot(),
-                                            CardPlayerResponse[].class
+                                            ItemResponse[].class
                                     );
                                     mLootCount = loot.length;
                                     for (int i = 0; i < mLootCount; i++) {
-                                        mLoot[i].bringToFront();
-                                        mLoot[i].setIDItem(loot[i].getIdItem());
-                                        mLoot[i].setDurability(loot[i].getDurability());
+                                        mLoot[i].load(mStats,mDBOpenHelper,loot[i]);
                                     }
                                     mobDead();
                                 } catch (IOException e) {
@@ -2942,8 +2895,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                             else{
                                 CardHand hand = (CardHand)mTargetSwap;
-                                hand.setFist();
-                                hand.load(mStats,mDBOpenHelper);
+                                hand.setFist(mStats);
                                 hand.open();
                             }
                             changeMoneyInUIThread(mTargetSwap.getSellCost());
@@ -3018,14 +2970,11 @@ public class MainActivity extends AppCompatActivity {
                         mTable.post(() -> {
                             mDialogWindow.close();
                             changeMoneyInUIThread(-mCostVendorSkill);
-                            CardPlayerResponse[] cardTrade;
+                            ItemResponse[] cardTrade;
                             try {
-                                cardTrade = mJackson.readValue(myResponse.getData(), CardPlayerResponse[].class);
+                                cardTrade = mJackson.readValue(myResponse.getData(), ItemResponse[].class);
                                 for (byte i = 0; i< LOOT_AND_TRADE_MAX_COUNT; i++){
-                                    mTradeItem[i].setIDItem(cardTrade[i].getIdItem());
-                                    mTradeItem[i].setDurability(cardTrade[i].getDurability());
-                                    mTradeItem[i].load(mStats, mDBOpenHelper);
-                                    mTradeItem[i].setDurability(cardTrade[i].getDurability());
+                                    mTradeItem[i].load(mStats, mDBOpenHelper, cardTrade[i]);
                                     mTradeItem[i].open();
                                     mTradeItem[i].setVisibility(View.VISIBLE);
                                     mTradeCost[i].setText(String.format("%d", mTradeItem[i].getBuyCost()));
@@ -3170,7 +3119,7 @@ public class MainActivity extends AppCompatActivity {
                 if (!myResponse.isError()){
                     mTable.post(() -> {
                         try {
-                            mNextCardTable = mJackson.readValue(myResponse.getData(), byte[].class);
+                            mNextCardTable = mJackson.readValue(myResponse.getData(), MobResponse[].class);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -3296,6 +3245,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     public void onClickTestButton(View view){
+/*
         EditText idslotText = findViewById(R.id.idslot);
         EditText iditemText = findViewById(R.id.iditem);
         try {
@@ -3303,7 +3253,7 @@ public class MainActivity extends AppCompatActivity {
             byte iditem = Byte.parseByte(iditemText.getText().toString());
             if (idslot<4){
                 mInventory[idslot].setIDItem(iditem);
-                mInventory[idslot].load(mStats, mDBOpenHelper);
+                mInventory[idslot].load(mStats, mDBOpenHelper, );
                 mInventory[idslot].repair();
                 mInventory[idslot].open();
                 mInventory[idslot].setVisibility(View.VISIBLE);
@@ -3311,7 +3261,7 @@ public class MainActivity extends AppCompatActivity {
             else{
                 if (idslot==4){
                     mHandOne.setIDItem(iditem);
-                    mHandOne.load(mStats, mDBOpenHelper);
+                    mHandOne.load(mStats, mDBOpenHelper, );
                     mHandOne.repair();
                     mHandOne.open();
                     mHandOne.setVisibility(View.VISIBLE);
@@ -3321,7 +3271,7 @@ public class MainActivity extends AppCompatActivity {
                 else{
                     if (idslot==5){
                         mHandTwo.setIDItem(iditem);
-                        mHandTwo.load(mStats, mDBOpenHelper);
+                        mHandTwo.load(mStats, mDBOpenHelper, );
                         mHandTwo.repair();
                         mHandTwo.open();
                         mHandTwo.setVisibility(View.VISIBLE);
@@ -3337,6 +3287,7 @@ public class MainActivity extends AppCompatActivity {
             iditemText.setText("");
         }
         catch (Exception e){}
+*/
     }
 
     public void onClickDead(View view){
@@ -3488,11 +3439,9 @@ public class MainActivity extends AppCompatActivity {
         mHandTwo.close(mIdDrawableCardBack);
         mHandOne.setOnClickListener(null);
         mHandTwo.setOnClickListener(null);
-        mHandOne.setIDItem(mHandOne.getIDDefault());
-        mHandOne.load(mStats, mDBOpenHelper);
+        mHandOne.setFist(mStats);
         mHandOne.open();
-        mHandTwo.setIDItem(mHandTwo.getIDDefault());
-        mHandTwo.load(mStats, mDBOpenHelper);
+        mHandTwo.setFist(mStats);
         mHandTwo.open();
 
         for (byte i = 0; i < INVENTORY_MAX_COUNT; i++) {
@@ -3599,7 +3548,7 @@ public class MainActivity extends AppCompatActivity {
                         if (mState == State.SELECT_LOOT){
                             try {
                                 if (myResponse.getData()!=null){
-                                    mNextCardTable = mJackson.readValue(myResponse.getData(), byte[].class);
+                                    mNextCardTable = mJackson.readValue(myResponse.getData(), MobResponse[].class);
                                 }
                             }
                             catch (IOException e){
@@ -3672,21 +3621,19 @@ public class MainActivity extends AppCompatActivity {
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
-                            mNextCardTable = damageResponse.getCardTableID();
-                            CardPlayerResponse[] loot = new CardPlayerResponse[0];
+                            mNextCardTable = damageResponse.getNextMobs();
+                            ItemResponse[] loot = new ItemResponse[0];
                             try {
                                 loot = mJackson.readValue(
                                         damageResponse.getLoot(),
-                                        CardPlayerResponse[].class
+                                        ItemResponse[].class
                                 );
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
                             mLootCount = loot.length;
                             for (int i = 0; i < mLootCount; i++) {
-                                mLoot[i].bringToFront();
-                                mLoot[i].setIDItem(loot[i].getIdItem());
-                                mLoot[i].setDurability(loot[i].getDurability());
+                                mLoot[i].load(mStats,mDBOpenHelper,loot[i]);
                             }
                         }
                         if (mCardTableTarget.getValueTwo() < 1) {
@@ -3709,12 +3656,11 @@ public class MainActivity extends AppCompatActivity {
         mCardTableTarget.getCloseAnimation().start();
     }
 
-    private void loadLoot() {
+    private void openLootAndPick() {
         mState = State.SELECT_LOOT;
         mShadow.bringToFront();
 
         for (int i = 0; i < mLootCount; i++) {
-            mLoot[i].load(mStats,mDBOpenHelper);
             mLoot[i].setVisibility(View.VISIBLE);
             mLoot[i].open();
             mLoot[i].bringToFront();

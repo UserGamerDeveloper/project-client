@@ -84,17 +84,26 @@ public class Card extends ConstraintLayout {
     void setValueOne(int hp){
         this.mValueOne = hp;
     }
+    void setValueOneInUIThread(int valueOne){
+        this.mValueOne = valueOne;
+        setValueOneText(valueOne);
+    }
 
     void setValueOneText(int hp){
         if (hp/10>1){
-            mValueOneText.setText(
-                    String.format("%s", hp)
-            );
+            mValueOneText.setText(String.format("%s", hp));
         }
         else{
-            mValueOneText.setText(
-                    String.format(" %s", hp)
-            );
+            mValueOneText.setText(String.format(" %s", hp));
+        }
+    }
+
+    void updateValueOneText(){
+        if (mValueOne/10>1){
+            mValueOneText.setText(String.format("%s", mValueOne));
+        }
+        else{
+            mValueOneText.setText(String.format(" %s", mValueOne));
         }
     }
 

@@ -7,13 +7,13 @@ public class DamageResponse {
     public void setLoot(String loot) {
         mLoot = loot;
     }
-    public byte[] getCardTableID() {
-        return cardTableID;
+    public MobResponse[] getNextMobs() {
+        return mNextMobs;
     }
-    public void setCardTableID(byte[] cardTableID) {
-        this.cardTableID = cardTableID;
+    public void setNextMobs(MobResponse[] nextMobs) {
+        this.mNextMobs = nextMobs;
     }
 
     private String mLoot;
-    private byte[] cardTableID;
+    private MobResponse[] mNextMobs;
 }
