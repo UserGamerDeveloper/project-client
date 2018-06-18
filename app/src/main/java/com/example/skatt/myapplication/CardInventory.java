@@ -93,6 +93,11 @@ class CardInventory extends Card {
         this.mIDItem = null;
     }
 
+    public void invisibility() {
+        this.setVisibility(View.GONE);
+        this.mIDItem = null;
+    }
+
     void repair() {
         mDurability = mDurabilityMax;
         this.updateDurabilityText();
@@ -193,5 +198,6 @@ class CardInventory extends Card {
     public void setSlotType(byte slotType) {
         this.mSlotType = slotType;
     }
+
     //endregion
 }

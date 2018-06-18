@@ -3579,7 +3579,7 @@ public class MainActivity extends AppCompatActivity {
     private void useSpell() {
         String requestString = null;
         ArrayList<CardPlayerResponse> inventory = new ArrayList<>();
-        for (byte i = 0; i < INVENTORY_MAX_COUNT;i++) {
+        for (byte i = 0; i < INVENTORY_MAX_COUNT;i++){
             if (!mInventory[i].isEmpty()){
                 inventory.add(new CardPlayerResponse(mInventory[i].getIDItem(), i, (byte) mInventory[i].getDurability()));
             }
@@ -3619,7 +3619,9 @@ public class MainActivity extends AppCompatActivity {
                         mCardTableTarget.changeValueTwo(-mTargetSwap.getValueOne());
                         mInventoryItemCount--;
                         inventorySort();
+/*
                         tryPickingLoot();
+*/
                         resetTargetSwap();
                         Log.d("resetTargetSwap", "use spell");
                         if (mCardTableTarget.getValueTwo() < 1) {
@@ -3787,10 +3789,10 @@ public class MainActivity extends AppCompatActivity {
 
     void inventorySort() {
         mTargetSwap.setVisibility(View.VISIBLE);
-        byte id = mTargetSwap.getSlotId();
-        for (; id < mInventoryItemCount; id++) {
-            mInventory[id].copy(mInventory[id + 1]);
+        byte slot = mTargetSwap.getSlotId();
+        for (; slot < mInventoryItemCount; slot++) {
+            mInventory[slot].copy(mInventory[slot + 1]);
         }
-        mInventory[id].setVisibility(View.GONE);
+        mInventory[slot].invisibility();
     }
 }
