@@ -2321,6 +2321,7 @@ public class MainActivity extends AppCompatActivity {
                         MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
                         if (!myResponse.isError()){
                             mTable.post(() -> {
+                                setGearScore(myResponse.getGearScore());
                                 mIsAnimate = true;
                                 Log.d("mIsAnimate", String.valueOf(mIsAnimate));
                                 if(mCardTableTarget.getType() == CardTableType.MOB){
@@ -2666,34 +2667,31 @@ public class MainActivity extends AppCompatActivity {
     }
     View.OnClickListener onClickConfirmButtonListener = onClickConfirmButtonListener();
     View.OnClickListener onClickConfirmButtonListener() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String requestString = null;
-                try {
-                    request.setData(mStats.confirm(mJackson));
-                    requestString = mJackson.writeValueAsString(request);
-                }
-                catch (JsonProcessingException e) {
-                    e.printStackTrace();
-                }
-                post("stats/confirm", requestString, new Callback() {
-                            @Override
-                            public void onFailure(Call call, IOException e) {
-                                Log.d("stats/confirm onFailure", e.toString());
-                            }
-                            @Override
-                            public void onResponse(Call call, Response response) throws IOException {
-                                String responseStr = response.body().string();
-                                Log.d("stats/confirm response ", responseStr);
-                                MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
-                                if (!myResponse.isError()){
-                                    Log.d("stats confirm", "");
-                                }
-                            }
-                });
-                mDialogWindow.close();
+        return v -> {
+            String requestString = null;
+            try {
+                request.setData(mStats.confirm(mJackson));
+                requestString = mJackson.writeValueAsString(request);
             }
+            catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+            post("stats/confirm", requestString, new Callback() {
+                        @Override
+                        public void onFailure(Call call, IOException e) {
+                            Log.d("stats/confirm onFailure", e.toString());
+                        }
+                        @Override
+                        public void onResponse(Call call, Response response) throws IOException {
+                            String responseStr = response.body().string();
+                            Log.d("stats/confirm response ", responseStr);
+                            MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
+                            if (!myResponse.isError()){
+                                Log.d("stats confirm", "");
+                            }
+                        }
+            });
+            mDialogWindow.close();
         };
     }
     public void onClickConfirmButton(View view){

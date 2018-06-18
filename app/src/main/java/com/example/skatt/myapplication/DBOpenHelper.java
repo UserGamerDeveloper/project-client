@@ -691,6 +691,37 @@ public class DBOpenHelper extends SQLiteOpenHelper {
         values.put(DBOpenHelper.name, "Моб 39");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 40);
+        values.put(DBOpenHelper.name, "Моб 40");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 41);
+        values.put(DBOpenHelper.name, "Моб 41");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 42);
+        values.put(DBOpenHelper.name, "Моб 42");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 43);
+        values.put(DBOpenHelper.name, "Моб 43");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 44);
+        values.put(DBOpenHelper.name, "Моб 44");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 45);
+        values.put(DBOpenHelper.name, "Моб 45");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
         //endregion
     }
     @Override
