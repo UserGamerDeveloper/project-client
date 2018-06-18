@@ -71,10 +71,10 @@ public class DBOpenHelper extends SQLiteOpenHelper {
 
     private void setTestData(SQLiteDatabase sqLiteDatabase) {
         ContentValues values = new ContentValues();
-        values.put(DBOpenHelper.IP1, 88);
-        values.put(DBOpenHelper.IP2, 80);
-        values.put(DBOpenHelper.IP3, 58);
-        values.put(DBOpenHelper.IP4, 189);
+        values.put(DBOpenHelper.IP1, 77);
+        values.put(DBOpenHelper.IP2, 245);
+        values.put(DBOpenHelper.IP3, 117);
+        values.put(DBOpenHelper.IP4, 25);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_TEST, null, values);
     }
 

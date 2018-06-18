@@ -2792,7 +2792,6 @@ public class MainActivity extends AppCompatActivity {
             }
         };
     }
-
     View.OnClickListener mCardTradeBuyClickYes = mCardTradeBuyClickYes();
     View.OnClickListener mCardTradeBuyClickYes() {
         return v -> {
@@ -2858,6 +2857,28 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
+    View.OnDragListener mOnSell = mOnSell();
+    View.OnDragListener mOnSell() {
+        return (v, event) -> {
+/*
+            if (!event.getResult() && event.getAction() == DragEvent.ACTION_DRAG_STARTED) {
+                return true;
+            }
+*/
+            if (event.getAction() == DragEvent.ACTION_DROP) {
+                mTargetSwap.setVisibility(View.VISIBLE);
+                if (mTargetSwap.getIdDrawable()!=R.drawable.kulak_levo &&
+                        mTargetSwap.getIdDrawable()!=R.drawable.kulak_pravo)
+                {
+                    mDialogWindow.openDialog(
+                            String.format("Продать карту за %d золотых?", mTargetSwap.getSellCost()),
+                            mCardTradeSellClickYes
+                    );
+                }
+            }
+            return true;
+        };
+    }
     View.OnClickListener mCardTradeSellClickYes = mCardTradeSellClickYes();
     View.OnClickListener mCardTradeSellClickYes() {
         return v -> {
@@ -2904,29 +2925,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             });
-        };
-    }
-
-    View.OnDragListener mOnSell = mOnSell();
-    View.OnDragListener mOnSell() {
-        return (v, event) -> {
-/*
-            if (!event.getResult() && event.getAction() == DragEvent.ACTION_DRAG_STARTED) {
-                return true;
-            }
-*/
-            if (event.getAction() == DragEvent.ACTION_DROP) {
-                mTargetSwap.setVisibility(View.VISIBLE);
-                if (mTargetSwap.getIdDrawable()!=R.drawable.kulak_levo &&
-                        mTargetSwap.getIdDrawable()!=R.drawable.kulak_pravo)
-                {
-                    mDialogWindow.openDialog(
-                            String.format("Продать карту за %d золотых?", mTargetSwap.getSellCost()),
-                            mCardTradeSellClickYes
-                    );
-                }
-            }
-            return true;
         };
     }
 
@@ -3245,49 +3243,62 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     public void onClickTestButton(View view){
-/*
+        String requestStr;
         EditText idslotText = findViewById(R.id.idslot);
         EditText iditemText = findViewById(R.id.iditem);
         try {
             byte idslot = Byte.parseByte(idslotText.getText().toString());
             byte iditem = Byte.parseByte(iditemText.getText().toString());
             if (idslot<4){
-                mInventory[idslot].setIDItem(iditem);
-                mInventory[idslot].load(mStats, mDBOpenHelper, );
-                mInventory[idslot].repair();
-                mInventory[idslot].open();
-                mInventory[idslot].setVisibility(View.VISIBLE);
+                mTargetSwap = mInventory[idslot];
             }
-            else{
+            else {
                 if (idslot==4){
-                    mHandOne.setIDItem(iditem);
-                    mHandOne.load(mStats, mDBOpenHelper, );
-                    mHandOne.repair();
-                    mHandOne.open();
-                    mHandOne.setVisibility(View.VISIBLE);
-                    mHandOne.mDurabilityText.setVisibility(View.VISIBLE);
-                    mHandOne.mDurabilityImage.setVisibility(View.VISIBLE);
+                    mTargetSwap = mHandOne;
                 }
                 else{
                     if (idslot==5){
-                        mHandTwo.setIDItem(iditem);
-                        mHandTwo.load(mStats, mDBOpenHelper, );
-                        mHandTwo.repair();
-                        mHandTwo.open();
-                        mHandTwo.setVisibility(View.VISIBLE);
-                        mHandTwo.mDurabilityText.setVisibility(View.VISIBLE);
-                        mHandTwo.mDurabilityImage.setVisibility(View.VISIBLE);
+                        mTargetSwap = mHandTwo;
                     }
                     else{
                         return;
                     }
                 }
             }
-            idslotText.setText("");
-            iditemText.setText("");
+            request.setData(String.valueOf(iditem));
+            requestStr = mJackson.writeValueAsString(request);
+            Callback callback = new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    Log.d("getinfo onFailure", e.toString());
+                    rePost(call, this);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    String responseStr = response.body().string();
+                    Log.d("getinfo responseStr", responseStr);
+                    MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
+                    if (!myResponse.isError()){
+                        mTable.post(() -> {
+                            ItemResponse item = null;
+                            try {
+                                item = mJackson.readValue(myResponse.getData(), ItemResponse.class);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            mTargetSwap.load(mStats, mDBOpenHelper, item);
+                            mTargetSwap.open();
+                            mTargetSwap.setVisibility(View.VISIBLE);
+                            idslotText.setText("");
+                            iditemText.setText("");
+                        });
+                    }
+                }
+            };
+            post("getinfo",requestStr,callback);
         }
         catch (Exception e){}
-*/
     }
 
     public void onClickDead(View view){
