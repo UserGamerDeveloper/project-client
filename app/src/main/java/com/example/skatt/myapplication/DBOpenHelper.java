@@ -71,10 +71,10 @@ public class DBOpenHelper extends SQLiteOpenHelper {
 
     private void setTestData(SQLiteDatabase sqLiteDatabase) {
         ContentValues values = new ContentValues();
-        values.put(DBOpenHelper.IP1, 77);
-        values.put(DBOpenHelper.IP2, 245);
-        values.put(DBOpenHelper.IP3, 117);
-        values.put(DBOpenHelper.IP4, 25);
+        values.put(DBOpenHelper.IP1, 91);
+        values.put(DBOpenHelper.IP2, 185);
+        values.put(DBOpenHelper.IP3, 66);
+        values.put(DBOpenHelper.IP4, 79);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_TEST, null, values);
     }
 
@@ -511,10 +511,12 @@ public class DBOpenHelper extends SQLiteOpenHelper {
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
+/*
         values.put(DBOpenHelper.id, 39);
         values.put(DBOpenHelper.name, "Портал");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.prival);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+*/
 
         //region Mobs
         values.put(DBOpenHelper.id, 5);

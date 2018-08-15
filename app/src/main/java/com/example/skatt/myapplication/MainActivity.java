@@ -2296,9 +2296,54 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
+    View.OnClickListener mOnClickExitYes = mOnClickExitYes();
+    View.OnClickListener mOnClickExitYes() {
+        return v -> {
+            String requestString = null;
+            try {
+                requestString = mJackson.writeValueAsString(request);
+            }
+            catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+
+            Callback callback = new Callback(){
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    Log.d("Exit onFailure", e.toString());
+                    rePost(call, this);
+                }
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    String responseStr = response.body().string();
+                    Log.d("Exit response ", responseStr);
+                    MyResponse myResponse = mJackson.readValue(responseStr, MyResponse.class);
+                    if (!myResponse.isError()){
+                        mTable.post(() -> {
+                            mDialogWindow.close();
+                            mTradeSkill.setVisibility(View.GONE);
+                            mTradeZone.setVisibility(View.GONE);
+/*
+                            mTable.setOnDragListener(mTableOnDropListener);
+*/
+                            mMoneyBank += mMoney;
+                            mMoney = 0;
+                            resetGame();
+                            changeHPInUIThread(mHpMax);
+                            collectionButton.setVisibility(View.VISIBLE);
+                            mStatsButton.setVisibility(View.VISIBLE);
+                            mButtonStart.setVisibility(View.VISIBLE);
+                        });
+                    }
+                }
+            };
+            post("exit", requestString, callback);
+        };
+    }
+
     View.OnClickListener setTargetListener = setTargetListener();
     View.OnClickListener setTargetListener() {
-        return v -> {
+        return (View v) -> {
             if (!mIsAnimate) {
                 mCardTableTarget = (CardTable) v;
                 String requestString = null;
@@ -2309,10 +2354,12 @@ public class MainActivity extends AppCompatActivity {
                 catch (JsonProcessingException e) {
                     e.printStackTrace();
                 }
-                post("target", requestString, new Callback() {
+
+                Callback callback = new Callback(){
                     @Override
                     public void onFailure(Call call, IOException e) {
                         Log.d("target onFailure", e.toString());
+                        rePost(call, this);
                     }
                     @Override
                     public void onResponse(Call call, Response response) throws IOException {
@@ -2324,12 +2371,15 @@ public class MainActivity extends AppCompatActivity {
                                 setGearScore(myResponse.getGearScore());
                                 mIsAnimate = true;
                                 Log.d("mIsAnimate", String.valueOf(mIsAnimate));
+                                //region Mob
                                 if(mCardTableTarget.getType() == CardTableType.MOB){
                                     mCardTableTarget.bringToFront();
                                     mCardTableTarget.getTargetAnimation().start();
                                     mCardTableTarget.setOnClickListener(mDamageListener);
                                     return;
                                 }
+                                //endregion
+                                //region VENDORs
                                 if (mCardTableTarget.getType() == CardTableType.VENDOR){
                                     card_6_animation_click_vendor.start();
                                     ResponceTrade responceTrade = null;
@@ -2370,15 +2420,9 @@ public class MainActivity extends AppCompatActivity {
                                         mTradeSkillImage.setOnClickListener(null);
                                         return;
                                     }
-                                    if (mCardTableTarget.getSubType() == CardTableSubType.INNKEEPER){
-                                        Picasso.with(getBaseContext())
-                                                .load(R.drawable.navik_traktirshika)
-                                                .into(mTradeSkillImage);
-                                        mTradeSkillImage.setOnClickListener(mOnClickInnkeeperSkill);
-                                        mCostVendorSkill = responceTrade.getSkillCost();
-                                        return;
-                                    }
                                 }
+                                //endregion
+                                //region CHEST
                                 if (mCardTableTarget.getType() == CardTableType.CHEST){
                                     try {
                                         DamageResponse damageResponse = mJackson.readValue(
@@ -2405,15 +2449,48 @@ public class MainActivity extends AppCompatActivity {
                                     changeMoneyInUIThread(mCardTableTarget.getMoney());
                                     return;
                                 }
-                                if (mCardTableTarget.getType() == CardTableType.PORTAL){
-                                    mMoneyBank += mMoney;
-                                    mMoney = 0;
-                                    resetGame();
-                                    changeHPInUIThread(mHpMax);
-                                    collectionButton.setVisibility(View.VISIBLE);
-                                    mStatsButton.setVisibility(View.VISIBLE);
-                                    mButtonStart.setVisibility(View.VISIBLE);
+                                //endregion
+                                //region INNKEEPER
+                                if (mCardTableTarget.getType() == CardTableType.INNKEEPER){
+                                    card_6_animation_click_vendor.start();
+                                    ResponceTrade responceTrade = null;
+                                    try {
+                                        responceTrade = mJackson.readValue(
+                                                myResponse.getData(),
+                                                ResponceTrade.class
+                                        );
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                    mShadow.bringToFront();
+                                    mCardTableTarget.bringToFront();
+                                    ItemResponse[] items = responceTrade.getTrade();
+                                    for (byte i = 0; i< LOOT_AND_TRADE_MAX_COUNT; i++){
+                                        mTradeItem[i].load(mStats, mDBOpenHelper, items[i]);
+                                        mTradeItem[i].open();
+                                        mTradeItem[i].setVisibility(View.VISIBLE);
+                                        mTradeCost[i].setText(String.format("%d", mTradeItem[i].getBuyCost()));
+                                        mTradeCost[i].setVisibility(View.VISIBLE);
+                                        mTradeCostImage[i].setVisibility(View.VISIBLE);
+                                    }
+                                    mTradeSkill.setVisibility(View.VISIBLE);
+                                    mTradeZone.setVisibility(View.VISIBLE);
+                                    mTable.setOnDragListener(null);
+
+                                    Picasso.with(getBaseContext())
+                                            .load(R.drawable.navik_traktirshika)
+                                            .into(mTradeSkillImage);
+                                    mTradeSkillImage.setOnClickListener(mOnClickInnkeeperSkill);
+                                    mCostVendorSkill = responceTrade.getSkillCost();
+
+                                    mDialogWindow.openDialog(
+                                            "Закончить игру?",
+                                            mOnClickExitYes
+                                    );
+                                    return;
                                 }
+                                //endregion
+/*
                                 if (mCardTableTarget.getType() == CardTableType.HALT){
                                     mShadow.bringToFront();
                                     mCardTableTarget.bringToFront();
@@ -2422,10 +2499,12 @@ public class MainActivity extends AppCompatActivity {
                                     changeHPInUIThread(mHpMax);
                                     mCardTableTarget.getChangeAnimation().start();
                                 }
+*/
                             });
                         }
                     }
-                });
+                };
+                post("target", requestString, callback);
             }
         };
     }
