@@ -72,7 +72,7 @@ class CardInventory extends Card {
                 null
         );
         cursor.moveToFirst();
-        mNameText.setText(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.name)));
+        mNameText.setText(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.name))+" "+mIDItem);
         mIdDrawable = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.ID_IMAGE));
         cursor.close();
         //endregion
