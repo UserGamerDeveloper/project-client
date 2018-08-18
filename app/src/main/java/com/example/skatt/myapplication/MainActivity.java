@@ -196,6 +196,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.menu).bringToFront();
 
         //region set IP
+/*
         SQLiteDatabase data_base = mDBOpenHelper.getReadableDatabase();
         Cursor cursor = data_base.query(
                 DBOpenHelper.TABLE_TEST,
@@ -215,6 +216,8 @@ public class MainActivity extends AppCompatActivity {
                 cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.IP4))
         );
         cursor.close();
+*/
+        SERVER_URL = "https://77.245.126.231:4430/";
         //endregion
         //region set certificate
         try {
