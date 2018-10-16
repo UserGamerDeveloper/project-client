@@ -3616,6 +3616,7 @@ public class MainActivity extends AppCompatActivity {
         mGearScoreText.setText(String.format("%d", mGearScore));
     }
 
+
     private void useFood() {
         request.setData(mTargetSwap.getIDItem().toString());
         String requestString = null;
