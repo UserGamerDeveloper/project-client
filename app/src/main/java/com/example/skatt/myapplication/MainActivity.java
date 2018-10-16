@@ -11,6 +11,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
@@ -41,6 +43,7 @@ import java.security.cert.CertificateFactory;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -185,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
     MyRequest request;
     OkHttpClient client;
     MobResponse[] mNextCardTable;
-    static String SERVER_URL;
+    static String SERVER_URL = "https://91.185.67.208:4430/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -217,7 +220,6 @@ public class MainActivity extends AppCompatActivity {
         );
         cursor.close();
 */
-        SERVER_URL = "https://77.245.126.231:4430/";
         //endregion
         //region set certificate
         try {
@@ -241,6 +243,9 @@ public class MainActivity extends AppCompatActivity {
                     .hostnameVerifier((hostname, session) -> {
                         return true;
                     })
+                    .connectTimeout(20, TimeUnit.SECONDS)
+                    .writeTimeout(20, TimeUnit.SECONDS)
+                    .readTimeout(20, TimeUnit.SECONDS)
                     .build();
 
         } catch (Exception e) {
@@ -3508,6 +3513,7 @@ public class MainActivity extends AppCompatActivity {
         call.enqueue(callback);
     }
     void rePost(Call call, Callback callback) {
+        SystemClock.sleep(500);
         Call newCall = client.newCall(call.request());
         newCall.enqueue(callback);
     }

@@ -320,207 +320,362 @@ public class DBOpenHelper extends SQLiteOpenHelper {
 
         //region Mobs
         values.put(DBOpenHelper.id, 5);
-        values.put(DBOpenHelper.name, "Моб 5");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 6);
-        values.put(DBOpenHelper.name, "Моб 6");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 7);
-        values.put(DBOpenHelper.name, "Моб 7");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 8);
-        values.put(DBOpenHelper.name, "Моб 8");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 9);
-        values.put(DBOpenHelper.name, "Моб 9");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 10);
-        values.put(DBOpenHelper.name, "Моб 10");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 11);
-        values.put(DBOpenHelper.name, "Моб 11");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 12);
-        values.put(DBOpenHelper.name, "Моб 12");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 13);
-        values.put(DBOpenHelper.name, "Моб 13");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 14);
-        values.put(DBOpenHelper.name, "Моб 14");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 15);
-        values.put(DBOpenHelper.name, "Моб 15");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 16);
-        values.put(DBOpenHelper.name, "Моб 16");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 17);
-        values.put(DBOpenHelper.name, "Моб 17");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 18);
-        values.put(DBOpenHelper.name, "Моб 18");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 19);
-        values.put(DBOpenHelper.name, "Моб 19");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 20);
-        values.put(DBOpenHelper.name, "Моб 20");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 21);
-        values.put(DBOpenHelper.name, "Моб 21");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 22);
-        values.put(DBOpenHelper.name, "Моб 22");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 23);
-        values.put(DBOpenHelper.name, "Моб 23");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 24);
-        values.put(DBOpenHelper.name, "Моб 24");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 25);
-        values.put(DBOpenHelper.name, "Моб 25");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 26);
-        values.put(DBOpenHelper.name, "Моб 26");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 27);
-        values.put(DBOpenHelper.name, "Моб 27");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 28);
-        values.put(DBOpenHelper.name, "Моб 28");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 29);
-        values.put(DBOpenHelper.name, "Моб 29");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 30);
-        values.put(DBOpenHelper.name, "Моб 30");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 31);
-        values.put(DBOpenHelper.name, "Моб 31");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 32);
-        values.put(DBOpenHelper.name, "Моб 32");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 33);
-        values.put(DBOpenHelper.name, "Моб 33");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 34);
-        values.put(DBOpenHelper.name, "Моб 34");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 35);
-        values.put(DBOpenHelper.name, "Моб 35");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 36);
-        values.put(DBOpenHelper.name, "Моб 36");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 37);
-        values.put(DBOpenHelper.name, "Моб 37");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 38);
-        values.put(DBOpenHelper.name, "Моб 38");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 39);
-        values.put(DBOpenHelper.name, "Моб 39");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 40);
-        values.put(DBOpenHelper.name, "Моб 40");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 41);
-        values.put(DBOpenHelper.name, "Моб 41");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 42);
-        values.put(DBOpenHelper.name, "Моб 42");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 43);
-        values.put(DBOpenHelper.name, "Моб 43");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 44);
-        values.put(DBOpenHelper.name, "Моб 44");
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 
         values.put(DBOpenHelper.id, 45);
-        values.put(DBOpenHelper.name, "Моб 45");
+        values.put(DBOpenHelper.name, "Моб");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 46);
+        values.put(DBOpenHelper.name, "Моб");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 47);
+        values.put(DBOpenHelper.name, "Моб");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 48);
+        values.put(DBOpenHelper.name, "Моб");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 49);
+        values.put(DBOpenHelper.name, "Моб");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 50);
+        values.put(DBOpenHelper.name, "Моб");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 51);
+        values.put(DBOpenHelper.name, "Моб");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 52);
+        values.put(DBOpenHelper.name, "Моб");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 53);
+        values.put(DBOpenHelper.name, "Моб");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 54);
+        values.put(DBOpenHelper.name, "Моб");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 55);
+        values.put(DBOpenHelper.name, "Моб");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 56);
+        values.put(DBOpenHelper.name, "Моб");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 57);
+        values.put(DBOpenHelper.name, "Моб");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 58);
+        values.put(DBOpenHelper.name, "Моб");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 59);
+        values.put(DBOpenHelper.name, "Моб");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 60);
+        values.put(DBOpenHelper.name, "Моб");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 61);
+        values.put(DBOpenHelper.name, "Моб");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 62);
+        values.put(DBOpenHelper.name, "Моб");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 63);
+        values.put(DBOpenHelper.name, "Моб");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 64);
+        values.put(DBOpenHelper.name, "Моб");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 65);
+        values.put(DBOpenHelper.name, "Моб");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 66);
+        values.put(DBOpenHelper.name, "Моб");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 67);
+        values.put(DBOpenHelper.name, "Моб");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 68);
+        values.put(DBOpenHelper.name, "Моб");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 69);
+        values.put(DBOpenHelper.name, "Моб");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 70);
+        values.put(DBOpenHelper.name, "Моб");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 71);
+        values.put(DBOpenHelper.name, "Моб");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 72);
+        values.put(DBOpenHelper.name, "Моб");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 73);
+        values.put(DBOpenHelper.name, "Моб");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 74);
+        values.put(DBOpenHelper.name, "Моб");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 75);
+        values.put(DBOpenHelper.name, "Моб");
+        values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
+        sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
+
+        values.put(DBOpenHelper.id, 76);
+        values.put(DBOpenHelper.name, "Моб");
         values.put(DBOpenHelper.ID_IMAGE, R.drawable.testblack);
         sqLiteDatabase.insert(DBOpenHelper.TABLE_MOBS, null, values);
 

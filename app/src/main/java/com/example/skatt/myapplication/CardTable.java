@@ -55,7 +55,7 @@ class CardTable extends Card {
                 null
         );
         cursor.moveToFirst();
-        mNameText.setText(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.name)));
+        mNameText.setText(cursor.getString(cursor.getColumnIndexOrThrow(DBOpenHelper.name))+" "+mIDMob);
         mIdDrawable = cursor.getInt(cursor.getColumnIndexOrThrow(DBOpenHelper.ID_IMAGE));
         cursor.close();
         //endregion
