@@ -1,27 +1,36 @@
 package com.example.skatt.myapplication;
 
-public class Card_Inventory_Temp {
+public class CardInventoryTemp {
+    private Byte mIDItem;
     int value_one;
     int id_drawable;
     private int type;
     CharSequence name_text = "";
     int durability;
+    int mDurabilityMax;
     int cost;
     int mGearScore;
     int TEST_MOB_GEARSCORE;
 
-    void Copy(Card_Inventory card){
-
+    void Copy(CardInventory card){
+        this.mIDItem = card.getIDItem();
         this.value_one = card.getValueOne();
         this.id_drawable = card.getIdDrawable();
         this.name_text = card.mNameText.getText();
         this.type = card.getType();
         this.durability = card.getDurability();
-        this.cost = card.getCost();
+        this.mDurabilityMax = card.getDurabilityMax();
+        this.cost = card.getBuyCost();
         this.mGearScore = card.getGearScore();
         this.TEST_MOB_GEARSCORE = card.TEST_MOB_GEARSCORE;
     }
 
+    public Byte getIDItem() {
+        return mIDItem;
+    }
+    public int getDurabilityMax() {
+        return mDurabilityMax;
+    }
     boolean Is_Close(int card_back){
         return id_drawable == card_back;
     }

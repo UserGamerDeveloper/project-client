@@ -7,9 +7,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 class Stats {
     private int mLevel;
-    private final float[] mRequirementExperience;
+    private float mRequirementExperienceToNextLevel;
     private float mExperienceValue;
     private TextView mLevelAndExperienceText;
     private int mDamagePoints;
@@ -19,152 +22,194 @@ class Stats {
     private int mHPPoints;
     private int mHPBonus;
     private TextView mHPBonusText;
+    private int mPointsTemp;
     private int mPoints;
     private TextView mPointsText;
-    private int mGearScorePerStat;
 
     LinearLayout mLayout;
-    ImageView mDamageButton;
-    ImageView mDefenceButton;
-    ImageView mHPButton;
+    ImageView mDamageButtonMinus;
+    ImageView mDamageButtonPlus;
+    ImageView mDefenceButtonMinus;
+    ImageView mDefenceButtonPlus;
+    ImageView mHPButtonMinus;
+    ImageView mHPButtonPlus;
+    ImageView mConfirmButton;
     ImageView mResetButton;
 
-    Stats(DB_Open_Helper db_open_helper) {
+    class Request {
+        private int mDamagePoints;
+        private int mDefencePoints;
+        private int mHPPoints;
 
-        SQLiteDatabase data_base = db_open_helper.getReadableDatabase();
+        public Request(int damagePoints, int defencePoints, int HPPoints) {
+            mDamagePoints = damagePoints;
+            mDefencePoints = defencePoints;
+            mHPPoints = HPPoints;
+        }
 
-        String[] column_name = {
-                DB_Open_Helper.LVL,
-                DB_Open_Helper.LVL1,
-                DB_Open_Helper.LVL2,
-                DB_Open_Helper.LVL3,
-                DB_Open_Helper.LVL4,
-                DB_Open_Helper.LVL5,
-                DB_Open_Helper.LVL6,
-                DB_Open_Helper.LVL7,
-                DB_Open_Helper.LVL8,
-                DB_Open_Helper.LVL9,
-                DB_Open_Helper.LVL10,
-                DB_Open_Helper.LVL11,
-                DB_Open_Helper.LVL12,
-                DB_Open_Helper.LVL13,
-                DB_Open_Helper.LVL14,
-                DB_Open_Helper.LVL15,
-                DB_Open_Helper.LVL16,
-                DB_Open_Helper.LVL17,
-                DB_Open_Helper.LVL18,
-                DB_Open_Helper.LVL19,
-                DB_Open_Helper.LVL20,
-                DB_Open_Helper.GSPERSTAT,
-                DB_Open_Helper.HPBONUS
-        };
+        public int getDamagePoints() {
+            return mDamagePoints;
+        }
+        public int getDefencePoints() {
+            return mDefencePoints;
+        }
+        public int getHPPoints() {
+            return mHPPoints;
+        }
 
-        Cursor cursor = data_base.query(
-                DB_Open_Helper.sTableTest,
-                column_name,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
-        cursor.moveToFirst();
-
-        mLevel = cursor.getInt(cursor.getColumnIndexOrThrow(DB_Open_Helper.LVL));
-        mPoints = mLevel;
-        mGearScorePerStat = cursor.getInt(cursor.getColumnIndexOrThrow(DB_Open_Helper.GSPERSTAT));
-        mHPBonus = cursor.getInt(cursor.getColumnIndexOrThrow(DB_Open_Helper.HPBONUS));
-        mRequirementExperience = new float[]{
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DB_Open_Helper.LVL1)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DB_Open_Helper.LVL2)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DB_Open_Helper.LVL3)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DB_Open_Helper.LVL4)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DB_Open_Helper.LVL5)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DB_Open_Helper.LVL6)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DB_Open_Helper.LVL7)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DB_Open_Helper.LVL8)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DB_Open_Helper.LVL9)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DB_Open_Helper.LVL10)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DB_Open_Helper.LVL11)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DB_Open_Helper.LVL12)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DB_Open_Helper.LVL13)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DB_Open_Helper.LVL14)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DB_Open_Helper.LVL15)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DB_Open_Helper.LVL15)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DB_Open_Helper.LVL16)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DB_Open_Helper.LVL17)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DB_Open_Helper.LVL18)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DB_Open_Helper.LVL19)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(DB_Open_Helper.LVL20))
-        };
-        cursor.close();
+        public void setDamagePoints(int damagePoints) {
+            mDamagePoints = damagePoints;
+        }
+        public void setDefencePoints(int defencePoints) {
+            mDefencePoints = defencePoints;
+        }
+        public void setHPPoints(int HPPoints) {
+            mHPPoints = HPPoints;
+        }
     }
 
-    void setClickable() {
-        if (mPoints==0){
-            mDamageButton.setClickable(false);
-            mDefenceButton.setClickable(false);
-            mHPButton.setClickable(false);
-        }
+    void login(StatsResponse statsResponse){
+        mLevel = statsResponse.getLevel();
+        mExperienceValue = statsResponse.getExperienceValue();
+        mDamagePoints = statsResponse.getDamagePoints();
+        mDefencePoints = statsResponse.getDefencePoints();
+        mHPPoints = statsResponse.getHPPoints();
+        mPoints = statsResponse.getPoints();
+        mRequirementExperienceToNextLevel = statsResponse.getRequirementExperienceToNextLevel();
+        mHPBonus = statsResponse.getHPBonus();
     }
 
     void addExperience(int experience){
         mExperienceValue += experience;
-        if (mExperienceValue>=mRequirementExperience[mLevel]){
-            mExperienceValue -= mRequirementExperience[mLevel];
+        if (mExperienceValue>=mRequirementExperienceToNextLevel){
+            mExperienceValue -= mRequirementExperienceToNextLevel;
             mLevel++;
             mPoints++;
         }
+        updateLevelAndExperienceTextInThreadUI();
+    }
+    void updateLevelAndExperienceTextInThreadUI(){
         mLevelAndExperienceText.setText(
-                String.format("%d %d/%d", mLevel, (int)mExperienceValue, (int)mRequirementExperience[mLevel])
+                String.format("%d %d/%f", mLevel, (int)mExperienceValue, mRequirementExperienceToNextLevel)
         );
     }
+    void removeDamagePoint() {
+        setPointsTempValueAndText(mPointsTemp+1);
+        mDamageBonusText.setText(String.format("%d", Byte.valueOf(mDamageBonusText.getText().toString())-1));
+        tryChangeVisibilityConfirmButton();
+        mDamageButtonPlus.setVisibility(View.VISIBLE);
+        mDefenceButtonPlus.setVisibility(View.VISIBLE);
+        mHPButtonPlus.setVisibility(View.VISIBLE);
+        if (mDamagePoints == Byte.valueOf(mDamageBonusText.getText().toString())){
+            mDamageButtonMinus.setVisibility(View.GONE);
+        }
+    }
     void addDamagePoint() {
-        mDamagePoints++;
-        setPoints(mPoints-1);
-        mDamageBonusText.setText(String.format("Damage: +%d", mDamagePoints));
-        setClickable();
-        mResetButton.setClickable(true);
+        setPointsTempValueAndText(mPointsTemp-1);
+        mDamageBonusText.setText(String.format("%d", Byte.valueOf(mDamageBonusText.getText().toString())+1));
+        mConfirmButton.setVisibility(View.VISIBLE);
+        tryChangeVisibilityPlusButton();
+        mDamageButtonMinus.setVisibility(View.VISIBLE);
+    }
+    void removeDefencePoint() {
+        setPointsTempValueAndText(mPointsTemp+1);
+        mDefenceBonusText.setText(String.format("%d", Byte.valueOf(mDefenceBonusText.getText().toString())-1));
+        tryChangeVisibilityConfirmButton();
+        mDamageButtonPlus.setVisibility(View.VISIBLE);
+        mDefenceButtonPlus.setVisibility(View.VISIBLE);
+        mHPButtonPlus.setVisibility(View.VISIBLE);
+        if (mDefencePoints == Byte.valueOf(mDefenceBonusText.getText().toString())){
+            mDefenceButtonMinus.setVisibility(View.GONE);
+        }
     }
     void addDefencePoint() {
-        mDefencePoints++;
-        setPoints(mPoints-1);
-        mDefenceBonusText.setText(String.format("Defence: +%d", mDefencePoints));
-        setClickable();
-        mResetButton.setClickable(true);
+        setPointsTempValueAndText(mPointsTemp-1);
+        mDefenceBonusText.setText(String.format("%d", Byte.valueOf(mDefenceBonusText.getText().toString())+1));
+        mConfirmButton.setVisibility(View.VISIBLE);
+        mDefenceButtonMinus.setVisibility(View.VISIBLE);
+        tryChangeVisibilityPlusButton();
+    }
+    void removeHPPoint() {
+        setPointsTempValueAndText(mPointsTemp+1);
+        mHPBonusText.setText(String.format("%d", Byte.valueOf(mHPBonusText.getText().toString())-1));
+        tryChangeVisibilityConfirmButton();
+        mDamageButtonPlus.setVisibility(View.VISIBLE);
+        mDefenceButtonPlus.setVisibility(View.VISIBLE);
+        mHPButtonPlus.setVisibility(View.VISIBLE);
+        if (mHPPoints == Byte.valueOf(mHPBonusText.getText().toString())){
+            mHPButtonMinus.setVisibility(View.GONE);
+        }
     }
     void addHPPoint() {
-        mHPPoints++;
-        setPoints(mPoints-1);
-        mHPBonusText.setText(String.format("HP: +%d", mHPPoints));
-        setClickable();
+        setPointsTempValueAndText(mPointsTemp-1);
+        mHPBonusText.setText(String.format("%d", Byte.valueOf(mHPBonusText.getText().toString())+1));
+        mConfirmButton.setVisibility(View.VISIBLE);
+        tryChangeVisibilityPlusButton();
+        mHPButtonMinus.setVisibility(View.VISIBLE);
+    }
+    private void tryChangeVisibilityConfirmButton() {
+        if (mDamagePoints == Integer.valueOf(mDamageBonusText.getText().toString())&&
+                mDefencePoints == Integer.valueOf(mDefenceBonusText.getText().toString()) &&
+                mHPPoints == Integer.valueOf(mHPBonusText.getText().toString()))
+        {
+            mConfirmButton.setVisibility(View.GONE);
+        }
+    }
+
+    String confirm(ObjectMapper jackson) {
+        mPoints = mPointsTemp;
+        mDamagePoints = Integer.valueOf(mDamageBonusText.getText().toString());
+        mDefencePoints = Integer.valueOf(mDefenceBonusText.getText().toString());
+        mHPPoints = Integer.valueOf(mHPBonusText.getText().toString());
+        mDamageButtonMinus.setVisibility(View.GONE);
+        mDefenceButtonMinus.setVisibility(View.GONE);
+        mHPButtonMinus.setVisibility(View.GONE);
+        if (mPoints!=0){
+            mDamageButtonPlus.setVisibility(View.VISIBLE);
+            mDefenceButtonPlus.setVisibility(View.VISIBLE);
+            mHPButtonPlus.setVisibility(View.VISIBLE);
+        }
+        mConfirmButton.setVisibility(View.GONE);
         mResetButton.setClickable(true);
+        mResetButton.setVisibility(View.VISIBLE);
+        try {
+            return jackson.writeValueAsString(new Request(mDamagePoints, mDefencePoints, mHPPoints));
+        }
+        catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     void reset(){
-        setPoints(mLevel);
+        setPointsValueAndText(mLevel);
+        mPointsTemp = mPoints;
         mDamagePoints = 0;
-        mDamageBonusText.setText(String.format("Damage: +%d", mDamagePoints));
+        mDamageBonusText.setText(String.format("%d", mDamagePoints));
         mDefencePoints = 0;
-        mDefenceBonusText.setText(String.format("Defence: +%d", mDefencePoints));
+        mDefenceBonusText.setText(String.format("%d", mDefencePoints));
         mHPPoints = 0;
-        mHPBonusText.setText(String.format("HP: +%d", mHPPoints));
-        mDamageButton.setClickable(true);
-        mDefenceButton.setClickable(true);
-        mHPButton.setClickable(true);
+        mHPBonusText.setText(String.format("%d", mHPPoints));
+        mDamageButtonPlus.setVisibility(View.VISIBLE);
+        mDefenceButtonPlus.setVisibility(View.VISIBLE);
+        mHPButtonPlus.setVisibility(View.VISIBLE);
         mResetButton.setClickable(false);
-    }
-
-    void setPoints(int points){
-        mPoints = points;
-        mPointsText.setText(String.format("Количество очков: %d", mPoints));
+        mResetButton.setVisibility(View.INVISIBLE);
     }
 
     void setVisibility() {
         if (mLayout.getVisibility()==View.GONE){
-            mPointsText.setText(String.format("Количество очков: %d", mPoints));
-            setClickable();
+            setPointsTempValueAndText(mPoints);
+            mDamageBonusText.setText(String.valueOf(mDamagePoints));
+            mDefenceBonusText.setText(String.valueOf(mDefencePoints));
+            mHPBonusText.setText(String.valueOf(mHPPoints));
+            mConfirmButton.setVisibility(View.GONE);
+            mDamageButtonMinus.setVisibility(View.GONE);
+            mDefenceButtonMinus.setVisibility(View.GONE);
+            mHPButtonMinus.setVisibility(View.GONE);
+            tryChangeVisibilityPlusButton();
             if (mLevel==mPoints){
+                mResetButton.setVisibility(View.INVISIBLE);
                 mResetButton.setClickable(false);
             }
             mLayout.setVisibility(View.VISIBLE);
@@ -174,8 +219,17 @@ class Stats {
         }
     }
 
-    int getGearScoreBonus(){
-        return (mHPPoints + mDamagePoints + mDefencePoints)*mGearScorePerStat;
+    private void tryChangeVisibilityPlusButton() {
+        if (mPointsTemp==0){
+            mDamageButtonPlus.setVisibility(View.GONE);
+            mDefenceButtonPlus.setVisibility(View.GONE);
+            mHPButtonPlus.setVisibility(View.GONE);
+        }
+    }
+
+    //region setters/getters
+    int getHPBonus() {
+        return mHPPoints*mHPBonus;
     }
     int getDamageBonus() {
         return mDamagePoints;
@@ -183,21 +237,30 @@ class Stats {
     int getDefenceBonus() {
         return mDefencePoints;
     }
-    int getHPBonus() {
-        return mHPPoints*mHPBonus;
+
+    private void setPointsTempValueAndText(int points){
+        mPointsTemp = points;
+        setPointsText(points);
+    }
+    private void setPointsValueAndText(int points){
+        mPoints = points;
+        setPointsText(points);
+    }
+    private void setPointsText(int points){
+        mPointsText.setText(String.format("Количество очков: %d", points));
     }
 
     void setLayout(View statsLayout) {
         mLayout = (LinearLayout) statsLayout;
     }
-    void setDamageButton(View statsDamageButton) {
-        mDamageButton = (ImageView) statsDamageButton;
+    void setDamageButtonPlus(View statsDamageButton) {
+        mDamageButtonPlus = (ImageView) statsDamageButton;
     }
-    void setDefenceButton(View statsDefenceButton) {
-        mDefenceButton = (ImageView) statsDefenceButton;
+    void setDefenceButtonPlus(View statsDefenceButton) {
+        mDefenceButtonPlus = (ImageView) statsDefenceButton;
     }
-    void setHPButton(View statsHPButton) {
-        mHPButton = (ImageView) statsHPButton;
+    void setHPButtonPlus(View statsHPButton) {
+        mHPButtonPlus = (ImageView) statsHPButton;
     }
     void setLevelAndExperienceText(View statsExperience) {
         mLevelAndExperienceText = (TextView) statsExperience;
@@ -217,4 +280,17 @@ class Stats {
     void setResetButton(View resetButton) {
         mResetButton = (ImageView) resetButton;
     }
+    public void setDamageButtonMinus(View damageButtonMinus) {
+        mDamageButtonMinus = (ImageView) damageButtonMinus;
+    }
+    public void setDefenceButtonMinus(View defenceButtonMinus) {
+        mDefenceButtonMinus = (ImageView) defenceButtonMinus;
+    }
+    public void setHPButtonMinus(View HPButtonMinus) {
+        mHPButtonMinus = (ImageView) HPButtonMinus;
+    }
+    public void setConfirmButton(View confirmButton) {
+        mConfirmButton = (ImageView) confirmButton;
+    }
+    //endregion
 }

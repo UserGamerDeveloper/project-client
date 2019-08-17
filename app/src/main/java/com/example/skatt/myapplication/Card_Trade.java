@@ -5,7 +5,7 @@ import android.util.AttributeSet;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class Card_Trade extends Card_Inventory{
+public class Card_Trade extends CardInventory {
 
     TextView textView;
     ImageView imageView;
