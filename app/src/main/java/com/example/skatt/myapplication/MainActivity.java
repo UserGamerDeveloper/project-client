@@ -188,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
     MyRequest request;
     OkHttpClient client;
     MobResponse[] mNextCardTable;
-    static String SERVER_URL = "https://91.185.67.208:4430/";
+    static String SERVER_URL = "https://88.80.41.131:4430/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
